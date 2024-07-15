@@ -1,0 +1,4 @@
+* {margin:0;padding:0;box-sizing:border-box;}
+body {background-color: #2f303b; color:rgb(223, 223, 223); font-family: 'Courier New', Courier, monospace; font-size: 14px;padding:10px;}
+#result .false {color: #ff7788; }
+#result .true {color: #ecfffd; }

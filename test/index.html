@@ -5,152 +5,41 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>End-To-End Test Suite</title>
         <script src="/assets/plunc.js?mangle=true" type="text/javascript"></script>
-        <script type="text/javascript">
-            const app = plunc.create('MyApp', {
-                startFn: () => new Promise(resolve => resolve(true))
-            })
-            app.service('Test',()=>{
-                return {
-                    pack: 'asdasd'
-                }
-            })
-            app.factory('User',()=>{
-                return class UserData {}
-            })
-            app.helper('MyHelper',($scope)=>{
-                $scope.override = {}
-            })
-        </script>
+        <link rel="stylesheet" href="/assets/index.css">
+        <script src="/assets/index.js" type="text/javascript"></script>
+        <script src="/assets/app.js" type="text/javascript"></script>
         <script type="text/javascript">const blockAutoSubmit=e=>e.preventDefault();</script>
     </head>
     <body>
-        <main plunc-app="MyApp"></main>
-        <template plunc-name="MyApp">
-            Hello this is the application template
-            <div>test div only</div>
-            <section plunc-component="ProfileCard" class="width-24"></section>
+        <section id="result"></section>
+        <main style="display:none;" plunc-app="TestApp"></main>
+        <template plunc-name="TestApp">
+           <div plunc-component="Placeholders"></div>
+           <div plunc-component="Repeats"></div>
         </template>
-        
-        <script>
-            app.component('ProfileCard', ($scope,CardHeader, $block, $patch)=>{
-                $scope.users = [{name: 'Vince'},{name: 'Ken'}]
-                $scope.lastName = 'Terrado'
-                $scope.printMe = () => 'print me!!!!'
-                $scope.myobj = {
-                    printMe: () => 'print me from this object!!!!'
-                }
-                $scope.saidHelloCount = 0
-                //console.log(CardHeader)
-                // CardHeader.render('is this argument')
-                return {
-                    sayHello:()=>{
-                        console.log('I said hello from ProfileCard')
-                        $scope.saidHelloCount++
-                        $patch('ProfileCardHeader')
-                    }
-                }
-            })
-        </script>
-        <template plunc-name="ProfileCard">
-            This is the content of a component {{lastName}}
-            <div plunc-repeat="users as user">{{$index}} {{user.name}}</div>
-            <strong>{{myobj.printMe()}}</strong>
-            <div plunc-block="ProfileCardHeader">
-                <div plunc-if="saidHelloCount == 1"> You said hello once</div>
-                <div plunc-if="saidHelloCount == 2"> You said hello twice</div>
-                <div plunc-if="saidHelloCount > 2"> You said hello more than two times already!</div>
-            </div>
-            <div class="width-24" plunc-component="CardHeader"></div>
-            <div plunc-component="Footer"></div>
-
-            <section style="background-color:aliceblue; padding: 20px;" plunc-component="SmartForm"></section>
+        <template plunc-name="Placeholders">
+            <div id="1">{{a}}</div>
+            <div id="2">{{b.a}}</div>
+            <div id="3">{{ c }}</div>
+            <div id="4">{{c + d}}</div>
+            <div id="5">{{ d - c }}</div>
+            <div id="6">{{ d * c }}</div>
+            <div id="7">{{d/c}}</div>
+            <div id="8">{{d%c}}</div>
+            <div id="9">{{e.a*e.b.a}}</div>
+            <div id="10">{{f()}}</div>
+            <div id="11">{{ g.a() }}</div>
+            <div id="12">{{ g.b(4) * d }}</div>
+            <div id="13">{{g.c.a(a,'k')}}</div>
+            <div id="14"></div>
+            <div id="15"></div>
+            <div id="16"></div>
+            <div id="17"></div>
         </template>
-
-        <script>
-            app.component('CardHeader', ($scope,Test, $app,$block)=>{
-                $scope.message = 'hello world!'
-                $scope.two = 2
-                $scope.Forms = {
-                    inactive: false,
-                    testBind: (button)=> {
-                        console.log($scope.birthday)
-                        $block('CardHeaderRight',(element)=>{
-                            element.$element.innerText = 'finally!'
-                        })
-                    }
-                }
-                $app.ready(()=>{
-                    console.log('Finished application!!')
-                })
-                return {
-                    render:()=>{
-
-                    },
-                    sayHello:()=>{
-                        console.log('I said hello from CardHeader')
-                    }
-                }
-            })
-        </script>
-        <template plunc-name="CardHeader">
-            This is the card header area
-            {{message}}
-            <div plunc-if="two is 2">
-                <div plunc-component="Footer"></div>
-                <input plunc-disable="Forms.inactive" type="date" plunc-model="birthday" />
-                <button plunc-click="Forms.testBind()" plunc-disable="Forms.inactive">Submit</button>
-            </div>
-            <div plunc-block="CardHeaderRight"></div>
-        </template>
-
-
-        <script>
-            app.component('Footer', ($scope, $block, User, MyHelper, $parent)=>{ 
-                console.log(User)
-                const item = new User
-                
-                $scope.showParent = (button) => {
-                    $parent.sayHello()
-                }
-            })
-        </script>
-        <template plunc-name="Footer">
-            This is the footer
-            <button plunc-click="showParent()">Show Parent</button>
-        </template>
-
-
-        <script>
-            app.component('SmartForm', ($scope, $patch)=>{
-                $scope.isReadyForm = true
-                $scope.submit = () => {
-                }
-                $scope.update = () => {
-                    if ($scope.name.trim() !== '') {
-                        $scope.isReadyForm = false
-                        $patch()
-                    }
-                }
-            })
-        </script>
-        <template plunc-name="SmartForm">
-            <form onsubmit="blockAutoSubmit(event)">
-                <input plunc-change="update()" plunc-model="name" type="text">
-                <button plunc-disable="isReadyForm" plunc-click="submit()">Submit Form</button>
-            </form>
-            <div plunc-if="isReadyForm==false">
-                <div plunc-component="SmartFormFooter"></div>
-            </div>
-        </template>
-
-
-        <script>
-            app.component('SmartFormFooter', ($scope, $patch)=>{
-                
-            })
-        </script>
-        <template plunc-name="SmartFormFooter">
-            <div style="color:red;">This is a smart form footer</div>
+        <template plunc-name="Repeats">
+            <div id="1" plunc-repeat="a as z">{{z.a}}</div>
+            <div id="2" plunc-repeat="until 5">a</div>
+            <div id="3" plunc-repeat="until b">a</div>
         </template>
     </body>
 </html>

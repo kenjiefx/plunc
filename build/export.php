@@ -7,31 +7,32 @@
  * immediately invoked function expression.
  * 
  */
-function export(){
-    function clear_ex_im_stmt(string $script){
-        $rems = [];
-        foreach (\explode("\n",$script) as $line) {
-            if (\str_contains($line,'import')) {
-                $tokens = [];
-                $token  = '';
-                foreach (\str_split($line) as $char) {
-                    $token = $token.$char;
-                    if (\in_array($char, [' ','{','}','"',"'"])) {
-                        \array_push($tokens,$token);
-                        $token = \trim($char);
-                    }
-                }
-                (\trim($tokens[0])==='import') 
-                    ? \array_push($rems,$line) : null;
-            }
-        }
-        foreach ($rems as $rem) {
-            $script = \str_replace($rem,'',$script);
-        }
-        $script = \str_replace('export ','',$script);
-        return $script;
-    }
 
+function clear_ex_im_stmt(string $script){
+    $rems = [];
+    foreach (\explode("\n",$script) as $line) {
+        if (\str_contains($line,'import')) {
+            $tokens = [];
+            $token  = '';
+            foreach (\str_split($line) as $char) {
+                $token = $token.$char;
+                if (\in_array($char, [' ','{','}','"',"'"])) {
+                    \array_push($tokens,$token);
+                    $token = \trim($char);
+                }
+            }
+            (\trim($tokens[0])==='import') 
+                ? \array_push($rems,$line) : null;
+        }
+    }
+    foreach ($rems as $rem) {
+        $script = \str_replace($rem,'',$script);
+    }
+    $script = \str_replace('export ','',$script);
+    return $script;
+}
+
+function export(){
     $script = '(()=>{'.PHP_EOL;
     $locations = [
         ROOT.'/export/boot/',
