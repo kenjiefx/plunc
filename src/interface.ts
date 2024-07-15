@@ -70,20 +70,32 @@ export type PluncAppInstance = {
   ) => void;
 };
 
+/**
+ * All expected return types of handler functions
+ */
 export type ResolvedHandlers =
   | null
   | (new (...args: any[]) => any)
   | { [key: string]: any }
   | void;
 
+/** Service and component handler functions */  
 export type HandlerFunction<TDependecies extends unknown[], TObject> = (
   ...args: TDependecies
 ) => TObject;
+
+/** Factory handler function */
 export type FactoryHandlerFunction<TDependecies extends unknown[]> = (
   ...args: TDependecies
 ) => new (...args: any[]) => any;
-export type HelperHandlerFunction<TDependecies extends unknown[], TObject> =
-  | HandlerFunction<TDependecies, TObject | void>
+
+/** Helper handler function */
+export type HelperHandlerFunction<
+  TDependecies extends unknown[],
+  TObject
+> = HandlerFunction<TDependecies, TObject | void>;
+
+/** All types of handlers */
 export type PluncHandlers = {
   [K in keyof PluncAppInstance]: PluncAppInstance[K] extends (
     ...args: any[]
@@ -91,8 +103,15 @@ export type PluncHandlers = {
     ? K
     : never;
 }[keyof PluncAppInstance];
+
 export type ComponentId = string & { separator: "." };
+
 export type PluncAttributeKey = string & { plunc_prefix: true };
+
+/** 
+ * Holds a map of component's parents and keys, each represented 
+ * by its own component id
+ **/
 export type ComponentFamilyTree = {
   [key: ComponentId]: {
     parent: ComponentId | null;
@@ -100,34 +119,45 @@ export type ComponentFamilyTree = {
   };
 };
 
-export type HTML5Date = string & { format: "YYYY-MM-DD" }
-export type HTML5Time = string & { format: "HH:MM" }
-export type SupportedEvents = 'click' | 'change' | 'keyup'
+export type HTML5Date = string & { format: "YYYY-MM-DD" };
+
+export type HTML5Time = string & { format: "HH:MM" };
+
+export type SupportedEvents = "click" | "change" | "keyup";
 
 export interface PluncElementInterface<TElement extends Element> {
   /**
    * A reference to the element itself.
    * (Shouldn't be minified, as publicly-accessible)
    */
-  $element: TElement
+  $element: TElement;
   /**
    * A reference to parent element, wrapped in this `PluncElement` object
    * (Shouldn't be minified, as publicly-accessible)
    */
-  $parent: PluncElementInterface<TElement>
+  $parent: PluncElementInterface<TElement>;
   /** Retrieves the $element */
-  get(): TElement
+  get(): TElement;
   /** Retrieves the state */
-  getState(): string| null
-  setState(state: string): void
-  addClass(className:string): void
-  listClass(): Array<string>
-  removeClass(className:string): void
-  toggleClass(className:string): void
+  getState(): string | null;
+  /** Sets the state */
+  setState(state: string): void;
+  /** Adds a class */
+  addClass(className: string): void;
+  /** List existing classes */
+  listClass(): Array<string>;
+  /** Removes a class */
+  removeClass(className: string): void;
+  /** Toggle class names */
+  toggleClass(className: string): void;
 }
 
-export type BlockCallback<TElement extends Element> = (element:PluncElementInterface<TElement>) => void
-export type BlockAPI=<TElement extends Element>(
+/** Block API requires call back function */
+export type BlockCallback<TElement extends Element> = (
+  element: PluncElementInterface<TElement>
+) => void;
+
+export type BlockAPI = <TElement extends Element>(
   elementName: string,
   callback: BlockCallback<TElement>
-)=>void
+) => void;

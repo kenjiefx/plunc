@@ -4,6 +4,22 @@ import { Component } from "../models/component"
 import { PluncApp } from "../models/plunc"
 import { Resolver } from "../models/resolver"
 
+/**
+ * Collects all elements with the `plunc-style` attribute and evaluates the
+ * expression provided as the attribute's value. The resulting string is
+ * then added to the class list of each element.
+ * 
+ * @example
+ * `$scope.printClassNames = () => 'font-3'`
+ * `<div plunc-style="printClassNames()">Hello world</div>`
+ * 
+ * will result to: 
+ * `<div plunc-style="printClassNames()" class="font-3">Hello world</div>`
+ * 
+ * @param element 
+ * @param component 
+ * @param instance
+ */
 export const __styleRenders = (
   element: Element, 
   component: Component, 

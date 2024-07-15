@@ -4,7 +4,6 @@ import { PluncApp } from "./models/plunc";
 import { DOMHelper } from "./helpers/domready";
 import { __initStartFn } from "./helpers/startFn";
 import { __getXAppElement } from "./boot/appElement";
-import { __runCompiler } from "./helpers/compiler";
 import { __getTempl } from "./helpers/templates";
 import { COMPONENT_ELEMENT_ATTR, XAttr } from "./helpers/attributes";
 import { __buildComponent, __makeComponentId } from "./helpers/component";
@@ -86,7 +85,15 @@ const AppPublicAPI = {
   }
 }
 
+/**
+ * Attached to the window object to provide a simple interface to interact with 
+ * the Plunc library code. It allows for creating instances of the app, managing
+ * components, and more. This aims to simplify and provide a clean and intuitive 
+ * interface for working with the application.
+ */
 const plunc = window['plunc'] = AppPublicAPI
+
+
 DOMHelper.ready(async ()=>{
   for (let i = 0; i < instances.length; i++) {
     const instance = instances[i]

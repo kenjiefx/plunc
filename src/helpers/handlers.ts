@@ -7,7 +7,13 @@ import { Service } from "../models/service";
 import { SCOPE_ARGUMENT_KEY } from "./attributes";
 import { __collectDependencies, __resolveDependencies } from "./dependency";
 
-
+/**
+ * Executes the handler/callback function of the component
+ * @param component 
+ * @param instance 
+ * @param lineage 
+ * @returns 
+ */
 export const __executeComponentHandler = (
   component: Component,
   instance: PluncApp,
@@ -23,12 +29,11 @@ export const __executeComponentHandler = (
 
       const memoized = component.__getExposed()
       if (memoized !== null) {
-        resolve(memoized)
-        return
+        return resolve(memoized)
       }
 
       const dependencies = await __collectDependencies(handler)
-      const injectables = await __resolveDependencies({
+      const injectables  = await __resolveDependencies({
         dependencies: dependencies,
         type: 'component',
         scope: component.__getScope(),
@@ -47,14 +52,18 @@ export const __executeComponentHandler = (
   })
 }
 
-
+/**
+ * Returns the name of the children of a component
+ * @param component - Component
+ * @param instance - PluncApp
+ * @param lineage - Lineage
+ */
 export const __getNamesOfChildren = (
   component: Component,
   instance: PluncApp,
   lineage: Lineage
 ): Array<string> => {
-  const id = component.__getId()
-  const childIds = lineage.children(id)
+  const childIds = lineage.children(component.__getId())
   const children = instance.__registry().__getByIds(childIds)
   return children.map(child => child.__getName())
 }

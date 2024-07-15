@@ -100,7 +100,7 @@ export const __resolveDependencies = (
         /**
          * Next, we'll check if the dependency points to a helper
          */
-        if (params.type === 'component' || params.type === 'helper'){
+        if (params.type === 'helper'){
           const helper = params.instance.__library().__helper(dependency)
           if (helper !== null && params.scope !== null) {
             const injectable 
