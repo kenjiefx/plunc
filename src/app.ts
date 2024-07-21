@@ -197,11 +197,12 @@ DOMHelper.ready(async ()=>{
       const appElement = __getXAppElement(instance)
       __copyBindElement(appEl,appElement)
 
+      instance.__nowReady()
+
       const readys = instance.__getAPI().__getListeners('ready')
       for (let o = 0; o < readys.length; o++) {
         readys[o]()
       }
-      instance.__nowReady()
       
     } catch (error) {
       console.error(`plunc.js error: ${error.message}`)
