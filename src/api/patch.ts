@@ -1,7 +1,7 @@
 import { __getXAppElement } from "../boot/appElement"
 import { BLOCK_ELEMENT_ATTR, XAttr } from "../helpers/attributes"
 import { __buildComponent } from "../helpers/component"
-import { __makeTempElement, __scopeBindElement, __selectElementsButNotChildOfComponent } from "../helpers/elements"
+import { __clearChildComponents, __makeTempElement, __scopeBindElement, __selectElementsButNotChildOfComponent } from "../helpers/elements"
 import { __getBlockTempl } from "../helpers/templates"
 import { Component } from "../models/component"
 import { Lineage } from "../models/lineage"
@@ -61,6 +61,7 @@ export const __patchAPI = (
             if (template===null) continue
             elementBindFrom.innerHTML = template
         }
+        __clearChildComponents(elementBindFrom, lineage.children(component.__getId()), instance)
         await __renderHelper(elementBindFrom, component, instance)
         if (elementBindTo===null) continue
         const childIds = lineage.children(component.__getId())
@@ -83,7 +84,7 @@ export const __patchAPI = (
           if (childComponent.innerHTML.trim() === '') {
             await __renderPatchableChildComponent(
                 childComponent,
-                instance.__registry().__getById(component.__getId()) as Component,
+                instance.__registry().__getById(childId) as Component,
                 lineage,
                 instance
             )
