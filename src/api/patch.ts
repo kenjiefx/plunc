@@ -1,6 +1,6 @@
 import { __getXAppElement } from "../boot/appElement"
 import { BLOCK_ELEMENT_ATTR, XAttr } from "../helpers/attributes"
-import { __buildComponent } from "../helpers/component"
+import { __attachRefIdToNamedElements, __buildComponent } from "../helpers/component"
 import { __clearChildComponents, __makeTempElement, __scopeBindElement, __selectElementsButNotChildOfComponent } from "../helpers/elements"
 import { __getBlockTempl } from "../helpers/templates"
 import { Component } from "../models/component"
@@ -59,7 +59,11 @@ export const __patchAPI = (
             const template 
               = __getBlockTempl(instance, component.__getName(), block)
             if (template===null) continue
-            elementBindFrom.innerHTML = template
+            /** Re-attach reference id to block elements nested within the block element to patch */
+            const implementation = document.implementation.createHTMLDocument()
+            implementation.body.innerHTML = template
+            __attachRefIdToNamedElements(component.__getId(), implementation, instance)
+            elementBindFrom.innerHTML = implementation.body.innerHTML
         }
         __clearChildComponents(elementBindFrom, lineage.children(component.__getId()), instance)
         await __renderHelper(elementBindFrom, component, instance)
