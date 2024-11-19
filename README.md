@@ -4,14 +4,14 @@ The 2,314th frontend Javascript out there
 ## Installation - CDN
 PluncJS is currently available exclusively via the JSDelivr CDN. You can include it in your project by adding the following script tag to your HTML:
 html
-```
+```html
 <script type="text/javascript" src="https://cdn.jsdelivr.net/gh/kenjiefx/plunc/dist/plunc.{version}.min.js"></script>
 ```
 However, if you prefer to use the library in your Node.js bundle, you can download the library file directly from JSDelivr and include it in your project. 
 
 ## App Instance
 A global variable will be available for creating an instance of the application. 
-```
+```html
 <script type="text/javascript">
     const app = plunc.create('app')
 </script>
@@ -24,7 +24,7 @@ A global variable will be available for creating an instance of the application.
 
 ### Components
 PluncJS is designed with a component-based architecture, making it easy to build and manage complex applications. Each component encapsulates specific scope and functionality, making it easier to maintain and scale.
-```
+```html
 <script type="text/javascript">
     app.component('ProfileCard', ($scope)=>{
         $scope.user = { fullName: 'John Doe' }
@@ -35,7 +35,7 @@ PluncJS is designed with a component-based architecture, making it easy to build
 <template/>
 ```
 Components can be reused across different parts of the application, ensuring a modular and cohesive structure.
-```
+```html
 <template plunc-name="app">
     <section plunc-component="ProfileCard"></section>
     <section plunc-component="Authors"></section>
@@ -49,7 +49,7 @@ Components can be reused across different parts of the application, ensuring a m
 ```
 ### Services
 Services are defined as objects with methods and properties that encapsulate specific functionality. They are designed to be injected into components, allowing different parts of the application to share and reuse code efficiently.
-```
+```html
 <script type="text/javascript">
     app.service('UserDataService',()=>{
         console.log('this executes only once, despite multiple components using this')
@@ -77,7 +77,7 @@ Services are ideal for scenarios where you need a single, shared instance of an 
 
 ### Factories
 Factories are essentially class references that can be used to create new instances of objects. They are defined as classes and can include methods and properties to encapsulate functionality.
-```
+```html
 <script type="text/javascript">
     app.service('UserDataService',(UserFactory)=>{
         return {
@@ -109,7 +109,7 @@ Factories are particularly useful in scenarios where you need a fresh instance o
 
 ### Helpers
 Helpers can create powerful, shared functionality that operates within the context of individual components. Helpers provide a flexible way to manage and manipulate component data and HTML, promoting code reuse and consistency across your application.
-```
+```html
 <script type="text/javascript">
     app.helper('FormsHelper',($scope)=>{
         $scope.Forms = {
