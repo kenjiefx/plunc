@@ -205,7 +205,9 @@ DOMHelper.ready(async ()=>{
       }
       
     } catch (error) {
-      console.error(`plunc.js error: ${error.message}`)
+      const message = `plunc.js error: ${error.message}`
+      error.message = message
+      console.error(error)
     } 
     
   }
