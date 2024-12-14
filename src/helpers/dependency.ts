@@ -137,6 +137,13 @@ export const __resolveDependencies = (
           continue
         }
 
+        /**
+         * If all else fails to match, we'll push a `null` value, and throw 
+         * a warning
+         */
+        injectables.push(null)
+        console.warn(`plunc.js "${dependency}" not found`)
+
       }
       resolve(injectables)
     } catch (error) {
