@@ -124,7 +124,7 @@ export const __executeFactoryHandler = (
           instance: instance
         })
       const factory = handler(...injectables)
-      if (typeof factory === 'function' && /^\s*class\s+/.test(factory.toString())) {
+      if (typeof factory === 'function') {
         resolve(factory)
         return
       }
