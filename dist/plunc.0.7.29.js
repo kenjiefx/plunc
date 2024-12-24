@@ -1,6 +1,6 @@
 /*
 ==========================================
-Plunc JS (Beta Version 0.7.26)
+Plunc JS (Beta Version 0.7.29)
 MIT License
 Copyright (c) 2022 Kenjie Terrado
 
