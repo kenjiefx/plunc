@@ -114,7 +114,15 @@ const __buildChildren = async (
         childId
       )
       lineage.begat(parentId, childId)
-      const childObj = new Component(childId, name)
+
+      /** Creates the Child component object if not existing */
+      let childObj: Component 
+      const existing = instance.__registry().__getById(childId)
+      if (existing !== null && existing instanceof Component) {
+        childObj = existing
+      } else {
+        childObj = new Component(childId, name)
+      }
 
       __hasCircularDependency(lineage, childObj, instance)
 
