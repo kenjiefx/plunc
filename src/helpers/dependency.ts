@@ -218,24 +218,30 @@ export const __makeComponentProxy = (
 ): {[key:string]:any} => {
   const handler = {
     get: function get(target:{[id:ComponentId]: Component}, name: string){
-      return function wrap(){
-        const args = Array.prototype.slice.call(arguments)
-        for (const id in target) {
-          const component: Component = target[id]
-          const exposed = component.__getExposed()
-          if (exposed === null) {
-            const name = component.__getName()
-            throw new Error(`cannot invoke component`
-              + ` "${name}}" before $app is ready`)
+      return function wrap(): Promise<void> {
+        return new Promise(async (resolve, reject) => {
+          const args = Array.prototype.slice.call(arguments)
+          for (const id in target) {
+            const component: Component = target[id]
+            const exposed = component.__getExposed()
+            if (exposed === null) {
+              const name = component.__getName()
+              throw new Error(`cannot invoke component`
+                + ` "${name}}" before $app is ready`)
+            }
+            if (!(name in exposed)) {
+              throw new Error(`calling undefined member "${name}" `
+                + `in component "${component.__getName()}"`)
+            }
+            if (exposed[name] instanceof Function) {
+              const response = await exposed[name](...args)
+              resolve(response)
+            } else {
+              throw new Error(`member of component "${component.__getName()}"`
+                + `must be a function that returns a Promise`)
+            }
           }
-          if (!(name in exposed)) {
-            throw new Error(`calling undefined member "${name}" `
-              + `in component "${component.__getName()}"`)
-          }
-          if (exposed[name] instanceof Function) {
-            exposed[name](...args)
-          }
-        }
+        })
       }
     }
   }
