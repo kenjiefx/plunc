@@ -237,7 +237,7 @@ export const __makeComponentProxy = (
               const response = await exposed[name](...args)
               resolve(response)
             } else {
-              throw new Error(`member of component "${component.__getName()}"`
+              throw new Error(`member "${name}" of component "${component.__getName()}"`
                 + `must be a function that returns a Promise`)
             }
           }
