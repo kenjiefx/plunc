@@ -191,6 +191,15 @@ export const __collectDependencies = (
   return new Promise (async (resolve,reject) => {
     try {
       const handlerStr = handler.toString().split('{')[0]
+      if (handlerStr.charAt(0) !== '(') {
+        const param = handlerStr.split('=>')[0]
+        if (param === handlerStr) {
+            resolve([])
+            return 
+        }
+        resolve([param.trim()])
+        return
+      }
       const matchedFn  = handlerStr.match(/(?<=\().+?(?=\))/g)
       if (matchedFn===null || /[(={})]/g.test(matchedFn[0])) {
         return resolve([])
