@@ -129,6 +129,18 @@ export const __modelRenders = (
                 node.value = evaluated
             }
 
+            /**
+             * Input type number value is always typeof string natively
+             */
+            if (type === 'number') {
+              let value = evaluated
+              if (evaluated === undefined) {
+                value = '0'
+              }
+              __assignModelValue(scope, argument, value);
+              node.value = value
+            }
+
             /** Date input */
             if (type === 'date') {
               /** When evaluated is undefined, we will assign Date today */
