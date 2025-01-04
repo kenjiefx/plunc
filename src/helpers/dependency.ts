@@ -8,8 +8,9 @@ import { __blockAPI } from "../api/blocks"
 import { __childrenRefService } from "../api/children"
 import { __parentAPI } from "../api/parent"
 import { __patchAPI } from "../api/patch"
-import { APP_ARGUMENT_KEY, BLOCK_ARGUMENT_KEY, CHILDREN_ARGUMENT_KEY, PARENT_ARGUMENT_KEY, PATCH_ARGUMENT_KEY, SCOPE_ARGUMENT_KEY } from "./attributes"
+import { APP_ARGUMENT_KEY, BLOCK_ARGUMENT_KEY, CHILDREN_ARGUMENT_KEY, COMPONENT_ARGUMENT_KEY, PARENT_ARGUMENT_KEY, PATCH_ARGUMENT_KEY, SCOPE_ARGUMENT_KEY } from "./attributes"
 import { TypeofFactory, __executeFactoryHandler, __executeHelperHandler, __executeServiceHandler, __getNamesOfChildren } from "./handlers"
+import { __componentAPI } from "../api/component"
 
 /**
  * Resolves an array of dependencies. This function iterates
@@ -65,6 +66,10 @@ export const __resolveDependencies = (
 
             case CHILDREN_ARGUMENT_KEY: 
               injectables.push(__childrenRefService())
+              break;
+            
+            case COMPONENT_ARGUMENT_KEY: 
+              injectables.push(__componentAPI(params.component, params.lineage, params.instance))
               break;
 
             default:
