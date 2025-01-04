@@ -127,14 +127,37 @@ export const __resolveDependencies = (
           }).map(childId => {
             return params.instance.__registry().__getById(childId) as Component
           })
-          const wrapper: {[id:ComponentId]: Component} = {}
-          for (let i = 0; i < children.length; i++) {
-            const child = children[i]
-            wrapper[child.__getId()] = child
+          if (children.length > 0) {
+            const wrapper: {[id:ComponentId]: Component} = {}
+            for (let i = 0; i < children.length; i++) {
+              const child = children[i]
+              wrapper[child.__getId()] = child
+            }
+            const proxy = __makeComponentProxy(wrapper)
+            injectables.push(proxy)
+            continue
           }
-          const proxy = __makeComponentProxy(wrapper)
-          injectables.push(proxy)
-          continue
+
+          /** 
+           * Perhaps, it's an alias to a child component? 
+           */
+          const aliasChildren = params.lineage.children(params.component.__getId())
+              .filter(childId => {
+              const child = params.instance.__registry().__getById(childId) as Component
+              return (child.__getAlias() === dependency);
+          }).map(childId => {
+              return params.instance.__registry().__getById(childId) as Component
+          });
+          if (aliasChildren.length > 0) {
+            const wrapper: {[id:ComponentId]: Component} = {}
+            for (let i = 0; i < aliasChildren.length; i++) {
+              const child = aliasChildren[i]
+              wrapper[child.__getId()] = child
+            }
+            const proxy = __makeComponentProxy(wrapper)
+            injectables.push(proxy)
+            continue
+          }
         }
 
         /**

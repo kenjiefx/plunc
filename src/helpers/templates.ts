@@ -1,5 +1,6 @@
 import { PluncApp } from "../models/plunc";
 import { BLOCK_ELEMENT_ATTR, TEMPL_NAME_ATTR, XAttr } from "./attributes";
+import { __parseNameNotation } from "./component";
 import { __makeTempElement } from "./elements";
 
 /**
@@ -8,9 +9,10 @@ import { __makeTempElement } from "./elements";
  * or there are two or more. Template names should be unique
  * throughout the application. 
  * @param instance PluncApp
- * @param name name of te template
+ * @param mayHaveAlias name of te template
  */
-export const __getTempl = (instance: PluncApp, name: string) => {
+export const __getTempl = (instance: PluncApp, mayHaveAlias: string) => {
+  const name = __parseNameNotation(mayHaveAlias).name
   const selector = `
     template[${XAttr.__createWithValue(TEMPL_NAME_ATTR, instance, name)}]
   `

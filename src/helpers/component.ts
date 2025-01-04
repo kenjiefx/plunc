@@ -22,8 +22,10 @@ export const __buildComponent = (
     try {
 
       /** First, we'll check if component has declared template */
-      const name = XAttr.__getValue(component, instance, COMPONENT_ELEMENT_ATTR)
-      if (name === null) return resolve('')
+      const mayHaveAlias = XAttr.__getValue(component, instance, COMPONENT_ELEMENT_ATTR)
+      if (mayHaveAlias === null) return resolve('')
+
+      const name = __parseNameNotation(mayHaveAlias).name
 
       /** Get component template */
       const cTempl = __getTempl(instance, name)
@@ -104,8 +106,8 @@ const __buildChildren = async (
       const child = children[i]
 
       /** Child components must have names */
-      const name = XAttr.__getValue(child, instance, cattr)
-      if (name === null) continue 
+      const mayHaveAlias = XAttr.__getValue(child, instance, cattr)
+      if (mayHaveAlias === null) continue 
       
       /** Setting ids to child components */
       const childId = __makeComponentId(instance, i, parentId)
@@ -121,7 +123,7 @@ const __buildChildren = async (
       if (existing !== null && existing instanceof Component) {
         childObj = existing
       } else {
-        childObj = new Component(childId, name)
+        childObj = new Component(childId, mayHaveAlias)
       }
 
       __hasCircularDependency(lineage, childObj, instance)
@@ -163,4 +165,14 @@ const __hasCircularDependency = (
         "${name}" detected in registry`)
     }
   })
+}
+
+export const __parseNameNotation = (name: string): {
+  name: string,
+  alias: string | null
+} => {
+  return {
+    name: name.split(' as ')[0],
+    alias: name.split(' as ')[1] ?? null
+  }
 }
