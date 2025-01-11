@@ -129,12 +129,12 @@ DOMHelper.ready(async ()=>{
       for (let j = 0; j < cEls.length; j++) {
 
         const cEl   = cEls[j]
-        const cName = XAttr.__getValue(cEl, instance, COMPONENT_ELEMENT_ATTR)
+        const cNameMayHaveAlias = XAttr.__getValue(cEl, instance, COMPONENT_ELEMENT_ATTR)
 
         /** 
          * Component without names will not be rendered
          */
-        if (cName === null) continue
+        if (cNameMayHaveAlias === null) continue
 
         /** Component IDs would have to be embedded to the plunc-id attribute */
         const cElId = __makeComponentId(instance, cId++)
@@ -144,7 +144,7 @@ DOMHelper.ready(async ()=>{
         lineage.begat(cElId, null)
 
         /** Registering the component object */
-        const cObject = new Component(cElId, cName)
+        const cObject = new Component(cElId, cNameMayHaveAlias)
         instance.__registry().__register(cElId, cObject)
         
         /** 

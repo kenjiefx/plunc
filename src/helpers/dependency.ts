@@ -8,8 +8,9 @@ import { __blockAPI } from "../api/blocks"
 import { __childrenRefService } from "../api/children"
 import { __parentAPI } from "../api/parent"
 import { __patchAPI } from "../api/patch"
-import { APP_ARGUMENT_KEY, BLOCK_ARGUMENT_KEY, CHILDREN_ARGUMENT_KEY, PARENT_ARGUMENT_KEY, PATCH_ARGUMENT_KEY, SCOPE_ARGUMENT_KEY } from "./attributes"
-import { TypeofFactory, __executeFactoryHandler, __executeHelperHandler, __executeServiceHandler, __getNamesOfChildren } from "./handlers"
+import { APP_ARGUMENT_KEY, BLOCK_ARGUMENT_KEY, CHILDREN_ARGUMENT_KEY, COMPONENT_ARGUMENT_KEY, PARENT_ARGUMENT_KEY, PATCH_ARGUMENT_KEY, SCOPE_ARGUMENT_KEY } from "./attributes"
+import { TypeofFactory, __executeComponentHandler, __executeFactoryHandler, __executeHelperHandler, __executeServiceHandler, __getNamesOfChildren } from "./handlers"
+import { __componentAPI } from "../api/component"
 
 /**
  * Resolves an array of dependencies. This function iterates
@@ -65,6 +66,10 @@ export const __resolveDependencies = (
 
             case CHILDREN_ARGUMENT_KEY: 
               injectables.push(__childrenRefService())
+              break;
+            
+            case COMPONENT_ARGUMENT_KEY: 
+              injectables.push(__componentAPI(params.component, params.lineage, params.instance))
               break;
 
             default:
@@ -127,14 +132,39 @@ export const __resolveDependencies = (
           }).map(childId => {
             return params.instance.__registry().__getById(childId) as Component
           })
-          const wrapper: {[id:ComponentId]: Component} = {}
-          for (let i = 0; i < children.length; i++) {
-            const child = children[i]
-            wrapper[child.__getId()] = child
+          if (children.length > 0) {
+            const wrapper: {[id:ComponentId]: Component} = {}
+            for (let i = 0; i < children.length; i++) {
+              const child = children[i]
+              await __executeComponentHandler(child, params.instance, params.lineage)
+              wrapper[child.__getId()] = child
+            }
+            const proxy = __makeComponentProxy(wrapper)
+            injectables.push(proxy)
+            continue
           }
-          const proxy = __makeComponentProxy(wrapper)
-          injectables.push(proxy)
-          continue
+
+          /** 
+           * Perhaps, it's an alias to a child component? 
+           */
+          const aliasChildren = params.lineage.children(params.component.__getId())
+              .filter(childId => {
+              const child = params.instance.__registry().__getById(childId) as Component
+              return (child.__getAlias() === dependency);
+          }).map(childId => {
+              return params.instance.__registry().__getById(childId) as Component
+          });
+          if (aliasChildren.length > 0) {
+            const wrapper: {[id:ComponentId]: Component} = {}
+            for (let i = 0; i < aliasChildren.length; i++) {
+              const child = aliasChildren[i]
+              await __executeComponentHandler(child, params.instance, params.lineage)
+              wrapper[child.__getId()] = child
+            }
+            const proxy = __makeComponentProxy(wrapper)
+            injectables.push(proxy)
+            continue
+          }
         }
 
         /**
@@ -218,30 +248,19 @@ export const __makeComponentProxy = (
 ): {[key:string]:any} => {
   const handler = {
     get: function get(target:{[id:ComponentId]: Component}, name: string){
-      return function wrap(): Promise<void> {
-        return new Promise(async (resolve, reject) => {
-          const args = Array.prototype.slice.call(arguments)
-          for (const id in target) {
-            const component: Component = target[id]
-            const exposed = component.__getExposed()
-            if (exposed === null) {
-              const name = component.__getName()
-              throw new Error(`cannot invoke component`
-                + ` "${name}}" before $app is ready`)
-            }
-            if (!(name in exposed)) {
-              throw new Error(`calling undefined member "${name}" `
-                + `in component "${component.__getName()}"`)
-            }
-            if (exposed[name] instanceof Function) {
-              const response = await exposed[name](...args)
-              resolve(response)
-            } else {
-              throw new Error(`member "${name}" of component "${component.__getName()}"`
-                + `must be a function that returns a Promise`)
-            }
-          }
-        })
+      for (const id in target) {
+        const component: Component = target[id]
+        const exposed = component.__getExposed()
+        if (exposed === null) {
+          const name = component.__getName()
+          throw new Error(`cannot invoke component`
+            + ` "${name}}" before $app is ready`)
+        }
+        if (!(name in exposed)) {
+          throw new Error(`calling undefined member "${name}" `
+            + `in component "${component.__getName()}"`)
+        }
+        return exposed[name]
       }
     }
   }

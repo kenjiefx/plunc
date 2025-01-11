@@ -1,3 +1,4 @@
+import { __parseNameNotation } from "../helpers/component"
 import { ComponentId, PluncAttributeKey } from "../interface"
 import { Lineage } from "./lineage"
 import { Scope } from "./scope"
@@ -5,14 +6,17 @@ import { Scope } from "./scope"
 export class Component {
   private id: ComponentId
   private name: string 
+  private alias: string | null
   private scope: Scope
   private exposed: {[key:string]:any} | null
   constructor(
     id: ComponentId, 
-    name: string
+    mayHaveAlias: string
   ) {
+    const parsedName = __parseNameNotation(mayHaveAlias)
     this.id = id
-    this.name = name
+    this.name = parsedName.name 
+    this.alias = parsedName.alias
     this.scope = new Scope
     this.exposed = null
   }
@@ -35,5 +39,8 @@ export class Component {
   }
   __getExposed(){
     return this.exposed
+  }
+  __getAlias(){
+    return this.alias
   }
 }
