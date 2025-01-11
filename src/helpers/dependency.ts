@@ -9,7 +9,7 @@ import { __childrenRefService } from "../api/children"
 import { __parentAPI } from "../api/parent"
 import { __patchAPI } from "../api/patch"
 import { APP_ARGUMENT_KEY, BLOCK_ARGUMENT_KEY, CHILDREN_ARGUMENT_KEY, COMPONENT_ARGUMENT_KEY, PARENT_ARGUMENT_KEY, PATCH_ARGUMENT_KEY, SCOPE_ARGUMENT_KEY } from "./attributes"
-import { TypeofFactory, __executeFactoryHandler, __executeHelperHandler, __executeServiceHandler, __getNamesOfChildren } from "./handlers"
+import { TypeofFactory, __executeComponentHandler, __executeFactoryHandler, __executeHelperHandler, __executeServiceHandler, __getNamesOfChildren } from "./handlers"
 import { __componentAPI } from "../api/component"
 
 /**
@@ -136,6 +136,7 @@ export const __resolveDependencies = (
             const wrapper: {[id:ComponentId]: Component} = {}
             for (let i = 0; i < children.length; i++) {
               const child = children[i]
+              await __executeComponentHandler(child, params.instance, params.lineage)
               wrapper[child.__getId()] = child
             }
             const proxy = __makeComponentProxy(wrapper)
@@ -157,6 +158,7 @@ export const __resolveDependencies = (
             const wrapper: {[id:ComponentId]: Component} = {}
             for (let i = 0; i < aliasChildren.length; i++) {
               const child = aliasChildren[i]
+              await __executeComponentHandler(child, params.instance, params.lineage)
               wrapper[child.__getId()] = child
             }
             const proxy = __makeComponentProxy(wrapper)
