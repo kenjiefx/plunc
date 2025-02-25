@@ -1,8 +1,9 @@
 import { __getXAppElement } from "../boot/appElement"
-import { BLOCK_ELEMENT_ATTR, XAttr } from "../helpers/attributes"
+import { BLOCK_ELEMENT_ATTR, COMPONENT_ELEMENT_ATTR, STRAWBERRY_ID_ATTR, XAttr } from "../helpers/attributes"
 import { __attachRefIdToNamedElements, __buildComponent } from "../helpers/component"
 import { __clearChildComponents, __makeTempElement, __scopeBindElement, __selectElementsButNotChildOfComponent } from "../helpers/elements"
 import { __getBlockTempl } from "../helpers/templates"
+import { ComponentId } from "../interface"
 import { Component } from "../models/component"
 import { Lineage } from "../models/lineage"
 import { PluncApp } from "../models/plunc"
@@ -64,6 +65,12 @@ export const __patchAPI = (
             implementation.body.innerHTML = template
             __attachRefIdToNamedElements(component.__getId(), implementation, instance)
             elementBindFrom.innerHTML = implementation.body.innerHTML
+            __renderChildComponentsWithinBlock(
+              elementBindTo,
+              elementBindFrom,
+              instance,
+              lineage
+            )
         }
         __clearChildComponents(elementBindFrom, lineage.children(component.__getId()), instance)
         await __renderHelper(elementBindFrom, component, instance)
@@ -151,5 +158,52 @@ const __renderPatchableChildComponent = (
       reject(error)
     }
   })
+}
+
+const __renderChildComponentsWithinBlock = (
+  liveBlockElements: Element,
+  templateBlockElement: Element,
+  instance: PluncApp,
+  lineage: Lineage
+) => {
+  /** Takes all child component within the live block element */
+  const liveChildComponents 
+    = XAttr.__getElementsByAttr(
+      liveBlockElements, 
+      instance, 
+      COMPONENT_ELEMENT_ATTR
+    )
+  const templateChildComponents 
+    = XAttr.__getElementsByAttr(
+      templateBlockElement, 
+      instance, 
+      COMPONENT_ELEMENT_ATTR
+    )
+  for (let z = 0; z < liveChildComponents.length; z++) {
+      const liveChildComponent = liveChildComponents[z]
+      const liveChildComponentId 
+        = XAttr.__getValue(
+          liveChildComponent, 
+          instance, 
+          STRAWBERRY_ID_ATTR
+        )
+      const pluncIdAttr = XAttr.__create(
+        STRAWBERRY_ID_ATTR, 
+        instance
+      )
+      if (liveChildComponentId === null) {
+        throw new Error()
+      }
+      templateChildComponents[z].setAttribute(
+        pluncIdAttr, 
+        liveChildComponentId
+      )
+      __scopeBindElement(
+        liveChildComponent, 
+        templateChildComponents[z], 
+        instance, 
+        lineage.children(liveChildComponentId as ComponentId)
+        )
+  }
 }
 
