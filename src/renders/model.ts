@@ -184,9 +184,20 @@ export const __modelRenders = (
             }
             if (target instanceof HTMLSelectElement) {
               __assignModelValue(scope, argument, target.value)
-          }
+            }
           })
 
+        } else if (node.tagName === 'TEXTAREA' && node instanceof HTMLTextAreaElement) {
+          (evaluated===undefined) ?
+            __assignModelValue(scope, argument, node.value) :
+            node.value = evaluated
+
+          node.addEventListener('change', (event)=>{
+            const target = event.target
+            if (!(target instanceof HTMLTextAreaElement)) return
+            const value = target.value
+            __assignModelValue(scope, argument, value)
+          })
         }
         
       }
