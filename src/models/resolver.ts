@@ -31,6 +31,10 @@ export namespace Resolver {
   export const __getResolveType = (expression): ResolveType => {
     if (/^'.*'$/.test(expression)) return 'string';
     if (!isNaN(expression)) return 'number';
+    if (expression.includes('(') && expression.includes('==')) return 'conditional';
+    if (expression.includes('(') && expression.includes('is ')) return 'conditional';
+    if (expression.includes('(') && expression.includes('>')) return 'conditional';
+    if (expression.includes('(') && expression.includes('<')) return 'conditional';
     if (expression.includes('(')) return 'function';
     if (expression.includes('==')) return 'conditional';
     if (expression.includes('is ')) return 'conditional';
