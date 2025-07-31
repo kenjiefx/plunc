@@ -1,6 +1,6 @@
 /*
 ==========================================
-Plunc JS (Beta Version 0.7.30)
+Plunc JS (Beta Version 0.8.6)
 MIT License
 Copyright (c) 2022 Kenjie Terrado
 
@@ -26,17 +26,16 @@ Special Credits to the amazing authors of DomReady libarary!
 ==========================================
 */
 
-
 (()=>{
 
   /**
    * Returns the element within the DOM body with the attribute
    * `plunc-app`, or depending of what prefix being used
    */
-  const a46 = (instance) => {
-      const name = `${instance.x84()}`;
+  const e48 = (instance) => {
+      const name = `${instance.x88()}`;
       const selector = `
-      [${XAttr.a40(APP_ATTR, instance, name)}]
+      [${XAttr.e42(APP_ATTR, instance, name)}]
     `;
       const elements = document.querySelectorAll(`${selector.trim()}`);
       if (elements.length === 0)
@@ -61,49 +60,73 @@ Special Credits to the amazing authors of DomReady libarary!
           this.listeners.ready.push(listener);
           return (this.listeners.ready.length) - 1;
       }
-      e58(key) {
+      a60(key) {
           var _a;
           return (_a = this.listeners[key]) !== null && _a !== void 0 ? _a : [];
       }
   }
-  const x47 = (instance) => {
-      return instance.e91();
+  const a49 = (instance) => {
+      return instance.a95();
   };
   
   
   
-  const e75 = (component, instance, name, callback) => {
-      if (!instance.e85()) {
+  const x78 = (component, instance, name, callback) => {
+      if (!instance.a89()) {
           throw new Error(`cannot use $block outside $app.ready`);
       }
-      const blockAttribute = XAttr.a40(BLOCK_ELEMENT_ATTR, instance, name);
-      const cElement = XAttr.a41(a46(instance), instance, component.e96());
+      const blockAttribute = XAttr.e42(BLOCK_ELEMENT_ATTR, instance, name);
+      const cElement = XAttr.x43(e48(instance), instance, component.e100());
       if (cElement === null) {
           throw new Error('unknown component element');
       }
-      const refAttribute = XAttr.a40(ELEMENT_REFERENCE_ATTR, instance, component.e96());
+      const refAttribute = XAttr.e42(ELEMENT_REFERENCE_ATTR, instance, component.e100());
       const blocks = cElement.querySelectorAll(`[${blockAttribute}][${refAttribute}]`);
+      if (blocks.length === 0) {
+          callback(null);
+          return;
+      }
       for (let i = 0; i < blocks.length; i++) {
           callback(new PluncElement(blocks[i]));
       }
   };
-  const e22 = () => {
+  const a23 = () => {
       return {};
   };
   
   
-  const e72 = (component, lineage, instance) => {
-      const parentid = lineage.parent(component.e96());
+  
+  const x61 = (component, lineage, instance) => {
+      return {
+          id: component.e100(),
+          name: component.x88(),
+          alias: component.a79(),
+          element: () => {
+              if (!instance.a89()) {
+                  throw new Error(`cannot invoke component.get().element() outside $app.ready`);
+              }
+              let elementNode = XAttr.x43(e48(instance), instance, component.e100());
+              if (elementNode === null) {
+                  return null;
+              }
+              return new PluncElement(elementNode);
+          }
+      };
+  };
+  
+  
+  const x75 = (component, lineage, instance) => {
+      const parentid = lineage.parent(component.e100());
       if (parentid === null)
           return null;
-      const parent = instance.e76().e86(parentid);
+      const parent = instance.x80().e90(parentid);
       if (parent === null)
           return null;
       if (!(parent instanceof Component))
           return null;
       const wrapper = {};
       wrapper[parentid] = parent;
-      return x23(wrapper);
+      return x24(wrapper);
   };
   
   
@@ -111,17 +134,17 @@ Special Credits to the amazing authors of DomReady libarary!
   
   
   
-  const x77 = (component, instance, lineage, block = null) => {
+  const a81 = (component, instance, lineage, block = null) => {
       return new Promise(async (resolve, reject) => {
           try {
-              if (!instance.e85()) {
+              if (!instance.a89()) {
                   throw new Error(`cannot use $patch outside $app.ready`);
               }
               let mode = 'component';
-              let patchableNodes = [XAttr.a41(a46(instance), instance, component.e96())];
+              let patchableNodes = [XAttr.x43(e48(instance), instance, component.e100())];
               if (block !== null) {
                   mode = 'block';
-                  const elementsButNotChild = x1(XAttr.a40(BLOCK_ELEMENT_ATTR, instance, block), component, lineage, instance);
+                  const elementsButNotChild = x1(XAttr.e42(BLOCK_ELEMENT_ATTR, instance, block), component, lineage, instance);
                   if (elementsButNotChild === null) {
                       return;
                   }
@@ -134,39 +157,40 @@ Special Credits to the amazing authors of DomReady libarary!
                   const elementBindTo = patchableNodes[i];
                   if (elementBindTo === null)
                       continue;
-                  let elementBindFrom = x42();
+                  let elementBindFrom = x44();
                   if (mode === 'component') {
-                      elementBindFrom.innerHTML = await x48(component.e96(), elementBindTo, instance, lineage);
+                      elementBindFrom.innerHTML = await e50(component.e100(), elementBindTo, instance, lineage);
                   }
                   else {
                       if (block === null)
                           continue;
-                      const template = x55(instance, component.x84(), block);
+                      const template = x57(instance, component.x88(), block);
                       if (template === null)
                           continue;
                       /** Re-attach reference id to block elements nested within the block element to patch */
                       const implementation = document.implementation.createHTMLDocument();
                       implementation.body.innerHTML = template;
-                      a6(component.e96(), implementation, instance);
+                      e7(component.e100(), implementation, instance);
                       elementBindFrom.innerHTML = implementation.body.innerHTML;
+                      e2(elementBindTo, elementBindFrom, instance, lineage);
                   }
-                  e15(elementBindFrom, lineage.children(component.e96()), instance);
-                  await e59(elementBindFrom, component, instance);
+                  a16(elementBindFrom, lineage.children(component.e100()), instance);
+                  await x62(elementBindFrom, component, instance);
                   if (elementBindTo === null)
                       continue;
-                  const childIds = lineage.children(component.e96());
-                  a34(elementBindFrom, elementBindTo, instance, childIds);
+                  const childIds = lineage.children(component.e100());
+                  x36(elementBindFrom, elementBindTo, instance, childIds);
                   /**
                    * Find all unrendered child component. This happens usually because of
                    * conditional statements such xif
                    */
                   for (let k = 0; k < childIds.length; k++) {
                       const childId = childIds[k];
-                      const childComponent = XAttr.a41(elementBindTo, instance, childId);
+                      const childComponent = XAttr.x43(elementBindTo, instance, childId);
                       if (childComponent === null)
                           continue;
                       if (childComponent.innerHTML.trim() === '') {
-                          await x3(childComponent, instance.e76().e86(childId), lineage, instance);
+                          await x4(childComponent, instance.x80().e90(childId), lineage, instance);
                       }
                   }
               }
@@ -178,21 +202,21 @@ Special Credits to the amazing authors of DomReady libarary!
           }
       });
   };
-  const x3 = (elementToBindTo, component, lineage, instance) => {
+  const x4 = (elementToBindTo, component, lineage, instance) => {
       return new Promise(async (resolve, reject) => {
           try {
-              const elementBindFrom = x42();
-              elementBindFrom.innerHTML = await x48(component.e96(), elementToBindTo, instance, lineage);
-              await e59(elementBindFrom, component, instance);
-              const childIds = lineage.children(component.e96());
+              const elementBindFrom = x44();
+              elementBindFrom.innerHTML = await e50(component.e100(), elementToBindTo, instance, lineage);
+              await x62(elementBindFrom, component, instance);
+              const childIds = lineage.children(component.e100());
               for (let i = 0; i < childIds.length; i++) {
                   const childId = childIds[i];
-                  const childComponent = XAttr.a41(elementBindFrom, instance, childId);
+                  const childComponent = XAttr.x43(elementBindFrom, instance, childId);
                   if (childComponent !== null) {
-                      await x3(childComponent, instance.e76().e86(childId), lineage, instance);
+                      await x4(childComponent, instance.x80().e90(childId), lineage, instance);
                   }
               }
-              a34(elementBindFrom, elementToBindTo, instance, childIds);
+              x36(elementBindFrom, elementToBindTo, instance, childIds);
               resolve();
           }
           catch (error) {
@@ -200,40 +224,55 @@ Special Credits to the amazing authors of DomReady libarary!
           }
       });
   };
+  const e2 = (liveBlockElements, templateBlockElement, instance, lineage) => {
+      /** Takes all child component within the live block element */
+      const liveChildComponents = XAttr.a31(liveBlockElements, instance, COMPONENT_ELEMENT_ATTR);
+      const templateChildComponents = XAttr.a31(templateBlockElement, instance, COMPONENT_ELEMENT_ATTR);
+      for (let z = 0; z < liveChildComponents.length; z++) {
+          const liveChildComponent = liveChildComponents[z];
+          const liveChildComponentId = XAttr.x82(liveChildComponent, instance, STRAWBERRY_ID_ATTR);
+          const pluncIdAttr = XAttr.e96(STRAWBERRY_ID_ATTR, instance);
+          if (liveChildComponentId === null) {
+              throw new Error();
+          }
+          templateChildComponents[z].setAttribute(pluncIdAttr, liveChildComponentId);
+          x36(liveChildComponent, templateChildComponents[z], instance, lineage.children(liveChildComponentId));
+      }
+  };
   var XAttr;
   (function (XAttr) {
       /**
        * Creates a component attribute with value. Example: `xcomponent="@ComponentName"`
        */
-      XAttr.x73 = (name, instance) => {
-          const prefix = instance.a92().prefix;
+      XAttr.e76 = (name, instance) => {
+          const prefix = instance.a97().prefix;
           return `${prefix}${COMPONENT_ELEMENT_ATTR}="@${name}"`;
       };
       /**
        * Creates an attribute with any key. Example: `xsomekeyhere`
        */
-      XAttr.a93 = (key, instance) => {
-          const prefix = instance.a92().prefix;
+      XAttr.e96 = (key, instance) => {
+          const prefix = instance.a97().prefix;
           return `${prefix}${key}`;
       };
       /**
        * Creates an attribute with any key, with any value. Example: `xsomekeyhere="value"`
        */
-      XAttr.a40 = (key, instance, value) => {
-          const prefix = instance.a92().prefix;
+      XAttr.e42 = (key, instance, value) => {
+          const prefix = instance.a97().prefix;
           return `${prefix}${key}="${value}"`;
       };
-      XAttr.x78 = (element, instance, key) => {
-          const prefix = instance.a92().prefix;
+      XAttr.x82 = (element, instance, key) => {
+          const prefix = instance.a97().prefix;
           return element.getAttribute(`${prefix}${key}`);
       };
-      XAttr.a41 = (element, instance, cid) => {
-          const prefix = instance.a92().prefix;
+      XAttr.x43 = (element, instance, cid) => {
+          const prefix = instance.a97().prefix;
           const attr = `${prefix}id="${cid}"`;
           return element.querySelector(`[${attr}]`);
       };
-      XAttr.e30 = (element, instance, name) => {
-          const attr = XAttr.a93(name, instance);
+      XAttr.a31 = (element, instance, name) => {
+          const attr = XAttr.e96(name, instance);
           return element.querySelectorAll(`[${attr}]`);
       };
   })(XAttr || (XAttr = {}));
@@ -261,6 +300,7 @@ Special Credits to the amazing authors of DomReady libarary!
   const CHILDREN_ARGUMENT_KEY = '$children';
   const PATCH_ARGUMENT_KEY = '$patch';
   const APP_ARGUMENT_KEY = '$app';
+  const COMPONENT_ARGUMENT_KEY = '$this';
   const STRAWBERRY_ID_ATTR = 'id';
   const REPEAT_REFERENCE_TOKEN = '$$index';
   const LOCK_ID_ATTR_KEY = 'set';
@@ -270,26 +310,27 @@ Special Credits to the amazing authors of DomReady libarary!
   
   
   
-  const e43 = (instance, id, existing = '') => {
+  const a45 = (instance, id, existing = '') => {
       if (existing !== '') {
           return `${existing}.${id.toString()}`;
       }
-      return `${instance.e96().toString()}.${id.toString()}`;
+      return `${instance.e100().toString()}.${id.toString()}`;
   };
-  const x48 = (id, component, instance, lineage) => {
+  const e50 = (id, component, instance, lineage) => {
       return new Promise(async (resolve, reject) => {
           try {
               /** First, we'll check if component has declared template */
-              const name = XAttr.x78(component, instance, COMPONENT_ELEMENT_ATTR);
-              if (name === null)
+              const mayHaveAlias = XAttr.x82(component, instance, COMPONENT_ELEMENT_ATTR);
+              if (mayHaveAlias === null)
                   return resolve('');
+              const name = a32(mayHaveAlias).name;
               /** Get component template */
-              const cTempl = a79(instance, name);
+              const cTempl = x83(instance, name);
               /** Component implementation element */
               const implementation = document.implementation.createHTMLDocument();
               implementation.body.innerHTML = cTempl;
-              a6(id, implementation, instance);
-              await a56(id, implementation, instance, lineage);
+              e7(id, implementation, instance);
+              await e58(id, implementation, instance, lineage);
               resolve(implementation.body.innerHTML);
           }
           catch (error) {
@@ -297,17 +338,17 @@ Special Credits to the amazing authors of DomReady libarary!
           }
       });
   };
-  const a6 = (id, implementation, instance) => {
-      const refAttr = XAttr.a93(ELEMENT_REFERENCE_ATTR, instance);
+  const e7 = (id, implementation, instance) => {
+      const refAttr = XAttr.e96(ELEMENT_REFERENCE_ATTR, instance);
       const attrList = [BLOCK_ELEMENT_ATTR];
       const allElements = [];
       /** Retrieving all elements with plunc-block */
       attrList.forEach(attr => {
-          const elements = Array.from(implementation.body.querySelectorAll(`[${XAttr.a93(attr, instance)}]`));
+          const elements = Array.from(implementation.body.querySelectorAll(`[${XAttr.e96(attr, instance)}]`));
           for (let i = 0; i < elements.length; i++) {
               const element = elements[i];
-              const name = XAttr.x78(element, instance, attr);
-              a7(name);
+              const name = XAttr.x82(element, instance, attr);
+              e8(name);
           }
           allElements.push(...elements);
       });
@@ -316,7 +357,7 @@ Special Credits to the amazing authors of DomReady libarary!
           element.setAttribute(refAttr, id);
       });
   };
-  const a7 = (name) => {
+  const e8 = (name) => {
       const message = `named element name must not be empty or `
           + `contain invalid characters`;
       if (name === null) {
@@ -329,34 +370,34 @@ Special Credits to the amazing authors of DomReady libarary!
           throw new Error(message);
       }
   };
-  const a56 = async (parentId, parent, instance, lineage) => {
+  const e58 = async (parentId, parent, instance, lineage) => {
       return new Promise(async (resolve, reject) => {
           let compiled = '';
           const cattr = COMPONENT_ELEMENT_ATTR;
-          const selector = XAttr.a93(cattr, instance);
+          const selector = XAttr.e96(cattr, instance);
           const children = parent.querySelectorAll(`[${selector}]`);
           for (let i = 0; i < children.length; i++) {
               const child = children[i];
               /** Child components must have names */
-              const name = XAttr.x78(child, instance, cattr);
-              if (name === null)
+              const mayHaveAlias = XAttr.x82(child, instance, cattr);
+              if (mayHaveAlias === null)
                   continue;
               /** Setting ids to child components */
-              const childId = e43(instance, i, parentId);
-              child.setAttribute(XAttr.a93('id', instance), childId);
+              const childId = a45(instance, i, parentId);
+              child.setAttribute(XAttr.e96('id', instance), childId);
               lineage.begat(parentId, childId);
               /** Creates the Child component object if not existing */
               let childObj;
-              const existing = instance.e76().e86(childId);
+              const existing = instance.x80().e90(childId);
               if (existing !== null && existing instanceof Component) {
                   childObj = existing;
               }
               else {
-                  childObj = new Component(childId, name);
+                  childObj = new Component(childId, mayHaveAlias);
               }
-              a10(lineage, childObj, instance);
-              instance.e76().e80(childId, childObj);
-              child.innerHTML = await x48(childId, child, instance, lineage);
+              a11(lineage, childObj, instance);
+              instance.x80().a84(childId, childObj);
+              child.innerHTML = await e50(childId, child, instance, lineage);
           }
           resolve();
       });
@@ -368,18 +409,25 @@ Special Credits to the amazing authors of DomReady libarary!
    * @param component Component object
    * @param instance PluncApp instance
    */
-  const a10 = (lineage, component, instance) => {
-      const name = component.x84();
-      const idsOfParents = lineage.lookup(component.e96());
-      const parents = instance.e76().e81(idsOfParents);
+  const a11 = (lineage, component, instance) => {
+      const name = component.x88();
+      const idsOfParents = lineage.lookup(component.e100());
+      const parents = instance.x80().e85(idsOfParents);
       parents.forEach(parentC => {
-          if (parentC.x84() === name) {
+          if (parentC.x88() === name) {
               throw new Error(`plunc.js circular dependency of component
           "${name}" detected in registry`);
           }
       });
   };
-  const a60 = (config) => {
+  const a32 = (name) => {
+      var _a;
+      return {
+          name: name.split(' as ')[0],
+          alias: (_a = name.split(' as ')[1]) !== null && _a !== void 0 ? _a : null
+      };
+  };
+  const a63 = (config) => {
       var _a, _b, _c;
       const startFn = () => new Promise(resolve => resolve(true));
       const endFn = () => new Promise(resolve => resolve());
@@ -396,6 +444,7 @@ Special Credits to the amazing authors of DomReady libarary!
   
   
   
+  
   /**
    * Resolves an array of dependencies. This function iterates
    * over existing components, services, factories, and
@@ -404,7 +453,7 @@ Special Credits to the amazing authors of DomReady libarary!
    * @param param - @see DependencyResolverParams
    * @returns
    */
-  const x19 = (params) => {
+  const x20 = (params) => {
       return new Promise(async (resolve, reject) => {
           try {
               const injectables = [];
@@ -426,22 +475,25 @@ Special Credits to the amazing authors of DomReady libarary!
                       switch (dependency) {
                           case BLOCK_ARGUMENT_KEY:
                               injectables.push((name, callback) => {
-                                  return e75(params.component, params.instance, name, callback);
+                                  return x78(params.component, params.instance, name, callback);
                               });
                               break;
                           case PATCH_ARGUMENT_KEY:
                               injectables.push((element = null) => {
-                                  return x77(params.component, params.instance, params.lineage, element);
+                                  return a81(params.component, params.instance, params.lineage, element);
                               });
                               break;
                           case PARENT_ARGUMENT_KEY:
-                              injectables.push(e72(params.component, params.lineage, params.instance));
+                              injectables.push(x75(params.component, params.lineage, params.instance));
                               break;
                           case APP_ARGUMENT_KEY:
-                              injectables.push(x47(params.instance));
+                              injectables.push(a49(params.instance));
                               break;
                           case CHILDREN_ARGUMENT_KEY:
-                              injectables.push(e22());
+                              injectables.push(a23());
+                              break;
+                          case COMPONENT_ARGUMENT_KEY:
+                              injectables.push(x61(params.component, params.lineage, params.instance));
                               break;
                           default:
                               injectables.push({});
@@ -453,18 +505,18 @@ Special Credits to the amazing authors of DomReady libarary!
                    * We'll check if the dependency points to service by
                    * checking the library if the name exists
                    */
-                  const service = params.instance.e87().a88(dependency);
+                  const service = params.instance.e91().e92(dependency);
                   if (service !== null) {
-                      const injectable = await a11(dependency, params.instance);
+                      const injectable = await x12(dependency, params.instance);
                       injectables.push(injectable);
                       continue;
                   }
                   /**
                    * Next, we'll check if the dependency points to a factory
                    */
-                  const factory = params.instance.e87().e89(dependency);
+                  const factory = params.instance.e91().x93(dependency);
                   if (factory !== null) {
-                      const injectable = await e12(dependency, params.instance);
+                      const injectable = await a13(dependency, params.instance);
                       injectables.push(injectable);
                       continue;
                   }
@@ -472,9 +524,9 @@ Special Credits to the amazing authors of DomReady libarary!
                    * Next, we'll check if the dependency points to a helper
                    */
                   if (params.type === 'helper' || params.type === 'component') {
-                      const helper = params.instance.e87().a94(dependency);
+                      const helper = params.instance.e91().x98(dependency);
                       if (helper !== null && params.scope !== null) {
-                          const injectable = await a16(params.component, params.scope, dependency, params.lineage, params.instance);
+                          const injectable = await e17(params.component, params.scope, dependency, params.lineage, params.instance);
                           injectables.push(injectable);
                           continue;
                       }
@@ -483,21 +535,45 @@ Special Credits to the amazing authors of DomReady libarary!
                    * Lastly, we'll check if the dependency points to a child component
                    */
                   if (params.type === 'component') {
-                      const children = params.lineage.children(params.component.e96())
+                      const children = params.lineage.children(params.component.e100())
                           .filter(childId => {
-                          const child = params.instance.e76().e86(childId);
-                          return (child.x84() === dependency);
+                          const child = params.instance.x80().e90(childId);
+                          return (child.x88() === dependency);
                       }).map(childId => {
-                          return params.instance.e76().e86(childId);
+                          return params.instance.x80().e90(childId);
                       });
-                      const wrapper = {};
-                      for (let i = 0; i < children.length; i++) {
-                          const child = children[i];
-                          wrapper[child.e96()] = child;
+                      if (children.length > 0) {
+                          const wrapper = {};
+                          for (let i = 0; i < children.length; i++) {
+                              const child = children[i];
+                              await e10(child, params.instance, params.lineage);
+                              wrapper[child.e100()] = child;
+                          }
+                          const proxy = x24(wrapper);
+                          injectables.push(proxy);
+                          continue;
                       }
-                      const proxy = x23(wrapper);
-                      injectables.push(proxy);
-                      continue;
+                      /**
+                       * Perhaps, it's an alias to a child component?
+                       */
+                      const aliasChildren = params.lineage.children(params.component.e100())
+                          .filter(childId => {
+                          const child = params.instance.x80().e90(childId);
+                          return (child.a79() === dependency);
+                      }).map(childId => {
+                          return params.instance.x80().e90(childId);
+                      });
+                      if (aliasChildren.length > 0) {
+                          const wrapper = {};
+                          for (let i = 0; i < aliasChildren.length; i++) {
+                              const child = aliasChildren[i];
+                              await e10(child, params.instance, params.lineage);
+                              wrapper[child.e100()] = child;
+                          }
+                          const proxy = x24(wrapper);
+                          injectables.push(proxy);
+                          continue;
+                      }
                   }
                   /**
                    * If all else fails to match, we'll push a `null` value, and throw
@@ -519,7 +595,7 @@ Special Credits to the amazing authors of DomReady libarary!
    * @param handler - a typeof function
    * @returns
    */
-  const e20 = (handler) => {
+  const x21 = (handler) => {
       return new Promise(async (resolve, reject) => {
           try {
               const handlerStr = handler.toString().split('{')[0];
@@ -545,35 +621,23 @@ Special Credits to the amazing authors of DomReady libarary!
           }
       });
   };
-  const x23 = (wrapper) => {
+  const x24 = (wrapper) => {
       const handler = {
           get: function get(target, name) {
-              return function wrap() {
-                  return new Promise(async (resolve, reject) => {
-                      const args = Array.prototype.slice.call(arguments);
-                      for (const id in target) {
-                          const component = target[id];
-                          const exposed = component.x68();
-                          if (exposed === null) {
-                              const name = component.x84();
-                              throw new Error(`cannot invoke component`
-                                  + ` "${name}}" before $app is ready`);
-                          }
-                          if (!(name in exposed)) {
-                              throw new Error(`calling undefined member "${name}" `
-                                  + `in component "${component.x84()}"`);
-                          }
-                          if (exposed[name] instanceof Function) {
-                              const response = await exposed[name](...args);
-                              resolve(response);
-                          }
-                          else {
-                              throw new Error(`member "${name}" of component "${component.x84()}"`
-                                  + `must be a function that returns a Promise`);
-                          }
-                      }
-                  });
-              };
+              for (const id in target) {
+                  const component = target[id];
+                  const exposed = component.a71();
+                  if (exposed === null) {
+                      const name = component.x88();
+                      throw new Error(`cannot invoke component`
+                          + ` "${name}}" before $app is ready`);
+                  }
+                  if (!(name in exposed)) {
+                      throw new Error(`calling undefined member "${name}" `
+                          + `in component "${component.x88()}"`);
+                  }
+                  return exposed[name];
+              }
           }
       };
       return new Proxy(wrapper, handler);
@@ -719,10 +783,10 @@ Special Credits to the amazing authors of DomReady libarary!
    * @param childIds - All child ids
    * @param instance - PluncApp instance
    */
-  const e15 = (cElement, childIds, instance) => {
+  const a16 = (cElement, childIds, instance) => {
       for (let i = 0; i < childIds.length; i++) {
           const childId = childIds[i];
-          const childEl = XAttr.a41(cElement, instance, childId);
+          const childEl = XAttr.x43(cElement, instance, childId);
           if (childEl !== null)
               childEl.innerHTML = '';
       }
@@ -731,7 +795,7 @@ Special Credits to the amazing authors of DomReady libarary!
    * Creates a temporary element
    * @returns Document
    */
-  const x42 = () => {
+  const x44 = () => {
       return document.implementation.createHTMLDocument().body;
   };
   /**
@@ -741,7 +805,7 @@ Special Credits to the amazing authors of DomReady libarary!
    * @param bindFrom - Element
    * @param bindTo - Element
    */
-  const e44 = (bindFrom, bindTo) => {
+  const a46 = (bindFrom, bindTo) => {
       if (bindFrom === null)
           return;
       while (bindFrom.childNodes.length > 0) {
@@ -755,17 +819,17 @@ Special Credits to the amazing authors of DomReady libarary!
    * @param element - element to be locked
    * @param instance - PluncApp instance
    */
-  const x65 = (element, instance) => {
-      const attr = XAttr.a93(LOCK_ID_ATTR_KEY, instance);
+  const a68 = (element, instance) => {
+      const attr = XAttr.e96(LOCK_ID_ATTR_KEY, instance);
       element.setAttribute(attr, LOCK_ID_ATTR_VALUE);
   };
   /**
-   * Checks if the element is locked. @see x65
+   * Checks if the element is locked. @see a68
    * @param element - element to be check
    * @param instance - PluncApp instance
    */
-  const e45 = (element, instance) => {
-      const attr = XAttr.a93(LOCK_ID_ATTR_KEY, instance);
+  const e47 = (element, instance) => {
+      const attr = XAttr.e96(LOCK_ID_ATTR_KEY, instance);
       return (element.getAttribute(attr) !== null);
   };
   /**
@@ -773,7 +837,7 @@ Special Credits to the amazing authors of DomReady libarary!
    * @param element - Element to be disposed
    * @param comment - Comment you'd like to add
    */
-  const a49 = (element, comment) => {
+  const x51 = (element, comment) => {
       if (null !== element) {
           element.innerHTML = '';
           if (element.parentNode !== null) {
@@ -789,28 +853,28 @@ Special Credits to the amazing authors of DomReady libarary!
    * @param instance
    * @param childIds
    */
-  const a34 = (bindFromEl, bindToEl, instance, childIds) => {
+  const x36 = (bindFromEl, bindToEl, instance, childIds) => {
       const TChildRegistry = {};
       for (let i = 0; i < childIds.length; i++) {
           const childId = childIds[i];
-          const tempChildEl = x42();
-          const actualChildEl = XAttr.a41(bindToEl, instance, childId);
+          const tempChildEl = x44();
+          const actualChildEl = XAttr.x43(bindToEl, instance, childId);
           if (actualChildEl !== null) {
-              e44(actualChildEl, tempChildEl);
+              a46(actualChildEl, tempChildEl);
               TChildRegistry[childId] = tempChildEl;
           }
       }
       bindToEl.innerHTML = '';
-      e44(bindFromEl, bindToEl);
+      a46(bindFromEl, bindToEl);
       for (const childId in TChildRegistry) {
-          const actualChildEl = XAttr.a41(bindToEl, instance, childId);
+          const actualChildEl = XAttr.x43(bindToEl, instance, childId);
           if (actualChildEl === null)
               continue;
-          e44(TChildRegistry[childId], actualChildEl);
+          a46(TChildRegistry[childId], actualChildEl);
       }
   };
-  const e17 = (element, eventName, instance) => {
-      const attribute = XAttr.a93(EVENT_ELEMENT_ATTR, instance);
+  const a18 = (element, eventName, instance) => {
+      const attribute = XAttr.e96(EVENT_ELEMENT_ATTR, instance);
       let result = false;
       const existing = element.getAttribute(attribute);
       if (existing === null)
@@ -823,8 +887,8 @@ Special Credits to the amazing authors of DomReady libarary!
       }
       return result;
   };
-  const a35 = (element, eventName, instance) => {
-      const attribute = XAttr.a93(EVENT_ELEMENT_ATTR, instance);
+  const x37 = (element, eventName, instance) => {
+      const attribute = XAttr.e96(EVENT_ELEMENT_ATTR, instance);
       const existing = element.getAttribute(attribute);
       if (existing === null) {
           element.setAttribute(attribute, eventName);
@@ -839,19 +903,19 @@ Special Credits to the amazing authors of DomReady libarary!
       element.setAttribute(attribute, events.join(','));
   };
   const x1 = (attrWithValue, component, lineage, instance) => {
-      const childIds = lineage.children(component.e96());
+      const childIds = lineage.children(component.e100());
       let selector = '';
       for (let i = 0; i < childIds.length; i++) {
           const childId = childIds[i];
-          const childAttrName = XAttr.a40(STRAWBERRY_ID_ATTR, instance, childId);
+          const childAttrName = XAttr.e42(STRAWBERRY_ID_ATTR, instance, childId);
           selector += ':not([' + childAttrName + '])';
       }
       selector += ` > [${attrWithValue}]`;
       if (childIds.length === 0) {
-          const xidAttrName = XAttr.a40(STRAWBERRY_ID_ATTR, instance, component.e96());
+          const xidAttrName = XAttr.e42(STRAWBERRY_ID_ATTR, instance, component.e100());
           selector = `[${xidAttrName}] [${attrWithValue}]`;
       }
-      const componentElement = XAttr.a41(a46(instance), instance, component.e96());
+      const componentElement = XAttr.x43(e48(instance), instance, component.e100());
       if (componentElement === null)
           return null;
       return componentElement.querySelectorAll(selector);
@@ -864,29 +928,29 @@ Special Credits to the amazing authors of DomReady libarary!
    * @param lineage
    * @returns
    */
-  const a9 = (component, instance, lineage) => {
+  const e10 = (component, instance, lineage) => {
       return new Promise(async (resolve, reject) => {
           try {
-              const name = component.x84();
-              const handler = instance.e87().x73(name);
+              const name = component.x88();
+              const handler = instance.e91().e76(name);
               if (handler === null) {
                   throw new Error(`missing component handler ${name}`);
               }
-              const memoized = component.x68();
+              const memoized = component.a71();
               if (memoized !== null) {
                   return resolve(memoized);
               }
-              const dependencies = await e20(handler);
-              const injectables = await x19({
+              const dependencies = await x21(handler);
+              const injectables = await x20({
                   dependencies: dependencies,
                   type: 'component',
-                  scope: component.a82(),
+                  scope: component.a86(),
                   instance: instance,
                   lineage: lineage,
                   component: component
               });
               const exposed = handler(...injectables);
-              component.a69(exposed);
+              component.a72(exposed);
               resolve(exposed);
           }
           catch (error) {
@@ -900,24 +964,24 @@ Special Credits to the amazing authors of DomReady libarary!
    * @param instance - PluncApp
    * @param lineage - Lineage
    */
-  const a24 = (component, instance, lineage) => {
-      const childIds = lineage.children(component.e96());
-      const children = instance.e76().e81(childIds);
-      return children.map(child => child.x84());
+  const a25 = (component, instance, lineage) => {
+      const childIds = lineage.children(component.e100());
+      const children = instance.x80().e85(childIds);
+      return children.map(child => child.x88());
   };
-  const a11 = (name, instance) => {
+  const x12 = (name, instance) => {
       return new Promise(async (resolve, reject) => {
           try {
-              let service = instance.e76().e86(name);
+              let service = instance.x80().e90(name);
               if (service !== null) {
                   return resolve(service);
               }
-              const handler = instance.e87().a88(name);
+              const handler = instance.e91().e92(name);
               if (handler === null) {
                   throw new Error(`missing service handler ${name}`);
               }
-              const dependencies = await e20(handler);
-              const injectables = await x19({
+              const dependencies = await x21(handler);
+              const injectables = await x20({
                   dependencies: dependencies,
                   type: 'service',
                   instance: instance
@@ -926,7 +990,7 @@ Special Credits to the amazing authors of DomReady libarary!
               if (service === undefined || service === null) {
                   throw new Error(`service ${name} must not return ${typeof service}`);
               }
-              instance.e76().e80(name, service);
+              instance.x80().a84(name, service);
               resolve(service);
           }
           catch (error) {
@@ -934,15 +998,15 @@ Special Credits to the amazing authors of DomReady libarary!
           }
       });
   };
-  const e12 = (name, instance) => {
+  const a13 = (name, instance) => {
       return new Promise(async (resolve, reject) => {
           try {
-              let handler = instance.e87().e89(name);
+              let handler = instance.e91().x93(name);
               if (handler === null) {
                   throw new Error(`missing factory handler ${name}`);
               }
-              const dependencies = await e20(handler);
-              const injectables = await x19({
+              const dependencies = await x21(handler);
+              const injectables = await x20({
                   dependencies: dependencies,
                   type: 'factory',
                   instance: instance
@@ -959,15 +1023,15 @@ Special Credits to the amazing authors of DomReady libarary!
           }
       });
   };
-  const a16 = (component, scope, name, lineage, instance) => {
+  const e17 = (component, scope, name, lineage, instance) => {
       return new Promise(async (resolve, reject) => {
           try {
-              let handler = instance.e87().a94(name);
+              let handler = instance.e91().x98(name);
               if (handler === null) {
                   throw new Error(`missing helper handler ${name}`);
               }
-              const dependencies = await e20(handler);
-              const injectables = await x19({
+              const dependencies = await x21(handler);
+              const injectables = await x20({
                   component: component,
                   dependencies: dependencies,
                   type: 'helper',
@@ -985,9 +1049,10 @@ Special Credits to the amazing authors of DomReady libarary!
   };
   class TypeofFactory {
   }
-  const e66 = (app) => {
-      return app.a92().startFn();
+  const a69 = (app) => {
+      return app.a97().startFn();
   };
+  
   
   
   /**
@@ -996,11 +1061,12 @@ Special Credits to the amazing authors of DomReady libarary!
    * or there are two or more. Template names should be unique
    * throughout the application.
    * @param instance PluncApp
-   * @param name name of te template
+   * @param mayHaveAlias name of te template
    */
-  const a79 = (instance, name) => {
+  const x83 = (instance, mayHaveAlias) => {
+      const name = a32(mayHaveAlias).name;
       const selector = `
-      template[${XAttr.a40(TEMPL_NAME_ATTR, instance, name)}]
+      template[${XAttr.e42(TEMPL_NAME_ATTR, instance, name)}]
     `;
       const templateEl = document.querySelectorAll(`${selector.trim()}`);
       if (templateEl.length === 0)
@@ -1009,19 +1075,20 @@ Special Credits to the amazing authors of DomReady libarary!
           throw new Error(`103:${name}`);
       return templateEl[0].innerHTML;
   };
-  const x55 = (instance, component, block) => {
-      const cTempl = a79(instance, component);
-      const cElem = x42();
+  const x57 = (instance, component, block) => {
+      const cTempl = x83(instance, component);
+      const cElem = x44();
       cElem.innerHTML = cTempl;
-      const blockAttr = XAttr.a40(BLOCK_ELEMENT_ATTR, instance, block);
+      const blockAttr = XAttr.e42(BLOCK_ELEMENT_ATTR, instance, block);
       const blockEl = cElem.querySelector(`[${blockAttr}]`);
       if (blockEl === null)
           return null;
       return blockEl.innerHTML;
   };
   
+  
   class Component {
-      constructor(id, name) {
+      constructor(id, mayHaveAlias) {
           Object.defineProperty(this, "id", {
               enumerable: true,
               configurable: true,
@@ -1029,6 +1096,12 @@ Special Credits to the amazing authors of DomReady libarary!
               value: void 0
           });
           Object.defineProperty(this, "name", {
+              enumerable: true,
+              configurable: true,
+              writable: true,
+              value: void 0
+          });
+          Object.defineProperty(this, "alias", {
               enumerable: true,
               configurable: true,
               writable: true,
@@ -1046,30 +1119,35 @@ Special Credits to the amazing authors of DomReady libarary!
               writable: true,
               value: void 0
           });
+          const parsedName = a32(mayHaveAlias);
           this.id = id;
-          this.name = name;
+          this.name = parsedName.name;
+          this.alias = parsedName.alias;
           this.scope = new Scope;
           this.exposed = null;
       }
-      x84() {
+      x88() {
           return this.name;
       }
-      e96() {
+      e100() {
           return this.id;
       }
-      a82() {
+      a86() {
           return this.scope;
       }
-      x67(scope) {
+      a70(scope) {
           this.scope = scope;
       }
-      a69(object) {
+      a72(object) {
           if (this.exposed === null) {
               this.exposed = object;
           }
       }
-      x68() {
+      a71() {
           return this.exposed;
+      }
+      a79() {
+          return this.alias;
       }
   }
   /**
@@ -1119,10 +1197,10 @@ Special Credits to the amazing authors of DomReady libarary!
           });
           this.$element = element;
           this.state = null;
-          this.e70(pcount !== null && pcount !== void 0 ? pcount : 1);
+          this.e73(pcount !== null && pcount !== void 0 ? pcount : 1);
       }
       /** Wraps the parent element within `PluncElement` object */
-      e70(count) {
+      e73(count) {
           const parentElement = this.$element.parentElement;
           if (count > 3 || parentElement === null)
               return;
@@ -1180,30 +1258,30 @@ Special Credits to the amazing authors of DomReady libarary!
           });
           this.handlers = {};
       }
-      e80(name, type, handler) {
-          const namespace = this.e74(type, name);
+      a84(name, type, handler) {
+          const namespace = this.a77(type, name);
           this.handlers[namespace] = handler;
       }
-      e74(type, name) {
+      a77(type, name) {
           return `${type}.${name}`;
       }
-      x73(name) {
-          const namespace = this.e74('component', name);
+      e76(name) {
+          const namespace = this.a77('component', name);
           return this.handlers[namespace];
       }
-      a88(name) {
+      e92(name) {
           var _a;
-          const namespace = this.e74('service', name);
+          const namespace = this.a77('service', name);
           return ((_a = this.handlers[namespace]) !== null && _a !== void 0 ? _a : null);
       }
-      e89(name) {
+      x93(name) {
           var _a;
-          const namespace = this.e74('factory', name);
+          const namespace = this.a77('factory', name);
           return ((_a = this.handlers[namespace]) !== null && _a !== void 0 ? _a : null);
       }
-      a94(name) {
+      x98(name) {
           var _a;
-          const namespace = this.e74('helper', name);
+          const namespace = this.a77('helper', name);
           return ((_a = this.handlers[namespace]) !== null && _a !== void 0 ? _a : null);
       }
   }
@@ -1331,28 +1409,28 @@ Special Credits to the amazing authors of DomReady libarary!
           this.api = new ApplicationAPI;
           this.ready = false;
       }
-      a92() {
+      a97() {
           return this.config;
       }
-      e87() {
+      e91() {
           return this.library;
       }
-      e76() {
+      x80() {
           return this.registry;
       }
-      x84() {
+      x88() {
           return this.name;
       }
-      e96() {
+      e100() {
           return this.id;
       }
-      e91() {
+      a95() {
           return this.api;
       }
-      e83() {
+      x87() {
           this.ready = true;
       }
-      e85() {
+      a89() {
           return this.ready;
       }
   }
@@ -1366,10 +1444,10 @@ Special Credits to the amazing authors of DomReady libarary!
           });
           this.data = {};
       }
-      e80(id, object) {
+      a84(id, object) {
           this.data[id] = object;
       }
-      e81(ids) {
+      e85(ids) {
           const components = [];
           for (const id in this.data) {
               if (ids.includes(id)) {
@@ -1378,11 +1456,11 @@ Special Credits to the amazing authors of DomReady libarary!
           }
           return components;
       }
-      e86(id) {
+      e90(id) {
           var _a;
           return (_a = this.data[id]) !== null && _a !== void 0 ? _a : null;
       }
-      x95() {
+      e99() {
           return this.data;
       }
   }
@@ -1396,9 +1474,9 @@ Special Credits to the amazing authors of DomReady libarary!
        *
        * @returns the value of the resolved expression
        */
-      Resolver.e31 = (scope, expression, element = null) => {
-          const resolveType = Resolver.a50(expression);
-          return x90(scope, expression, resolveType, element);
+      Resolver.a33 = (scope, expression, element = null) => {
+          const resolveType = Resolver.x52(expression);
+          return x94(scope, expression, resolveType, element);
       };
       /**
        * Determines the type of an expression
@@ -1407,11 +1485,19 @@ Special Credits to the amazing authors of DomReady libarary!
        *
        * @NOTE: the expression should always have to be a string!
        */
-      Resolver.a50 = (expression) => {
+      Resolver.x52 = (expression) => {
           if (/^'.*'$/.test(expression))
               return 'string';
           if (!isNaN(expression))
               return 'number';
+          if (expression.includes('(') && expression.includes('=='))
+              return 'conditional';
+          if (expression.includes('(') && expression.includes('is '))
+              return 'conditional';
+          if (expression.includes('(') && expression.includes('>'))
+              return 'conditional';
+          if (expression.includes('(') && expression.includes('<'))
+              return 'conditional';
           if (expression.includes('('))
               return 'function';
           if (expression.includes('=='))
@@ -1434,7 +1520,7 @@ Special Credits to the amazing authors of DomReady libarary!
           }
           return 'object';
       };
-      const x90 = (scope, expression, resolveType, element = null) => {
+      const x94 = (scope, expression, resolveType, element = null) => {
           switch (resolveType) {
               case 'string':
                   return expression.slice(1, -1);
@@ -1448,7 +1534,7 @@ Special Credits to the amazing authors of DomReady libarary!
                       return null;
                   break;
               case 'object':
-                  return e71(scope, expression);
+                  return a74(scope, expression);
                   break;
               case 'function':
                   let structure = expression.split('(');
@@ -1456,27 +1542,27 @@ Special Credits to the amazing authors of DomReady libarary!
                   let expressionTest = structure[0].split('.');
                   /** If the said function is a method of an object **/
                   if (expressionTest.length > 1) {
-                      let refObject = Resolver.e31(scope, a25(structure[0]));
+                      let refObject = Resolver.a33(scope, a26(structure[0]));
                       let funcExpression = expression.split('.')
                           .slice(((expressionTest.length) - 1))
                           .join('.');
-                      return a51(refObject, scope, funcExpression, element);
+                      return x53(refObject, scope, funcExpression, element);
                   }
                   if (!scope.hasOwnProperty(structure[0])) {
                       return '';
                   }
-                  return a51(scope, scope, expression, element);
+                  return x53(scope, scope, expression, element);
                   break;
               case 'conditional':
                   const evaluatorMap = {
-                      '!==': a4,
-                      '==': e8,
-                      'is not ': a4,
-                      'is ': e8,
-                      '>=': e2,
-                      '>': a13,
-                      '<=': a5,
-                      '<': e26
+                      '!==': e5,
+                      '==': x9,
+                      'is not ': e5,
+                      'is ': x9,
+                      '>=': a3,
+                      '>': a14,
+                      '<=': e6,
+                      '<': x27
                   };
                   for (const comparator in evaluatorMap) {
                       if (expression.includes(comparator)) {
@@ -1494,8 +1580,8 @@ Special Credits to the amazing authors of DomReady libarary!
                   for (var i = 0; i < operations.length; i++) {
                       if (expression.includes(operations[i])) {
                           let exp = expression.split(operations[i]);
-                          let left = Resolver.e31(scope, exp[0].trim());
-                          var right = Resolver.e31(scope, exp[1].trim());
+                          let left = Resolver.a33(scope, exp[0].trim());
+                          var right = Resolver.a33(scope, exp[1].trim());
                           finalExpression = left + operations[i] + right;
                       }
                   }
@@ -1505,7 +1591,7 @@ Special Credits to the amazing authors of DomReady libarary!
                   break;
           }
       };
-      const e71 = (scope, expression) => {
+      const a74 = (scope, expression) => {
           if (expression === '$scope') {
               return scope;
           }
@@ -1528,7 +1614,7 @@ Special Credits to the amazing authors of DomReady libarary!
        * @param string functionExpression - The function expression, for example
        * myFunction(arg)
        */
-      const a51 = (scope, object, expression, element) => {
+      const x53 = (scope, object, expression, element) => {
           /**
            * @TODO Need to check cases where this returns undefined
            * One example,this returns undefined in cases when the
@@ -1545,7 +1631,7 @@ Special Credits to the amazing authors of DomReady libarary!
               const argsVault = new Array;
               const splitArguments = splitExpression[1].split(',');
               for (let i = 0; i < splitArguments.length; i++) {
-                  argsVault.push(Resolver.e31(object, splitArguments[i]));
+                  argsVault.push(Resolver.a33(object, splitArguments[i]));
               }
               if (element !== null) {
                   argsVault.push(new PluncElement(element));
@@ -1573,54 +1659,54 @@ Special Credits to the amazing authors of DomReady libarary!
           // be passed as argument to the referenced function to call
           return scope[name]();
       };
-      const a25 = (expression) => {
+      const a26 = (expression) => {
           let pieces = expression.split('.');
           if (pieces.length < 2)
               return '$scope';
           pieces.pop();
           return pieces.join('.');
       };
-      Resolver.x18 = (base, expression) => {
-          const parentObjExp = a25(expression);
-          return Resolver.e31(base, parentObjExp);
+      Resolver.x19 = (base, expression) => {
+          const parentObjExp = a26(expression);
+          return Resolver.a33(base, parentObjExp);
       };
-      Resolver.x32 = (expression) => {
+      Resolver.a34 = (expression) => {
           let pieces = expression.split('.');
           return pieces[pieces.length - 1];
       };
-      const e8 = (scope, expression, comparator) => {
+      const x9 = (scope, expression, comparator) => {
           const [left, right] = expression.split(comparator).map(arm => {
-              return Resolver.e31(scope, arm.trim());
+              return Resolver.a33(scope, arm.trim());
           });
           return (left === right);
       };
-      const a4 = (scope, expression, comparator) => {
+      const e5 = (scope, expression, comparator) => {
           const [left, right] = expression.split(comparator).map(arm => {
-              return Resolver.e31(scope, arm.trim());
+              return Resolver.a33(scope, arm.trim());
           });
           return (left !== right);
       };
-      const a13 = (scope, expression, comparator) => {
+      const a14 = (scope, expression, comparator) => {
           const [left, right] = expression.split(comparator).map(arm => {
-              return Resolver.e31(scope, arm.trim());
+              return Resolver.a33(scope, arm.trim());
           });
           return (left > right);
       };
-      const e2 = (scope, expression, comparator) => {
+      const a3 = (scope, expression, comparator) => {
           const [left, right] = expression.split(comparator).map(arm => {
-              return Resolver.e31(scope, arm.trim());
+              return Resolver.a33(scope, arm.trim());
           });
           return (left >= right);
       };
-      const e26 = (scope, expression, comparator) => {
+      const x27 = (scope, expression, comparator) => {
           const [left, right] = expression.split(comparator).map(arm => {
-              return Resolver.e31(scope, arm.trim());
+              return Resolver.a33(scope, arm.trim());
           });
           return (left < right);
       };
-      const a5 = (scope, expression, comparator) => {
+      const e6 = (scope, expression, comparator) => {
           const [left, right] = expression.split(comparator).map(arm => {
-              return Resolver.e31(scope, arm.trim());
+              return Resolver.a33(scope, arm.trim());
           });
           return (left <= right);
       };
@@ -1637,24 +1723,24 @@ Special Credits to the amazing authors of DomReady libarary!
   
   
   
-  const a61 = (element, component, instance) => {
+  const a64 = (element, component, instance) => {
       return new Promise(async (resolve, reject) => {
           try {
               const attribute = CHECK_ELEMENT_ATTR;
-              const nodes = XAttr.e30(element, instance, attribute);
+              const nodes = XAttr.a31(element, instance, attribute);
               for (let i = 0; i < nodes.length; i++) {
                   const node = nodes[i];
-                  if (e45(node, instance))
+                  if (e47(node, instance))
                       continue;
-                  const argument = XAttr.x78(node, instance, attribute);
-                  const scope = component.a82();
+                  const argument = XAttr.x82(node, instance, attribute);
+                  const scope = component.a86();
                   if (scope === null || argument === null || argument.trim() === '')
                       continue;
-                  const evaluated = Resolver.e31(scope, argument);
+                  const evaluated = Resolver.a33(scope, argument);
                   if (typeof evaluated === 'boolean') {
                       evaluated ? node.setAttribute('checked', '') : node.removeAttribute('checked');
                   }
-                  x65(node, instance);
+                  a68(node, instance);
               }
               resolve();
           }
@@ -1666,24 +1752,24 @@ Special Credits to the amazing authors of DomReady libarary!
   
   
   
-  const e27 = (element, component, instance) => {
+  const x28 = (element, component, instance) => {
       return new Promise(async (resolve, reject) => {
           try {
               const attr = IF_ELEMENT_ATTR;
               /** Retrieving all elements with ifs conditional */
-              const nodes = XAttr.e30(element, instance, attr);
+              const nodes = XAttr.a31(element, instance, attr);
               for (let i = 0; i < nodes.length; i++) {
                   const node = nodes[i];
-                  if (!e45(node, instance)) {
-                      const condition = XAttr.x78(node, instance, attr);
-                      const scope = component.a82();
+                  if (!e47(node, instance)) {
+                      const condition = XAttr.x82(node, instance, attr);
+                      const scope = component.a86();
                       if (scope === null || condition === null)
                           continue;
-                      const result = Resolver.e31(scope, condition);
+                      const result = Resolver.a33(scope, condition);
                       if (typeof result === 'boolean' && !result) {
-                          a49(node, 'false');
+                          x51(node, 'false');
                       }
-                      x65(node, instance);
+                      a68(node, instance);
                   }
               }
               resolve();
@@ -1696,24 +1782,24 @@ Special Credits to the amazing authors of DomReady libarary!
   
   
   
-  const e52 = (element, component, instance) => {
+  const e54 = (element, component, instance) => {
       return new Promise(async (resolve, reject) => {
           try {
               const attribute = DISABLE_ELEMENT_ATTR;
-              const nodes = XAttr.e30(element, instance, attribute);
+              const nodes = XAttr.a31(element, instance, attribute);
               for (let i = 0; i < nodes.length; i++) {
                   const node = nodes[i];
-                  if (e45(node, instance))
+                  if (e47(node, instance))
                       continue;
-                  const argument = XAttr.x78(node, instance, attribute);
-                  const scope = component.a82();
+                  const argument = XAttr.x82(node, instance, attribute);
+                  const scope = component.a86();
                   if (scope === null || argument === null || argument.trim() === '')
                       continue;
-                  const evaluated = Resolver.e31(scope, argument);
+                  const evaluated = Resolver.a33(scope, argument);
                   if (typeof evaluated === 'boolean') {
                       evaluated ? node.setAttribute('disabled', 'true') : node.removeAttribute('disabled');
                   }
-                  x65(node, instance);
+                  a68(node, instance);
               }
               resolve();
           }
@@ -1729,14 +1815,14 @@ Special Credits to the amazing authors of DomReady libarary!
    * This function adds event listener to elements which is bound to a function
    * within the component scope
    */
-  const e28 = (scope, bindToElement, fnExpression, eventType) => {
-      if (Resolver.a50(fnExpression) !== 'function')
+  const e29 = (scope, bindToElement, fnExpression, eventType) => {
+      if (Resolver.x52(fnExpression) !== 'function')
           return;
       bindToElement.addEventListener(eventType, () => {
-          Resolver.e31(scope, fnExpression, bindToElement);
+          Resolver.a33(scope, fnExpression, bindToElement);
       });
   };
-  const e62 = (element, component, instance) => {
+  const a65 = (element, component, instance) => {
       return new Promise(async (resolve, reject) => {
           try {
               const events = [
@@ -1746,17 +1832,17 @@ Special Credits to the amazing authors of DomReady libarary!
               ];
               for (let i = 0; i < events.length; i++) {
                   const event = events[i];
-                  const nodes = XAttr.e30(element, instance, event.attr);
+                  const nodes = XAttr.a31(element, instance, event.attr);
                   for (let k = 0; k < nodes.length; k++) {
                       const node = nodes[k];
-                      const fnExpression = XAttr.x78(node, instance, event.attr);
-                      if (e17(node, event.type, instance))
+                      const fnExpression = XAttr.x82(node, instance, event.attr);
+                      if (a18(node, event.type, instance))
                           continue;
-                      const scope = component.a82();
+                      const scope = component.a86();
                       if (scope === null || fnExpression == null)
                           continue;
-                      e28(scope, node, fnExpression, event.type);
-                      a35(node, event.type, instance);
+                      e29(scope, node, fnExpression, event.type);
+                      x37(node, event.type, instance);
                   }
               }
               resolve();
@@ -1774,18 +1860,18 @@ Special Credits to the amazing authors of DomReady libarary!
   
   
   
-  const e59 = (element, component, instance, skipEvents = false) => {
+  const x62 = (element, component, instance, skipEvents = false) => {
       return new Promise(async (resolve, reject) => {
           try {
-              await a57(element, component, instance);
-              await e27(element, component, instance);
-              await e29(element, component, instance);
-              await a61(element, component, instance);
-              await a63(element, component, instance);
-              await e64(element, component, instance);
-              await e52(element, component, instance);
+              await e59(element, component, instance);
+              await x28(element, component, instance);
+              await e30(element, component, instance);
+              await a64(element, component, instance);
+              await a66(element, component, instance);
+              await e67(element, component, instance);
+              await e54(element, component, instance);
               if (!skipEvents) {
-                  await e62(element, component, instance);
+                  await a65(element, component, instance);
               }
               resolve();
           }
@@ -1803,7 +1889,7 @@ Special Credits to the amazing authors of DomReady libarary!
    * and most modern browsers adhere to this standard.
    * @param date - supposedly date in YYYY-MM-DD format
    */
-  function x36(date) {
+  function a38(date) {
       var _a, _b, _c;
       const message = `models assigned to Date input elements `
           + `must follow standard HTML5 format YYYY-MM-DD`;
@@ -1829,7 +1915,7 @@ Special Credits to the amazing authors of DomReady libarary!
    * and is supported by most modern browsers.
    * @param time - supposedly date in HH:MM format
    */
-  function a37(time) {
+  function a39(time) {
       var _a, _b;
       const message = `models assigned to Time input elements `
           + `must follow standard HTML5 format HH:MM`;
@@ -1843,47 +1929,47 @@ Special Credits to the amazing authors of DomReady libarary!
           throw new Error(message);
       }
   }
-  const e38 = (scope, expression, value) => {
-      const parentObj = Resolver.x18(scope, expression);
-      const childObjExpression = Resolver.x32(expression);
+  const a40 = (scope, expression, value) => {
+      const parentObj = Resolver.x19(scope, expression);
+      const childObjExpression = Resolver.a34(expression);
       if (undefined !== parentObj)
           parentObj[childObjExpression] = value;
   };
-  const a39 = (element, state) => {
+  const e41 = (element, state) => {
       (typeof state == 'boolean' && state) ?
           element.setAttribute('checked', '') :
           element.removeAttribute('checked');
   };
-  const x53 = () => {
+  const a55 = () => {
       const date = new Date(Date.now());
       const nmonth = (date.getMonth() + 1);
       const month = (nmonth < 10) ? `0${nmonth}` : nmonth;
       const result = `${date.getFullYear()}-${month}-${date.getDate()}`;
-      x36(result);
+      a38(result);
       return result;
   };
-  const a54 = () => {
+  const x56 = () => {
       const input = new Date(Date.now());
       const hours = (input.getHours() < 10) ? `0${input.getHours()}` : input.getHours();
       const minutes = (input.getMinutes() < 10) ? `0${input.getMinutes()}` : input.getMinutes();
       const result = hours + ':' + minutes;
-      a37(result);
+      a39(result);
       return result;
   };
-  const e64 = (element, component, instance) => {
+  const e67 = (element, component, instance) => {
       return new Promise(async (resolve, reject) => {
           try {
               const attribute = MODEL_ELEMENT_ATTR;
-              const nodes = XAttr.e30(element, instance, attribute);
+              const nodes = XAttr.a31(element, instance, attribute);
               for (let i = 0; i < nodes.length; i++) {
                   const node = nodes[i];
                   if (node === null)
                       continue;
-                  const argument = XAttr.x78(node, instance, attribute);
-                  const scope = component.a82();
+                  const argument = XAttr.x82(node, instance, attribute);
+                  const scope = component.a86();
                   if (scope === null || argument === null || argument.trim() === '')
                       continue;
-                  const evaluated = Resolver.e31(scope, argument);
+                  const evaluated = Resolver.a33(scope, argument);
                   let IsValueTypeOfString = true;
                   if (node.tagName === 'INPUT' || node.tagName === 'SELECT') {
                       if ((node instanceof HTMLInputElement)) {
@@ -1892,13 +1978,13 @@ Special Credits to the amazing authors of DomReady libarary!
                           if (type === 'radio' || type === 'checkbox') {
                               IsValueTypeOfString = false;
                               (evaluated === undefined) ?
-                                  e38(scope, argument, false) :
-                                  a39(node, evaluated);
+                                  a40(scope, argument, false) :
+                                  e41(node, evaluated);
                           }
                           /** Text inputs, but not textarea */
                           if (type === 'text' || type === 'password' || type === ' email') {
                               (evaluated === undefined) ?
-                                  e38(scope, argument, node.value) :
+                                  a40(scope, argument, node.value) :
                                   node.value = evaluated;
                           }
                           /**
@@ -1909,32 +1995,32 @@ Special Credits to the amazing authors of DomReady libarary!
                               if (evaluated === undefined) {
                                   value = '0';
                               }
-                              e38(scope, argument, value);
+                              a40(scope, argument, value);
                               node.value = value;
                           }
                           /** Date input */
                           if (type === 'date') {
                               /** When evaluated is undefined, we will assign Date today */
-                              let inputDate = x53();
+                              let inputDate = a55();
                               if (evaluated !== undefined) {
-                                  x36(evaluated);
+                                  a38(evaluated);
                                   inputDate = evaluated;
                               }
                               else {
-                                  e38(scope, argument, inputDate);
+                                  a40(scope, argument, inputDate);
                               }
                               node.value = inputDate;
                           }
                           /** Time input */
                           if (type === 'time') {
                               /** When evaluated is undefined, we will assign Date today */
-                              let inputTime = a54();
+                              let inputTime = x56();
                               if (evaluated !== undefined) {
-                                  a37(evaluated);
+                                  a39(evaluated);
                                   inputTime = evaluated;
                               }
                               else {
-                                  e38(scope, argument, inputTime);
+                                  a40(scope, argument, inputTime);
                               }
                               node.value = inputTime;
                           }
@@ -1942,18 +2028,30 @@ Special Credits to the amazing authors of DomReady libarary!
                       /** Select element */
                       if ((node instanceof HTMLSelectElement)) {
                           (evaluated === undefined) ?
-                              e38(scope, argument, node.value) :
+                              a40(scope, argument, node.value) :
                               node.value = evaluated;
                       }
                       node.addEventListener('change', (event) => {
                           const target = event.target;
                           if (target instanceof HTMLInputElement) {
                               const value = (IsValueTypeOfString) ? target.value : target.checked;
-                              e38(scope, argument, value);
+                              a40(scope, argument, value);
                           }
                           if (target instanceof HTMLSelectElement) {
-                              e38(scope, argument, target.value);
+                              a40(scope, argument, target.value);
                           }
+                      });
+                  }
+                  else if (node.tagName === 'TEXTAREA' && node instanceof HTMLTextAreaElement) {
+                      (evaluated === undefined) ?
+                          a40(scope, argument, node.value) :
+                          node.value = evaluated;
+                      node.addEventListener('change', (event) => {
+                          const target = event.target;
+                          if (!(target instanceof HTMLTextAreaElement))
+                              return;
+                          const value = target.value;
+                          a40(scope, argument, value);
                       });
                   }
               }
@@ -1965,7 +2063,7 @@ Special Credits to the amazing authors of DomReady libarary!
       });
   };
   
-  const e29 = (element, component, instance) => {
+  const e30 = (element, component, instance) => {
       return new Promise(async (resolve, reject) => {
           try {
               const regularExp = /(?<=\{{).+?(?=\}})/g;
@@ -1976,10 +2074,10 @@ Special Credits to the amazing authors of DomReady libarary!
               /** When there are matches */
               if (placeholders !== null) {
                   for (let i = 0; i < placeholders.length; i++) {
-                      const scope = component.a82();
+                      const scope = component.a86();
                       if (scope === null)
                           continue;
-                      let resolvedExp = Resolver.e31(scope, placeholders[i].trim());
+                      let resolvedExp = Resolver.a33(scope, placeholders[i].trim());
                       if (resolvedExp === undefined) {
                           resolvedExp = '';
                       }
@@ -2007,7 +2105,7 @@ Special Credits to the amazing authors of DomReady libarary!
    * @param expression
    * @returns
    */
-  const a33 = (expression) => {
+  const x35 = (expression) => {
       if (expression.includes('until ')) {
           return [
               REPEAT_REFERENCE_TOKEN,
@@ -2019,7 +2117,7 @@ Special Credits to the amazing authors of DomReady libarary!
           expression.split(' as ')[1].trim()
       ];
   };
-  const e21 = (repetitions) => {
+  const a22 = (repetitions) => {
       if (repetitions instanceof Array)
           return repetitions.length;
       if (typeof repetitions === 'number' && Number.isInteger(repetitions))
@@ -2031,51 +2129,51 @@ Special Credits to the amazing authors of DomReady libarary!
    * with `Object.entries`.
    * @param value
    */
-  const x14 = (value) => {
+  const a15 = (value) => {
       return value !== null && (typeof value === 'object' || Array.isArray(value));
   };
-  const a57 = (element, component, instance) => {
+  const e59 = (element, component, instance) => {
       return new Promise(async (resolve, reject) => {
           try {
               /** Retrieving all repeatable elements */
-              const repeatables = XAttr.e30(element, instance, REPEAT_ELEMENT_ATTR);
-              const scope = component.a82();
+              const repeatables = XAttr.a31(element, instance, REPEAT_ELEMENT_ATTR);
+              const scope = component.a86();
               if (scope === null)
                   return resolve();
               for (let i = 0; i < repeatables.length; i++) {
                   const repeatable = repeatables[i];
                   const template = repeatable.innerHTML;
                   repeatable.innerHTML = '';
-                  let expression = XAttr.x78(repeatable, instance, REPEAT_ELEMENT_ATTR);
+                  let expression = XAttr.x82(repeatable, instance, REPEAT_ELEMENT_ATTR);
                   if (expression === null || expression.trim() === '')
                       continue;
-                  let [refObjName, aliasObjName] = a33(expression);
+                  let [refObjName, aliasObjName] = x35(expression);
                   if (refObjName === REPEAT_REFERENCE_TOKEN) {
                       /** This creates a new object that we can loop through **/
-                      let repetitions = Resolver.e31(scope, aliasObjName);
+                      let repetitions = Resolver.a33(scope, aliasObjName);
                       /** How many repitions to be made */
-                      let times = e21(repetitions);
+                      let times = a22(repetitions);
                       scope['$$index'] = {};
                       let k = 0;
                       while (k < times)
                           scope['$$index']['props' + (k++)] = new Object;
                   }
-                  const repeatableObj = Resolver.e31(scope, refObjName);
-                  if (x14(repeatableObj)) {
+                  const repeatableObj = Resolver.a33(scope, refObjName);
+                  if (a15(repeatableObj)) {
                       let indexNumber = 0;
                       for (const [key, value] of Object.entries(repeatableObj)) {
                           /** Creating an invidual component for each repititions **/
                           const id = 'any';
                           let dummy = new Component(id, 'any');
-                          dummy.x67({
+                          dummy.a70({
                               $parent: scope,
                               $index: indexNumber++,
                               [aliasObjName]: repeatableObj[key]
                           });
-                          const child = x42();
+                          const child = x44();
                           child.innerHTML = template;
-                          await e59(child, dummy, instance, true);
-                          e44(child, repeatable);
+                          await x62(child, dummy, instance, true);
+                          a46(child, repeatable);
                       }
                   }
               }
@@ -2105,24 +2203,24 @@ Special Credits to the amazing authors of DomReady libarary!
    * @param component
    * @param instance
    */
-  const a63 = (element, component, instance) => {
+  const a66 = (element, component, instance) => {
       return new Promise(async (resolve, reject) => {
           try {
               const attribute = STYLE_ELEMENT_ATTR;
-              const nodes = XAttr.e30(element, instance, attribute);
+              const nodes = XAttr.a31(element, instance, attribute);
               for (let i = 0; i < nodes.length; i++) {
                   const node = nodes[i];
-                  if (e45(node, instance))
+                  if (e47(node, instance))
                       continue;
-                  const argument = XAttr.x78(node, instance, attribute);
-                  const scope = component.a82();
+                  const argument = XAttr.x82(node, instance, attribute);
+                  const scope = component.a86();
                   if (scope === null || argument === null || argument.trim() === '')
                       continue;
-                  const evaluated = Resolver.e31(scope, argument);
+                  const evaluated = Resolver.a33(scope, argument);
                   if (evaluated !== null && evaluated !== '' && evaluated !== undefined) {
                       node.classList.add(evaluated);
                   }
-                  x65(node, instance);
+                  a68(node, instance);
               }
               resolve();
           }
@@ -2161,7 +2259,7 @@ Special Credits to the amazing authors of DomReady libarary!
    */
   const AppPublicAPI = {
       create: (applName, config = null) => {
-          const reqConf = a60(config);
+          const reqConf = a63(config);
           const instance = new PluncApp(applName, instanceId++, reqConf);
           instances.push(instance);
           return {
@@ -2171,8 +2269,8 @@ Special Credits to the amazing authors of DomReady libarary!
                * @param handler
                */
               component: (name, handler) => {
-                  instance.e87()
-                      .e80(name, 'component', handler);
+                  instance.e91()
+                      .a84(name, 'component', handler);
               },
               /**
                * @see PluncAppInstance.service for definition
@@ -2180,8 +2278,8 @@ Special Credits to the amazing authors of DomReady libarary!
                * @param handler
                */
               service: (name, handler) => {
-                  instance.e87()
-                      .e80(name, 'service', handler);
+                  instance.e91()
+                      .a84(name, 'service', handler);
               },
               /**
                * @see PluncAppInstance.factory for definition
@@ -2189,8 +2287,8 @@ Special Credits to the amazing authors of DomReady libarary!
                * @param handler
                */
               factory: (name, handler) => {
-                  instance.e87()
-                      .e80(name, 'factory', handler);
+                  instance.e91()
+                      .a84(name, 'factory', handler);
               },
               /**
                * @see PluncAppInstance.helper for definition
@@ -2198,8 +2296,8 @@ Special Credits to the amazing authors of DomReady libarary!
                * @param handler
                */
               helper: (name, handler) => {
-                  instance.e87()
-                      .e80(name, 'helper', handler);
+                  instance.e91()
+                      .a84(name, 'helper', handler);
               }
           };
       }
@@ -2215,8 +2313,8 @@ Special Credits to the amazing authors of DomReady libarary!
       for (let i = 0; i < instances.length; i++) {
           const instance = instances[i];
           try {
-              const name = instance.x84();
-              const shouldProceed = await e66(instance);
+              const name = instance.x88();
+              const shouldProceed = await a69(instance);
               if (!shouldProceed)
                   continue;
               /**
@@ -2224,12 +2322,12 @@ Special Credits to the amazing authors of DomReady libarary!
                * templates and render all components.
                */
               const implementation = (document.implementation.createHTMLDocument(name));
-              implementation.body.innerHTML = a79(instance, name);
+              implementation.body.innerHTML = x83(instance, name);
               /**
                * Compiling all the components in the app template, as well
                * as the dependencies of these components.
                */
-              const cAttr = XAttr.a93(COMPONENT_ELEMENT_ATTR, instance);
+              const cAttr = XAttr.e96(COMPONENT_ELEMENT_ATTR, instance);
               const cEls = implementation.body.querySelectorAll(`[${cAttr}]`);
               let cId = 0;
               /** Creating a new lineage of components */
@@ -2237,55 +2335,55 @@ Special Credits to the amazing authors of DomReady libarary!
               let compiledHtml = '';
               for (let j = 0; j < cEls.length; j++) {
                   const cEl = cEls[j];
-                  const cName = XAttr.x78(cEl, instance, COMPONENT_ELEMENT_ATTR);
+                  const cNameMayHaveAlias = XAttr.x82(cEl, instance, COMPONENT_ELEMENT_ATTR);
                   /**
                    * Component without names will not be rendered
                    */
-                  if (cName === null)
+                  if (cNameMayHaveAlias === null)
                       continue;
                   /** Component IDs would have to be embedded to the plunc-id attribute */
-                  const cElId = e43(instance, cId++);
-                  const cElAttr = XAttr.a93('id', instance);
+                  const cElId = a45(instance, cId++);
+                  const cElAttr = XAttr.e96('id', instance);
                   cEl.setAttribute(cElAttr, cElId);
                   lineage.begat(cElId, null);
                   /** Registering the component object */
-                  const cObject = new Component(cElId, cName);
-                  instance.e76().e80(cElId, cObject);
+                  const cObject = new Component(cElId, cNameMayHaveAlias);
+                  instance.x80().a84(cElId, cObject);
                   /**
                    * Retrieving component templates, as well as the templates of their dependencies,
                    * and the dependencies of their dependencies.
                    */
-                  cEl.innerHTML = await x48(cElId, cEl, instance, lineage);
+                  cEl.innerHTML = await e50(cElId, cEl, instance, lineage);
               }
               /** All registered components */
-              const cRegistered = instance.e76().x95();
+              const cRegistered = instance.x80().e99();
               for (const id in cRegistered) {
-                  await a9(cRegistered[id], instance, lineage);
+                  await e10(cRegistered[id], instance, lineage);
               }
-              const appEl = x42();
+              const appEl = x44();
               appEl.innerHTML = implementation.body.innerHTML;
               for (const id in cRegistered) {
                   const component = cRegistered[id];
                   if (!(component instanceof Component))
                       continue;
-                  const cId = component.e96();
-                  const targetEl = XAttr.a41(appEl, instance, cId);
+                  const cId = component.e100();
+                  const targetEl = XAttr.x43(appEl, instance, cId);
                   /**
                    * This happens for the following circumstances:
                    * - When the component is added inside an xif element
                    */
                   if (targetEl === null)
                       continue;
-                  const tempEl = x42();
+                  const tempEl = x44();
                   tempEl.innerHTML = targetEl.innerHTML;
-                  e15(tempEl, lineage.children(cId), instance);
-                  await e59(tempEl, component, instance);
-                  a34(tempEl, targetEl, instance, lineage.children(cId));
+                  a16(tempEl, lineage.children(cId), instance);
+                  await x62(tempEl, component, instance);
+                  x36(tempEl, targetEl, instance, lineage.children(cId));
               }
-              const appElement = a46(instance);
-              e44(appEl, appElement);
-              instance.e83();
-              const readys = instance.e91().e58('ready');
+              const appElement = e48(instance);
+              a46(appEl, appElement);
+              instance.x87();
+              const readys = instance.a95().a60('ready');
               for (let o = 0; o < readys.length; o++) {
                   readys[o]();
               }
