@@ -30,6 +30,10 @@ export const __blockAPI = (
     component.__getId()
   )
   const blocks = cElement.querySelectorAll(`[${blockAttribute}][${refAttribute}]`)
+  if (blocks.length === 0) {
+    callback(null)
+    return
+  }
   for (let i = 0; i < blocks.length; i++) {
     callback(new PluncElement(blocks[i]))
   }

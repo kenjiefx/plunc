@@ -154,7 +154,7 @@ export interface PluncElementInterface<TElement extends Element> {
 
 /** Block API requires call back function */
 export type BlockCallback<TElement extends Element> = (
-  element: PluncElementInterface<TElement>
+  element: PluncElementInterface<TElement> | null
 ) => void;
 
 export type BlockAPI = <TElement extends Element>(
