@@ -1,0 +1,30 @@
+{
+  "name": "plunc",
+  "version": "1.0.0",
+  "description": "The 2,314th frontend Javascript out there",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build:browser:test": "npx esbuild out/test/compatability/browser/index.js --bundle --outfile=test/compatability/browser/index.js --platform=browser --target=es2015 --sourcemap"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kenjiefx/plunc.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/kenjiefx/plunc/issues"
+  },
+  "homepage": "https://github.com/kenjiefx/plunc#readme",
+  "devDependencies": {
+    "esbuild": "^0.27.0"
+  },
+  "dependencies": {
+    "express": "^5.1.0"
+  }
+}
