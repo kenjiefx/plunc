@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Browser Tests</title>
+  </head>
+  <body>
+    <section test-id="repeat"></section>
+    <template test-id="repeat">
+      <div plunc-repeat="items as item">
+        <p>{{item.name}}</p>
+        <div plunc-repeat="item.subItems as subItem">
+          <p>{{subItem.title}}</p>
+          <div plunc-repeat="subItem.subSubItems as subSubItem">
+            <p>{{subSubItem.detail}}</p>
+          </div>
+        </div>
+      </div>
+    </template>
+    <script type="text/javascript" src="/test/browser/index.js"></script>
+  </body>
+</html>
