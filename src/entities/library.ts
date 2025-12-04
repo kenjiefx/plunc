@@ -5,58 +5,105 @@ import {
   PluncHandlers,
 } from "../types";
 
-export type Library = ReturnType<typeof createLibrary>;
-
-export function createLibrary() {
-  const handlers: {
+/**
+ * A library of handler functions for components, services, factories, and helpers
+ */
+export type Library = {
+  data: {
     [key: string]:
       | HandlerFunction<any, any>
       | FactoryHandlerFunction<any>
       | HelperHandlerFunction<any, any>;
-  } = {};
+  };
+};
 
-  function createNamespace(type: PluncHandlers, name: string) {
-    return `${type}.${name}`;
-  }
-
-  function register(
-    name: string,
-    type: PluncHandlers,
-    handler:
-      | HandlerFunction<any, any>
-      | FactoryHandlerFunction<any>
-      | HelperHandlerFunction<any, any>
-  ) {
-    handlers[createNamespace(type, name)] = handler;
-  }
-
-  function getComponent(name: string): HandlerFunction<any, any> {
-    return handlers[createNamespace("component", name)] as HandlerFunction<
-      any,
-      any
-    >;
-  }
-
-  function getService(name: string): HandlerFunction<any, any> | null {
-    return (handlers[createNamespace("service", name)] ??
-      null) as HandlerFunction<any, any> | null;
-  }
-
-  function getFactory(name: string): FactoryHandlerFunction<any> | null {
-    return (handlers[createNamespace("factory", name)] ??
-      null) as FactoryHandlerFunction<any> | null;
-  }
-
-  function getHelper(name: string): HelperHandlerFunction<any, any> | null {
-    return (handlers[createNamespace("helper", name)] ??
-      null) as HelperHandlerFunction<any, any> | null;
-  }
-
+/**
+ * Creates a new empty library
+ * @returns
+ */
+export function createLibrary(): Library {
   return {
-    register,
-    getComponent,
-    getService,
-    getFactory,
-    getHelper,
-  } as const;
+    data: {},
+  };
+}
+
+/**
+ * Creates a namespace string for a given handler type and name
+ * @param type
+ * @param name
+ * @returns
+ */
+function createNamespace(type: PluncHandlers, name: string) {
+  return `${type}.${name}`;
+}
+
+export function addToLibrary(
+  library: Library,
+  name: string,
+  type: PluncHandlers,
+  handler:
+    | HandlerFunction<any, any>
+    | FactoryHandlerFunction<any>
+    | HelperHandlerFunction<any, any>
+) {
+  library.data[createNamespace(type, name)] = handler;
+}
+
+/**
+ * Retrieves a component handler function from the library by its name
+ * @param library
+ * @param name
+ * @returns
+ */
+export function getComponentHandlerFromLibrary(
+  library: Library,
+  name: string
+): HandlerFunction<any, any> {
+  const result = library.data[createNamespace("component", name)];
+  if (!result) {
+    throw new Error(`Component handler "${name}" not found in the library.`);
+  }
+  return result as HandlerFunction<any, any>;
+}
+
+/**
+ * Retrieves a service handler function from the library by its name
+ * @param library
+ * @param name
+ * @returns
+ */
+export function getServiceHandlerFromLibrary(
+  library: Library,
+  name: string
+): HandlerFunction<any, any> | null {
+  const result = library.data[createNamespace("service", name)];
+  return (result ?? null) as HandlerFunction<any, any> | null;
+}
+
+/**
+ * Retrieves a factory handler function from the library by its name
+ * @param library
+ * @param name
+ * @returns
+ */
+export function getFactoryHandlerFromLibrary(
+  library: Library,
+  name: string
+): FactoryHandlerFunction<any> | null {
+  const result = library.data[createNamespace("factory", name)];
+  return (result ?? null) as FactoryHandlerFunction<any> | null;
+}
+
+/**
+ * Retrieves a helper handler function from the library by its name
+ * @param library
+ * @param name
+ * @returns
+ */
+export function getHelperHandlerFromLibrary(
+  library: Library,
+  name: string
+): HelperHandlerFunction<any, any> | null {
+  const result = library.data[createNamespace("helper", name)];
+  return (result ?? null) as HelperHandlerFunction<any, any> | null;
 }

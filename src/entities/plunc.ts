@@ -1,8 +1,16 @@
 import { PluncAppConfiguration, RequireAllFields } from "../types";
 import { Library } from "./library";
-import { Registry } from "./registry"; // Already functional
+import { Registry } from "./registry";
 
-export type PluncApp = ReturnType<typeof createPluncApp>;
+export type PluncApp = Readonly<{
+  config: Readonly<RequireAllFields<PluncAppConfiguration>>;
+  library: Library;
+  registry: Registry;
+  name: string;
+  id: number;
+  toReady: () => void;
+  isReady: () => boolean;
+}>;
 
 export function createPluncApp(
   name: string,
@@ -10,47 +18,17 @@ export function createPluncApp(
   configuration: Readonly<RequireAllFields<PluncAppConfiguration>>,
   registry: Registry,
   library: Library
-) {
+): PluncApp {
   let ready = false;
-
-  // local state stored in closure
-  const config = configuration;
-
-  function getConfig() {
-    return config;
-  }
-
-  function getLibrary() {
-    return library;
-  }
-
-  function getRegistry() {
-    return registry;
-  }
-
-  function getName() {
-    return name;
-  }
-
-  function getId() {
-    return id;
-  }
-
-  function nowReady() {
-    ready = true;
-  }
-
-  function isReady() {
-    return ready;
-  }
-
   return {
-    getConfig,
-    getLibrary,
-    getRegistry,
-    getName,
-    getId,
-    nowReady,
-    isReady,
-  } as const;
+    name,
+    id,
+    config: configuration,
+    registry,
+    library,
+    toReady: () => {
+      ready = true;
+    },
+    isReady: () => ready,
+  };
 }

@@ -1,7 +1,9 @@
-export type Scope = ReturnType<typeof createScope>;
+import { ComponentScope } from "../types";
 
-export function createScope() {
-  return {};
+/**
+ * Creates a new component scope object.
+ * @returns A new component scope
+ */
+export function createScope(): ComponentScope {
+  return Object.create(null);
 }
-
-export type CreateScope = typeof createScope;
