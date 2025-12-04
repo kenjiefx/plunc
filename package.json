@@ -22,7 +22,10 @@
   },
   "homepage": "https://github.com/kenjiefx/plunc#readme",
   "devDependencies": {
-    "esbuild": "^0.27.0"
+    "@types/chai": "^5.2.3",
+    "chai": "^6.2.1",
+    "esbuild": "^0.27.0",
+    "mocha": "^11.7.5"
   },
   "dependencies": {
     "express": "^5.1.0"
