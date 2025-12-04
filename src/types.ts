@@ -106,6 +106,8 @@ export type PluncHandlers = {
 
 export type ComponentId = string & { separator: "." };
 
+export type ComponentScope = Record<string, any>;
+
 export type PluncAttributeKey = string & { plunc_prefix: true };
 
 /**
