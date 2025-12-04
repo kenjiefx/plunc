@@ -12,11 +12,14 @@
         <p>{{item.name}}</p>
         <div plunc-repeat="item.subItems as subItem">
           <p>{{subItem.title}}</p>
-          <div plunc-repeat="subItem.subSubItems as subSubItem">
-            <p>{{subSubItem.detail}}</p>
-          </div>
+          <section>
+            <div plunc-repeat="subItem.subSubItems as subSubItem">
+              <p>{{subSubItem.detail}}</p>
+            </div>
+          </section>
         </div>
       </div>
+      <div plunc-repeat="notes as note">{{note.id}}</div>
     </template>
     <script type="text/javascript" src="/test/browser/index.js"></script>
   </body>

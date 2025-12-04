@@ -15,5 +15,3 @@ export function parseAliasNotation(name: string): {
     alias: name.split(" as ")[1] ?? null,
   };
 }
-
-export type ParseAliasNotation = typeof parseAliasNotation;

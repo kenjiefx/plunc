@@ -8,6 +8,7 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "npx esbuild out/test/compatability/browser/index.js --bundle --outfile=dist/bundle.js --platform=browser --target=es2017 --sourcemap && node bin/mangle.js",
     "build:browser:test": "npx esbuild out/test/compatability/browser/index.js --bundle --outfile=test/compatability/browser/index.js --platform=browser --target=es2015 --sourcemap"
   },
   "repository": {

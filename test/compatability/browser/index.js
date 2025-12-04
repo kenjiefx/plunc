@@ -60,12 +60,15 @@
   // out/utils/pluncAttribute.js
   var REPEAT_ELEMENT_ATTR = "repeat";
   function usePluncAttribute(instance) {
+    function __testMangle(instance2) {
+      return instance2.getConfig().prefix;
+    }
     function create(key) {
-      const prefix = instance.getConfig().prefix;
+      const prefix = __testMangle(instance);
       return `${prefix}${key}`;
     }
     function createWithValue(key, value) {
-      const prefix = instance.getConfig().prefix;
+      const prefix = __testMangle(instance);
       return `${prefix}${key}="${value}"`;
     }
     return {
@@ -75,23 +78,43 @@
   }
 
   // out/renders/repeat.js
-  function renderRepeats(element, pluncApp, attributeManager, elementSelector) {
+  function renderRepeats(componentTemplate, pluncApp, attributeManager, elementSelector) {
     const repeatAttr = attributeManager.create(REPEAT_ELEMENT_ATTR);
-    const repeatElements = elementSelector.selectAll(`[${repeatAttr}]`);
-    console.log(repeatElements);
+    const firstLevelRepeatElements = elementSelector.getFirstChildrenWithAttribute(componentTemplate, repeatAttr);
+    console.log(firstLevelRepeatElements);
   }
 
   // out/utils/elementSelector.js
-  function useElementSelector(context) {
-    function select(selector) {
+  function useElementSelector() {
+    function select(context, selector) {
       return context.querySelector(selector);
     }
-    function selectAll(selector) {
+    function selectAll(context, selector) {
       return Array.from(context.querySelectorAll(selector));
+    }
+    function selectClosest(element, selector) {
+      return element.closest(selector);
+    }
+    function getFirstChildrenWithAttribute(parent, attribute) {
+      const selectedChildren = parent.querySelectorAll(`[${attribute}]`);
+      const results = [];
+      selectedChildren.forEach((element) => {
+        if (element.parentElement === null) {
+          results.push(element);
+          return;
+        }
+        const closestAncestorWithAttribute = element.parentElement.closest(`[${attribute}]`);
+        if (closestAncestorWithAttribute === null) {
+          results.push(element);
+        }
+      });
+      return results;
     }
     return {
       select,
-      selectAll
+      selectAll,
+      selectClosest,
+      getFirstChildrenWithAttribute
     };
   }
 
@@ -105,8 +128,6 @@
       return;
     }
     const clone = template.content.cloneNode(true);
-    const testElement = document.createElement("div");
-    testElement.appendChild(clone);
     const registry = {};
     const library = {};
     const pluncApp = createPluncApp(
@@ -125,8 +146,7 @@
       library
     );
     const attrManager = usePluncAttribute(pluncApp);
-    const elementSelector = useElementSelector(testElement);
-    renderRepeats(testElement, pluncApp, attrManager, elementSelector);
+    renderRepeats(clone, pluncApp, attrManager, useElementSelector());
   }
   run();
 })();

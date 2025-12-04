@@ -33,21 +33,30 @@ export const LOCK_ID_ATTR_VALUE = "true";
 export const EVENT_ELEMENT_ATTR = "event";
 export const ELEMENT_REFERENCE_ATTR = "rid";
 
-export type PluncAttributeManager = ReturnType<typeof usePluncAttribute>;
+/**
+ * Creates a Plunc attribute key with the
+ * configured prefix.
+ * @param instance
+ * @param key
+ * @returns
+ */
+export function createPluncAttribute(instance: PluncApp, key: string) {
+  const prefix = instance.config.prefix;
+  return `${prefix}${key}` as PluncAttributeKey;
+}
 
-export function usePluncAttribute(instance: PluncApp) {
-  function create(key: string) {
-    const prefix = instance.getConfig().prefix;
-    return `${prefix}${key}` as PluncAttributeKey;
-  }
-
-  function createWithValue(key: string, value: string) {
-    const prefix = instance.getConfig().prefix;
-    return `${prefix}${key}="${value}"` as PluncAttributeKey;
-  }
-
-  return {
-    create,
-    createWithValue,
-  };
+/**
+ * Creates a Plunc attribute key with a value
+ * @param instance
+ * @param key
+ * @param value
+ * @returns
+ */
+export function createPluncAttributeWithValue(
+  instance: PluncApp,
+  key: string,
+  value: string
+) {
+  const prefix = instance.config.prefix;
+  return `${prefix}${key}="${value}"` as PluncAttributeKey;
 }
