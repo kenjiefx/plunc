@@ -84,7 +84,7 @@ function resolve(
       break;
 
     case "object":
-      return __evalObject(scope, expression);
+      return evalObject(scope, expression);
       break;
 
     case "function":
@@ -155,7 +155,7 @@ function resolve(
   }
 }
 
-const __evalObject = (scope: ComponentScope, expression: string) => {
+function evalObject(scope: ComponentScope, expression: string) {
   if (expression === "$scope") {
     return scope;
   }
@@ -165,7 +165,7 @@ const __evalObject = (scope: ComponentScope, expression: string) => {
     if (o[x] === undefined) return;
     return o[x];
   }, scope);
-};
+}
 
 /**
  * Invokes/calls a given function based on the function expression
