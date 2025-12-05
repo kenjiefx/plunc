@@ -7,7 +7,7 @@
     "test": "test"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "tsc --module commonjs && mocha out/**/*.test.js",
     "build:browser:test": "npx esbuild out/test/compatability/browser/index.js --bundle --outfile=test/compatability/browser/index.js --platform=browser --target=es2015 --sourcemap"
   },
   "repository": {
@@ -23,6 +23,7 @@
   "homepage": "https://github.com/kenjiefx/plunc#readme",
   "devDependencies": {
     "@types/chai": "^5.2.3",
+    "@types/mocha": "^10.0.10",
     "chai": "^6.2.1",
     "esbuild": "^0.27.0",
     "mocha": "^11.7.5"
