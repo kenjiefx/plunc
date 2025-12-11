@@ -199,7 +199,7 @@ function invokeFunction(
     const argsVault = new Array();
     const splitArguments = splitExpression[1].split(",");
     for (let i = 0; i < splitArguments.length; i++) {
-      argsVault.push(resolveExpression(object, splitArguments[i]));
+      argsVault.push(resolveExpression(object, splitArguments[i].trim()));
     }
     if (element !== null) {
       argsVault.push(new PluncElement(element));
