@@ -19,7 +19,7 @@ A global variable will be available for creating an instance of the application.
 <main plunc-app="app"></main>
 <template plunc-name="app">
     Contents of the template will be rendered in the plunc-app element
-<template/>
+</template>
 ```
 
 ### Components
@@ -32,20 +32,20 @@ PluncJS is designed with a component-based architecture, making it easy to build
 </script>
 <template plunc-name="ProfileCard">
     {{ user.fullName }} // Prints 'John Doe'
-<template/>
+</template>
 ```
 Components can be reused across different parts of the application, ensuring a modular and cohesive structure.
 ```html
 <template plunc-name="app">
     <section plunc-component="ProfileCard"></section>
     <section plunc-component="Authors"></section>
-<template/>
+</template>
 <template plunc-name="Authors">
     <section plunc-component="ProfileCard"></section>
-<template/>
+</template>
 <template plunc-name="ProfileCard">
     {{ user.fullName }} // Prints 'John Doe'
-<template/>
+</template>
 ```
 ### Services
 Services are defined as objects with methods and properties that encapsulate specific functionality. They are designed to be injected into components, allowing different parts of the application to share and reuse code efficiently.
@@ -123,10 +123,10 @@ Helpers can create powerful, shared functionality that operates within the conte
     <template plunc-name="Authors">
         <form plunc-disable="Forms.state"></form>
         <section plunc-component="ProfileCard"></section>
-    <template/>
+    </template>
     <template plunc-name="ProfileCard">
         <form plunc-disable="Forms.state"></form>
-    <template/>
+    </template>
 </script>
 ```
 ### Caution and Best Practices
