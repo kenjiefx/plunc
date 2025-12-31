@@ -1,5 +1,13 @@
-# plunc-js
-The 2,314th frontend Javascript out there
+plunc-js
+
+The 2,314th frontend JavaScript framework… because the first 2,313 clearly weren’t enough 😎
+
+### Example
+
+Todo app -- the grand rite of passage for every JavaScript framework.
+If your framework can survive a list of tasks without spontaneously combusting, congratulations: it's “real.”
+
+Check out an example todo app here: https://jsbin.com/fitarogewo/edit?html,output
 
 ## Installation - CDN
 PluncJS is currently available exclusively via the JSDelivr CDN. You can include it in your project by adding the following script tag to your HTML:
