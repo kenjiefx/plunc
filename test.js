@@ -5,31 +5,21 @@ import { fileURLToPath } from "url";
 const app = express();
 const port = 3000;
 
-// Needed because ES modules don't have __dirname
+// ES module replacement for __dirname
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Absolute paths to your browser test files
-const browserHtmlPath = path.join(
-  __dirname,
-  "test/compatability/browser/index.html"
-);
-const browserJsPath = path.join(
-  __dirname,
-  "test/compatability/browser/index.js"
+// Serve entire folders
+app.use(
+  "/test/browser",
+  express.static(path.join(__dirname, "test/compatability/browser")),
 );
 
-// Route: serve the HTML file
-app.get("/test/browser", (req, res) => {
-  res.sendFile(browserHtmlPath);
-});
+app.use(
+  "/test/integration",
+  express.static(path.join(__dirname, "test/integration")),
+);
 
-// Route: serve the JS file
-app.get("/test/browser/index.js", (req, res) => {
-  res.sendFile(browserJsPath);
-});
-
-// Start server
 app.listen(port, () => {
   console.log(`Server running at http://localhost:${port}`);
 });

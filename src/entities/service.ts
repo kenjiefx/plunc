@@ -1,6 +1,10 @@
 export function createService() {
-  return {};
+  return {
+    __brand__: Symbol("Service"),
+  };
 }
 
-export type Service = ReturnType<typeof createService>;
+export type ServiceObject = Record<string, any> & {
+  __brand__: Symbol;
+};
 export type CreateService = typeof createService;

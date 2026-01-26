@@ -1,3 +1,8 @@
+export type AliasNotationParser = (name: string) => {
+  name: string;
+  alias: string | null;
+};
+
 /**
  * Parses alias notation from a given string.
  * For example, "Component as Alias" will be parsed into

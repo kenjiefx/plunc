@@ -33,7 +33,7 @@ export type PluncAppInstance = {
    */
   component: <TComponent>(
     name: string,
-    handler: HandlerFunction<unknown[], TComponent>
+    handler: HandlerFunction<unknown[], TComponent>,
   ) => void;
 
   /**
@@ -44,7 +44,7 @@ export type PluncAppInstance = {
    */
   service: <TService>(
     name: string,
-    handler: HandlerFunction<unknown[], TService>
+    handler: HandlerFunction<unknown[], TService>,
   ) => void;
 
   /**
@@ -55,7 +55,7 @@ export type PluncAppInstance = {
    */
   factory: <TFactory>(
     name: string,
-    handler: FactoryHandlerFunction<any[]>
+    handler: FactoryHandlerFunction<any[]>,
   ) => void;
 
   /**
@@ -66,7 +66,7 @@ export type PluncAppInstance = {
    */
   helper: <THelper>(
     name: string,
-    handler: HelperHandlerFunction<unknown[], THelper>
+    handler: HelperHandlerFunction<unknown[], THelper>,
   ) => void;
 };
 
@@ -92,7 +92,7 @@ export type FactoryHandlerFunction<TDependecies extends unknown[]> = (
 /** Helper handler function */
 export type HelperHandlerFunction<
   TDependecies extends unknown[],
-  TObject
+  TObject,
 > = HandlerFunction<TDependecies, TObject | void>;
 
 /** All types of handlers */
@@ -156,10 +156,18 @@ export interface PluncElementInterface<TElement extends Element> {
 
 /** Block API requires call back function */
 export type BlockCallback<TElement extends Element> = (
-  element: PluncElementInterface<TElement> | null
+  element: PluncElementInterface<TElement> | null,
 ) => void;
 
 export type BlockAPI = <TElement extends Element>(
   elementName: string,
-  callback: BlockCallback<TElement>
+  callback: BlockCallback<TElement>,
 ) => void;
+
+/**
+ * Staging HTMLElements are used during rendering before they are
+ * injected into the actual DOM.
+ */
+export type StagingHTMLElement = HTMLElement & {
+  __brand__: Symbol;
+};

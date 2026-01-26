@@ -23,7 +23,7 @@ export function createLineage(): Lineage {
 export function addRecordToLineage(
   lineage: Lineage,
   parent: ComponentId,
-  child: ComponentId | null
+  child: ComponentId | null,
 ) {
   if (lineage.genealogy[parent] === undefined) {
     lineage.genealogy[parent] = {
@@ -50,7 +50,7 @@ export function addRecordToLineage(
  */
 export function lookupLineage(
   lineage: Lineage,
-  child: ComponentId
+  child: ComponentId,
 ): Array<ComponentId> {
   if (lineage.genealogy[child] === undefined) return [];
   const parents: Array<ComponentId> = [];
@@ -70,7 +70,7 @@ export function lookupLineage(
  */
 export function whoAreTheChildren(
   lineage: Lineage,
-  parent: ComponentId
+  parent: ComponentId,
 ): Array<ComponentId> {
   if (lineage.genealogy[parent] === undefined) return [];
   return lineage.genealogy[parent].children;
@@ -84,7 +84,7 @@ export function whoAreTheChildren(
  */
 export function whoIsTheParent(
   lineage: Lineage,
-  child: ComponentId
+  child: ComponentId,
 ): ComponentId | null {
   if (lineage.genealogy[child] === undefined) return null;
   return lineage.genealogy[child].parent;
@@ -98,12 +98,12 @@ export function whoIsTheParent(
  */
 export function whoAreTheSiblings(
   lineage: Lineage,
-  child: ComponentId
+  child: ComponentId,
 ): Array<ComponentId> {
   const parent = whoIsTheParent(lineage, child);
   if (parent === null) return [];
   const siblings = whoAreTheChildren(lineage, parent).filter(
-    (sibling) => sibling !== child
+    (sibling) => sibling !== child,
   );
   return siblings;
 }

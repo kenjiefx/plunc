@@ -5,12 +5,12 @@ import { ComponentScope, PluncElementInterface } from "../types";
  * offering additional abstraction for managing states, scope, and other
  * non-default features.
  */
-export class PluncElement implements PluncElementInterface<Element> {
+export class PluncElement implements PluncElementInterface<HTMLElement> {
   /**
    * A reference to the element itself.
    * (Shouldn't be minified, as publicly-accessible)
    */
-  $element!: Element;
+  $element!: HTMLElement;
 
   /**
    * A reference to parent element, wrapped in this `PluncElement` object
@@ -28,7 +28,7 @@ export class PluncElement implements PluncElementInterface<Element> {
    * @param element - The Element
    * @param pcount - The number of iteration of parent created
    */
-  constructor(element: Element, pcount: null | number = null) {
+  constructor(element: HTMLElement, pcount: null | number = null) {
     this.$element = element;
     this.state = null;
     this.__wrapParent(pcount ?? 1);

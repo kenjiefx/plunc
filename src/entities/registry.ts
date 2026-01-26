@@ -1,12 +1,12 @@
 import { ComponentId } from "../types";
-import { ComponentObject, IsComponent } from "./component";
-import { Service } from "./service";
+import { ComponentObject } from "./component";
+import { ServiceObject } from "./service";
 
 /**
  * A registry for of Component and Service objects
  */
 export type Registry = {
-  data: Record<string, ComponentObject | Service>;
+  data: Record<string, ComponentObject | ServiceObject>;
 };
 
 /**
@@ -28,7 +28,7 @@ export function createRegistry(): Registry {
 export function addToRegistry(
   registry: Registry,
   id: ComponentId | string,
-  entity: ComponentObject | Service
+  entity: ComponentObject | ServiceObject,
 ) {
   registry.data[id] = entity;
 }
@@ -41,7 +41,7 @@ export function addToRegistry(
  */
 export function getFromRegistryByIds(
   registry: Registry,
-  ids: Array<ComponentId | string>
+  ids: Array<ComponentId | string>,
 ) {
   return ids
     .map((id) => registry.data[id])
@@ -56,8 +56,8 @@ export function getFromRegistryByIds(
  */
 export function getFromRegistryById(
   registry: Registry,
-  id: ComponentId | string
-): ComponentObject | Service | null {
+  id: ComponentId | string,
+): ComponentObject | ServiceObject | null {
   return registry.data[id] ?? null;
 }
 
@@ -66,6 +66,8 @@ export function getFromRegistryById(
  * @param registry
  * @returns
  */
-export function getAllFromRegistry(registry: Registry) {
+export function getAllFromRegistry(
+  registry: Registry,
+): Record<string, ComponentObject | ServiceObject> {
   return registry.data;
 }

@@ -22,7 +22,7 @@ export type ExpressionResolver = typeof resolveExpression;
 export const resolveExpression = (
   scope: ComponentScope,
   expression: string,
-  element: Element | null = null
+  element: Element | null = null,
 ) => {
   const resolveType = getResolveType(expression);
   return resolve(scope, expression, resolveType, element);
@@ -70,7 +70,7 @@ function resolve(
   scope: ComponentScope,
   expression: string,
   resolveType: ResolveType,
-  element: Element | null = null
+  element: Element | null = null,
 ): any {
   switch (resolveType) {
     case "string":
@@ -95,7 +95,7 @@ function resolve(
       if (expressionTest.length > 1) {
         let refObject = resolveExpression(
           scope,
-          getParentObjectExp(structure[0])
+          getParentObjectExp(structure[0]),
         );
         let funcExpression = expression
           .split(".")
@@ -125,7 +125,7 @@ function resolve(
           return evaluatorMap[comparator as keyof typeof evaluatorMap](
             scope,
             expression,
-            comparator
+            comparator,
           );
         }
       }
@@ -180,7 +180,7 @@ function invokeFunction(
   scope: ComponentScope,
   object: { [key: string]: any },
   expression: string,
-  element: Element | null
+  element: Element | null,
 ): any {
   /**
    * @TODO Need to check cases where this returns undefined
@@ -202,7 +202,7 @@ function invokeFunction(
       argsVault.push(resolveExpression(object, splitArguments[i].trim()));
     }
     if (element !== null) {
-      argsVault.push(new PluncElement(element));
+      argsVault.push(new PluncElement(element as HTMLElement));
     }
     // Checks if the given is a function
     if (!(scope[name] instanceof Function)) {
@@ -218,7 +218,7 @@ function invokeFunction(
   if (element !== null) {
     // Function argument holder
     const argsVault = new Array();
-    argsVault.push(new PluncElement(element));
+    argsVault.push(new PluncElement(element as HTMLElement));
     return scope[name](...argsVault);
   }
   if (!(scope[name] instanceof Function)) {
@@ -249,7 +249,7 @@ export function getChildObjectExp(expression: string) {
 export function areTwoExpressionsTheSame(
   scope: ComponentScope,
   expression: string,
-  comparator: string
+  comparator: string,
 ): boolean {
   const [left, right] = expression.split(comparator).map((arm) => {
     return resolveExpression(scope, arm.trim());
@@ -260,7 +260,7 @@ export function areTwoExpressionsTheSame(
 function areTwoExpressionsNotTheSame(
   scope: ComponentScope,
   expression: string,
-  comparator: string
+  comparator: string,
 ): boolean {
   const [left, right] = expression.split(comparator).map((arm) => {
     return resolveExpression(scope, arm.trim());
@@ -271,7 +271,7 @@ function areTwoExpressionsNotTheSame(
 function isGreaterThanTheOther(
   scope: ComponentScope,
   expression: string,
-  comparator: string
+  comparator: string,
 ): boolean {
   const [left, right] = expression.split(comparator).map((arm) => {
     return resolveExpression(scope, arm.trim());
@@ -282,7 +282,7 @@ function isGreaterThanTheOther(
 function isGreaterThanOrEqualToTheOther(
   scope: ComponentScope,
   expression: string,
-  comparator: string
+  comparator: string,
 ): boolean {
   const [left, right] = expression.split(comparator).map((arm) => {
     return resolveExpression(scope, arm.trim());
@@ -293,7 +293,7 @@ function isGreaterThanOrEqualToTheOther(
 function isLessThanTheOther(
   scope: ComponentScope,
   expression: string,
-  comparator: string
+  comparator: string,
 ): boolean {
   const [left, right] = expression.split(comparator).map((arm) => {
     return resolveExpression(scope, arm.trim());
@@ -304,7 +304,7 @@ function isLessThanTheOther(
 function isLessThanOrEqualToTheOther(
   scope: ComponentScope,
   expression: string,
-  comparator: string
+  comparator: string,
 ): boolean {
   const [left, right] = expression.split(comparator).map((arm) => {
     return resolveExpression(scope, arm.trim());

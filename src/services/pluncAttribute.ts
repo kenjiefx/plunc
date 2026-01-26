@@ -1,12 +1,13 @@
 import { PluncApp } from "../entities/plunc";
 import { PluncAttributeKey } from "../types";
 
-export const APP_ATTR = "app";
-export const TEMPL_NAME_ATTR = "name";
+export const GLOBAL_ATTR_FOR_APP_NAME = "app";
+export const GLOBAL_ATTR_FOR_TEMPLATE_NAME = "name";
 export const SERVICE_OBJECT = "service_object";
 export const FACTORY_OBJECT = "factory_object";
 export const COMPONENT_OBJECT = "component_object";
 export const COMPONENT_ELEMENT_ATTR = "component";
+export const COMPONENT_ID_ATTR = "cid";
 export const REPEAT_ELEMENT_ATTR = "repeat";
 export const IF_ELEMENT_ATTR = "if";
 export const HIDE_ELEMENT_ATTR = "hide";
@@ -34,29 +35,45 @@ export const EVENT_ELEMENT_ATTR = "event";
 export const ELEMENT_REFERENCE_ATTR = "rid";
 
 /**
- * Creates a Plunc attribute key with the
- * configured prefix.
- * @param instance
- * @param key
- * @returns
+ * Formatter function type for Plunc attribute keys
  */
-export function createPluncAttribute(instance: PluncApp, key: string) {
+export type PluncAttributeKeyFormatter = (key: string) => PluncAttributeKey;
+
+/**
+ * Creates a formatter function for Plunc attribute keys
+ * with the configured prefix.
+ * @param instance
+ * @returns PluncAttributeKeyFormatter
+ */
+export function composePluncAttributeKeyFormatter(
+  instance: PluncApp,
+): PluncAttributeKeyFormatter {
   const prefix = instance.config.prefix;
-  return `${prefix}${key}` as PluncAttributeKey;
+  return function pluncAttributeFormatter(key: string) {
+    return `${prefix}${key}` as PluncAttributeKey;
+  };
 }
 
 /**
- * Creates a Plunc attribute key with a value
- * @param instance
- * @param key
- * @param value
- * @returns
+ * Formatter function type for Plunc attribute key-value pairs
  */
-export function createPluncAttributeWithValue(
-  instance: PluncApp,
+export type PluncAttributeKeyValueFormatter = (
   key: string,
-  value: string
-) {
-  const prefix = instance.config.prefix;
-  return `${prefix}${key}="${value}"` as PluncAttributeKey;
+  value: string,
+) => string;
+
+/**
+ * Creates a formatter function for Plunc attribute key-value pairs
+ * with the configured prefix.
+ * @param instance
+ * @returns PluncAttributeKeyValueFormatter
+ */
+export function createPluncAttributeKeyValueFormatter(
+  instance: PluncApp,
+): PluncAttributeKeyValueFormatter {
+  const keyFormatter = composePluncAttributeKeyFormatter(instance);
+  return function (key: string, value: string) {
+    const prefixedKey = keyFormatter(key);
+    return `${prefixedKey}="${value}"`;
+  };
 }

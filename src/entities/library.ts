@@ -44,7 +44,7 @@ export function addToLibrary(
   handler:
     | HandlerFunction<any, any>
     | FactoryHandlerFunction<any>
-    | HelperHandlerFunction<any, any>
+    | HelperHandlerFunction<any, any>,
 ) {
   library.data[createNamespace(type, name)] = handler;
 }
@@ -57,7 +57,7 @@ export function addToLibrary(
  */
 export function getComponentHandlerFromLibrary(
   library: Library,
-  name: string
+  name: string,
 ): HandlerFunction<any, any> {
   const result = library.data[createNamespace("component", name)];
   if (!result) {
@@ -74,7 +74,7 @@ export function getComponentHandlerFromLibrary(
  */
 export function getServiceHandlerFromLibrary(
   library: Library,
-  name: string
+  name: string,
 ): HandlerFunction<any, any> | null {
   const result = library.data[createNamespace("service", name)];
   return (result ?? null) as HandlerFunction<any, any> | null;
@@ -88,7 +88,7 @@ export function getServiceHandlerFromLibrary(
  */
 export function getFactoryHandlerFromLibrary(
   library: Library,
-  name: string
+  name: string,
 ): FactoryHandlerFunction<any> | null {
   const result = library.data[createNamespace("factory", name)];
   return (result ?? null) as FactoryHandlerFunction<any> | null;
@@ -102,7 +102,7 @@ export function getFactoryHandlerFromLibrary(
  */
 export function getHelperHandlerFromLibrary(
   library: Library,
-  name: string
+  name: string,
 ): HelperHandlerFunction<any, any> | null {
   const result = library.data[createNamespace("helper", name)];
   return (result ?? null) as HelperHandlerFunction<any, any> | null;

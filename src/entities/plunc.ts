@@ -8,8 +8,10 @@ export type PluncApp = Readonly<{
   registry: Registry;
   name: string;
   id: number;
+  onReadyLtns: Array<() => Promise<void>>;
   toReady: () => void;
   isReady: () => boolean;
+  onReady: (listener: () => Promise<void>) => void;
 }>;
 
 export function createPluncApp(
@@ -17,18 +19,23 @@ export function createPluncApp(
   id: number,
   configuration: Readonly<RequireAllFields<PluncAppConfiguration>>,
   registry: Registry,
-  library: Library
+  library: Library,
 ): PluncApp {
   let ready = false;
+  let onReadyLtns: Array<() => Promise<void>> = [];
   return {
     name,
     id,
     config: configuration,
     registry,
     library,
+    onReadyLtns,
     toReady: () => {
       ready = true;
     },
     isReady: () => ready,
+    onReady: (listener: () => Promise<void>) => {
+      onReadyLtns.push(listener);
+    },
   };
 }
