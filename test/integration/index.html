@@ -1,25 +1,409 @@
-<!doctype html>
-<html lang="en">
+<html>
   <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Integration Tests</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>JS Bin</title>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bulma@1.0.4/css/bulma.min.css"
+    />
     <script type="text/javascript" src="/test/integration/plunc.js"></script>
+    <script type="text/javascript">
+      const app = plunc.create("TodoApp");
+      app.component("Main", ($scope, $patch, List, Dashboard) => {
+        $scope.todos = [];
+        List.onDeleteItem((itemId) => {
+          $scope.todos = $scope.todos.filter((item) => item.id !== itemId);
+          List.update($scope.todos);
+          Dashboard.calculateKPI($scope.todos);
+        });
+        List.onCompleteItem((itemId) => {
+          const item = $scope.todos.find((item) => item.id === itemId);
+          if (item) {
+            item.isCompleted = !item.isCompleted;
+            item.completedAt = item.isCompleted ? new Date() : null;
+            List.update($scope.todos);
+            Dashboard.calculateKPI($scope.todos);
+          }
+        });
+        $scope.addTodo = () => {
+          $scope.todos.push({
+            id: Date.now(),
+            title: $scope.title,
+            isCompleted: false,
+            createdAt: new Date(),
+            completedAt: null,
+          });
+          $scope.title = "";
+          $patch();
+          List.update($scope.todos);
+          Dashboard.calculateKPI($scope.todos);
+        };
+      });
+      app.component("List", ($scope, $patch) => {
+        $scope.isCompleted = (itemId) => {
+          const item = $scope.items.find((item) => item.id === itemId);
+          return item && item.isCompleted ? "is-item-completed" : "";
+        };
+        return {
+          update: (items) => ($scope.items = items) && $patch(),
+          onDeleteItem: (callback) => ($scope.delete = callback),
+          onCompleteItem: (callback) => ($scope.complete = callback),
+        };
+      });
+      app.component("Dashboard", ($scope, $patch, KPIService) => {
+        return {
+          calculateKPI: (todos) => {
+            $scope.kpi = KPIService.getCurrentCompleteTaskStats(todos);
+            $patch();
+          },
+        };
+      });
+      app.service("KPIService", () => {
+        return {
+          getCurrentCompleteTaskStats: (todos) => {
+            const completedTasks = todos.filter(
+              (item) => item.isCompleted && item.completedAt,
+            );
+
+            const totalTasks = todos.length;
+            const completedCount = completedTasks.length;
+
+            // Calculate average time in seconds
+            const averageSeconds =
+              completedCount === 0
+                ? 0
+                : completedTasks.reduce((acc, item) => {
+                    const timeTaken =
+                      (new Date(item.completedAt) - new Date(item.createdAt)) /
+                      1000;
+                    return acc + timeTaken;
+                  }, 0) / completedCount;
+
+            // Normalize unit
+            let averageSpeed = averageSeconds;
+            let averageSpeedUnit = "seconds";
+
+            if (averageSeconds >= 60 && averageSeconds < 3600) {
+              averageSpeed = averageSeconds / 60;
+              averageSpeedUnit = "minutes";
+            } else if (averageSeconds >= 3600 && averageSeconds < 86400) {
+              averageSpeed = averageSeconds / 3600;
+              averageSpeedUnit = "hours";
+            } else if (averageSeconds >= 86400) {
+              averageSpeed = averageSeconds / 86400;
+              averageSpeedUnit = "days";
+            }
+
+            return {
+              completedTasks: completedCount,
+              totalTasks,
+              completionRate:
+                totalTasks === 0 ? 0 : (completedCount / totalTasks) * 100,
+              averageSpeed: averageSpeed.toFixed(2),
+              averageSpeedUnit,
+            };
+          },
+        };
+      });
+    </script>
   </head>
   <body>
-    <main plunc-app="app"></main>
-    <template plunc-name="app">
-      This is an integration test for Plunc!
-      <section plunc-component="FirstComponent"></section>
+    <section class="section">
+      <div class="container is-max-desktop">
+        <div class="card todo-card">
+          <header class="card-header"></header>
+
+          <div class="card-content">
+            <main plunc-app="TodoApp"></main>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <template plunc-name="TodoApp">
+      <section plunc-component="Main"></section>
     </template>
-    <template plunc-name="FirstComponent">
-      This is the first component
-      <section plunc-block="FirstComponentBlock">First component block</section>
-      <section plunc-component="SecondComponent"></section>
+
+    <template plunc-name="Dashboard">
+      <div class="dashboard-card card">
+        <header class="card-header">
+          <p class="card-header-title">📝 Todo List</p>
+        </header>
+
+        <div class="card-content">
+          <div
+            class="columns is-multiline is-variable is-3"
+            style="display: flex; flex-wrap: wrap"
+          >
+            <div class="column is-full-mobile is-half-tablet">
+              <div class="kpi-box">
+                <p class="kpi-label">Total Tasks</p>
+                <p class="kpi-value">{{kpi.totalTasks}}</p>
+              </div>
+            </div>
+
+            <div class="column is-full-mobile is-half-tablet">
+              <div class="kpi-box is-success">
+                <p class="kpi-label">Completed</p>
+                <p class="kpi-value">{{kpi.completedTasks}}</p>
+              </div>
+            </div>
+
+            <div class="column is-full-mobile is-half-tablet">
+              <div class="kpi-box is-info">
+                <p class="kpi-label">Completion Rate</p>
+                <p class="kpi-value">{{kpi.completionRate}}%</p>
+              </div>
+            </div>
+
+            <div class="column is-full-mobile is-half-tablet">
+              <div class="kpi-box is-primary">
+                <p class="kpi-label">Avg. Speed</p>
+                <p class="kpi-value">
+                  {{kpi.averageSpeed}}
+                  <span class="kpi-unit">{{kpi.averageSpeedUnit}}</span>
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </template>
-    <template plunc-name="SecondComponent">
-      This is the second component
+
+    <template plunc-name="Main">
+      <section plunc-component="Dashboard"></section>
+      <form onsubmit="event.preventDefault()">
+        <div class="field has-addons mb-4">
+          <div class="control is-expanded">
+            <input
+              class="input is-medium"
+              type="text"
+              placeholder="Add a new task..."
+              plunc-model="title"
+            />
+          </div>
+          <div class="control">
+            <button
+              class="button is-primary is-medium"
+              type="submit"
+              plunc-click="addTodo()"
+            >
+              Add
+            </button>
+          </div>
+        </div>
+      </form>
+
+      <section plunc-component="List"></section>
     </template>
-    <script type="text/javascript" src="/test/integration/index.js"></script>
+
+    <template plunc-name="List">
+      <ul class="todo-list" plunc-repeat="items as item">
+        <li class="todo-item">
+          <label class="checkbox is-circle">
+            <input
+              type="checkbox"
+              plunc-model="item.isCompleted"
+              plunc-click="complete({{item.id}})"
+            />
+            <span class="circle"></span>
+            <span
+              plunc-style="$parent.isCompleted({{item.id}})"
+              class="item-title"
+            >
+              {{item.title}}
+            </span>
+          </label>
+
+          <div class="item-tools">
+            <button
+              class="button is-small is-transparent"
+              plunc-click="delete({{item.id}})"
+            >
+              Delete
+            </button>
+          </div>
+        </li>
+      </ul>
+    </template>
+
+    <style>
+      body {
+        background-color: #19161b !important;
+      }
+
+      /* Card */
+      .todo-card {
+        border-radius: 12px;
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+      }
+
+      /* List */
+      .todo-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+      }
+
+      .todo-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.75rem 1rem;
+        border-radius: 8px;
+        background: #1f2c36;
+        transition: background 0.2s ease;
+      }
+
+      .todo-item:hover {
+        background: #232638;
+      }
+
+      /* Checkbox (circle) */
+      .checkbox.is-circle {
+        display: inline-flex;
+        align-items: center;
+        cursor: pointer;
+      }
+
+      .checkbox.is-circle input {
+        display: none;
+      }
+
+      .checkbox.is-circle .circle {
+        width: 1.25rem;
+        height: 1.25rem;
+        border: 2px solid #dbdbdb;
+        border-radius: 50%;
+        margin-right: 0.75rem;
+        position: relative;
+        transition: all 0.2s ease;
+      }
+
+      .checkbox.is-circle input:checked + .circle {
+        border-color: #485fc7;
+        background-color: #485fc7;
+      }
+
+      .checkbox.is-circle input:checked + .circle::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        margin: auto;
+        width: 0.4rem;
+        height: 0.4rem;
+        background: #fff;
+        border-radius: 50%;
+      }
+
+      /* Title */
+      .item-title {
+        font-size: 1rem;
+      }
+
+      .item-title.is-item-completed {
+        text-decoration: line-through;
+        color: #b5b5b5;
+      }
+
+      /* Tools */
+      .item-tools {
+        margin-left: 1rem;
+      }
+
+      /* Dashboard Card */
+      .dashboard-card {
+        border-radius: 14px;
+        box-shadow: 0 10px 35px rgba(0, 0, 0, 0.08);
+      }
+
+      /* KPI Box */
+      .kpi-box {
+        background-color: #141e21 !important;
+        color: white !important;
+        border-radius: 12px;
+        padding: 1.25rem;
+        height: 100%;
+        transition:
+          transform 0.15s ease,
+          box-shadow 0.15s ease;
+      }
+
+      .kpi-box:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+      }
+
+      /* KPI text */
+      .kpi-label {
+        font-size: 0.85rem;
+        color: #7a7a7a;
+        margin-bottom: 0.25rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+
+      .kpi-value {
+        font-size: 1.75rem;
+        font-weight: 600;
+        color: #ededed;
+      }
+
+      .kpi-unit {
+        font-size: 0.85rem;
+        font-weight: 400;
+        margin-left: 0.25rem;
+        color: #7a7a7a;
+      }
+
+      /* Color accents */
+      .kpi-box.is-primary {
+        background: #f3f5ff;
+      }
+
+      .kpi-box.is-success {
+        background: #f3fdf7;
+      }
+
+      .kpi-box.is-info {
+        background: #f1f8ff;
+      }
+
+      /* Mobile adjustments */
+      @media screen and (max-width: 768px) {
+        .dashboard-card {
+          border-radius: 10px;
+        }
+
+        .card-header-title {
+          font-size: 1rem;
+          padding: 0.5rem 0.75rem;
+        }
+
+        .kpi-box {
+          padding: 0.5rem 0.75rem;
+          height: 100px;
+          width: 100%;
+        }
+
+        .kpi-label {
+          font-size: 0.7rem;
+          margin-bottom: 0.15rem;
+        }
+
+        .kpi-value {
+          font-size: 1.2rem;
+        }
+
+        .kpi-unit {
+          font-size: 0.65rem;
+        }
+        .column.is-full-mobile {
+          flex: none;
+          width: 50%;
+        }
+      }
+    </style>
   </body>
 </html>

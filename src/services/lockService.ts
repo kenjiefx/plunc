@@ -16,10 +16,10 @@ export type ElementLocker = (element: HTMLElement) => void;
  * Creates a function that locks an element by setting a specific attribute.
  * @param attributeKeyFormatter - Formatter function for Plunc attribute keys
  */
-export function createElementLocker(
+export function composeElementLocker(
   attributeKeyFormatter: PluncAttributeKeyFormatter,
 ) {
-  return function (element: HTMLElement) {
+  return function lockElement(element: HTMLElement) {
     const attributeKey = attributeKeyFormatter(LOCK_ID_ATTR_KEY);
     element.setAttribute(attributeKey, LOCK_ID_ATTR_VALUE);
   };
@@ -35,10 +35,10 @@ export type IsElementLockedChecker = (element: HTMLElement) => boolean;
  * @param attributeKeyFormatter
  * @returns
  */
-export function createIsElementLocked(
+export function composeIsElementLockedChecker(
   attributeKeyFormatter: PluncAttributeKeyFormatter,
 ) {
-  return function (element: HTMLElement): boolean {
+  return function isElementLocked(element: HTMLElement): boolean {
     const attributeKey = attributeKeyFormatter(LOCK_ID_ATTR_KEY);
     return element.getAttribute(attributeKey) !== null;
   };
@@ -54,7 +54,7 @@ export type EventLockChecker = (
  * @param attributeKeyFormatter
  * @returns
  */
-export function createIsEventLockChecker(
+export function composeIsEventLockChecker(
   attributeKeyFormatter: PluncAttributeKeyFormatter,
 ): EventLockChecker {
   return function isElementLockedToEvent(

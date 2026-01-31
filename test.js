@@ -20,6 +20,8 @@ app.use(
   express.static(path.join(__dirname, "test/integration")),
 );
 
+app.use("/test/repeat", express.static(path.join(__dirname, "out/repeat")));
+
 app.listen(port, () => {
   console.log(`Server running at http://localhost:${port}`);
 });

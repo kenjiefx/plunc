@@ -72,6 +72,7 @@ export function composeComponentRenderer(
     componentWrapperElement.innerHTML = componentTemplate;
     attachReferenceToNamedElementsFn(componentId, componentWrapperElement);
     renderComponentsOfParent(componentWrapperElement, componentId);
+    componentObject.template = componentWrapperElement.innerHTML;
   }
 
   function renderComponentsOfParent(

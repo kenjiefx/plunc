@@ -37,6 +37,7 @@ import {
   HandlerFunction,
   HelperHandlerFunction,
   PluncAppConfiguration,
+  StagingHTMLElement,
 } from "../types";
 import { AliasNotationParser, parseAliasNotation } from "./aliasNotation";
 import {
@@ -53,19 +54,36 @@ import {
 } from "./componentService";
 import { ConfigurationResolver } from "./configuration";
 import {
+  composeDirectivesProcessor,
+  DirectivesProcessor,
+} from "./directivesProcessor";
+import { disposeElement } from "./disposeService";
+import {
+  ChildComponentCleaner,
+  cleanChildComponents,
+  composeElementSelectorsWithPluncAttribute,
   composePluncAttributeValueGetter,
   composePluncAttributeValueSetter,
   ElementSelector,
   ElementsSelector,
+  ElementsSelectorWithPluncAttribute,
+  makeStagingElement,
   PluncAttributeValueGetter,
   PluncAttributeValueSetter,
   selectAllElements,
   selectElement,
 } from "./elementService";
 import {
+  composeElementLocker,
+  composeIsElementLockedChecker,
+  ElementLocker,
+  IsElementLockedChecker,
+} from "./lockService";
+import {
   composePluncAttributeKeyFormatter,
   PluncAttributeKeyFormatter,
 } from "./pluncAttribute";
+import { reconcileChildren } from "./scopeReconciler";
 
 export type PluncAppContext = {
   __getInstance: () => PluncApp;
@@ -106,9 +124,20 @@ export type PluncAppContext = {
   __querySelectElement: ElementSelector;
   __querySelectAllElements: ElementsSelector;
   __querySelectComponentById: ComponentSelectorById;
+  __querySelectAllByPluncAttribute: ElementsSelectorWithPluncAttribute;
   __createBlockSelector: BlockSelectorCreator;
   __createComponentObject: ComponentObjectFactory;
   __createComponentProxy: ComponentProxyFactory;
+  __lockElement: ElementLocker;
+  __isElementLocked: IsElementLockedChecker;
+  __trashElement: typeof disposeElement;
+  __resolveExpression: (
+    dataCtx: { [key: string]: unknown },
+    expression: string,
+  ) => unknown;
+  __reconcileChildren: typeof reconcileChildren;
+  __clearChildComponents: ChildComponentCleaner;
+  __createStagingElement: (innerHtml?: string) => StagingHTMLElement;
 };
 
 /**
@@ -156,6 +185,16 @@ export function makePluncAppContextBinder(
   composeComponentProxyFactoryFn: typeof composeComponentProxyFactory,
   createComponentFactoryFn: typeof createComponentFactory,
   createScopeObjectFn: typeof createScope,
+  composeElementLockerFn: typeof composeElementLocker,
+  composeElementLockCheckerFn: typeof composeIsElementLockedChecker,
+  disposeElementFn: typeof disposeElement,
+  resolveExpression: (
+    dataCtx: { [key: string]: unknown },
+    expression: string,
+  ) => unknown,
+  reconcileChildrenFn: typeof reconcileChildren,
+  cleanChildComponentsFn: typeof cleanChildComponents,
+  makeStagingElementFn: typeof makeStagingElement,
 ): PluncAppContextBinder {
   return function bindPluncAppContext(
     instanceId: number,
@@ -193,6 +232,12 @@ export function makePluncAppContextBinder(
       parseAliasNotationFn,
       createScopeObjectFn,
     );
+    const querySelectorByPluncAttribute =
+      composeElementSelectorsWithPluncAttribute(
+        selectAllElementsFn,
+        attributeKeyFormatter,
+      );
+
     return {
       __getInstance: function () {
         return instance;
@@ -263,6 +308,14 @@ export function makePluncAppContextBinder(
       __createBlockSelector: blockSelectorCreator,
       __createComponentProxy: composeComponentProxyFactoryFn(),
       __createComponentObject: componentObjectFactory,
+      __querySelectAllByPluncAttribute: querySelectorByPluncAttribute,
+      __lockElement: composeElementLockerFn(attributeKeyFormatter),
+      __isElementLocked: composeElementLockCheckerFn(attributeKeyFormatter),
+      __trashElement: disposeElementFn,
+      __resolveExpression: resolveExpression,
+      __reconcileChildren: reconcileChildrenFn,
+      __clearChildComponents: cleanChildComponentsFn(componentSelectorById),
+      __createStagingElement: makeStagingElementFn,
     };
   };
 }

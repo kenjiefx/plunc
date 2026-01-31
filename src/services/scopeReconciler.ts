@@ -8,36 +8,13 @@ import { ElementSelectorByComponentId } from "./elementService";
  * Event listeners are preserved because nodes are reused,
  * not recreated or moved unnecessarily.
  */
-export function reconcileChildren(source: HTMLElement, target: HTMLElement) {
-  const sourceChildren = Array.from(source.childNodes);
-  const targetChildren = Array.from(target.childNodes);
-
-  const max = Math.max(sourceChildren.length, targetChildren.length);
-
-  for (let i = 0; i < max; i++) {
-    const sourceNode = sourceChildren[i];
-    const targetNode = targetChildren[i];
-
-    if (!sourceNode && targetNode) {
-      // Remove safely unused target node
-      target.removeChild(targetNode);
-      continue;
-    }
-
-    if (sourceNode && !targetNode) {
-      // Clone structure only for missing target node
-      target.appendChild(sourceNode.cloneNode(false));
-      continue;
-    }
-
-    if (
-      sourceNode &&
-      targetNode &&
-      sourceNode.nodeName !== targetNode.nodeName
-    ) {
-      // Replace different node types
-      target.replaceChild(sourceNode.cloneNode(false), targetNode);
-    }
+export function reconcileChildren(
+  source: HTMLElement | null,
+  target: HTMLElement,
+) {
+  if (source === null) return;
+  while (source.childNodes.length > 0) {
+    target.appendChild(source.childNodes[0]);
   }
 }
 
@@ -67,7 +44,7 @@ export function indexChildrenByComponentId(
  * - child component identity
  * - DOM stability
  */
-export function createScopeReconciler(
+export function composeComponentReconciler(
   reconcileChildrenFn: typeof reconcileChildren,
   findByComponentId: ElementSelectorByComponentId,
 ) {
@@ -77,22 +54,43 @@ export function createScopeReconciler(
     childComponentIds: ComponentId[],
   ) {
     // Preserve references to important children
-    const preservedChildren = indexChildrenByComponentId(
-      targetScope,
-      childComponentIds,
-      findByComponentId,
-    );
+    // const preservedChildren = indexChildrenByComponentId(
+    //   targetScope,
+    //   childComponentIds,
+    //   findByComponentId,
+    // );
 
-    // Reconcile top-level structure
-    reconcileChildrenFn(sourceScope, targetScope);
+    // // Reconcile top-level structure
+    // reconcileChildrenFn(sourceScope, targetScope);
 
-    // Reconcile preserved child subtrees
-    for (const [id, preservedChild] of preservedChildren) {
-      const newChildLocation = findByComponentId(targetScope, id);
+    // // Reconcile preserved child subtrees
+    // for (const [id, preservedChild] of preservedChildren) {
+    //   const newChildLocation = findByComponentId(targetScope, id);
 
-      if (newChildLocation && newChildLocation !== preservedChild) {
-        newChildLocation.replaceWith(preservedChild);
+    //   if (newChildLocation && newChildLocation !== preservedChild) {
+    //     newChildLocation.replaceWith(preservedChild);
+    //   }
+    // }
+    const TChildRegistry: { [key: ComponentId]: HTMLElement } = {};
+    for (let i = 0; i < childComponentIds.length; i++) {
+      const childId = childComponentIds[i];
+      const tempChildEl = document.implementation.createHTMLDocument().body;
+      const actualChildEl = findByComponentId(targetScope, childId);
+      if (actualChildEl !== null) {
+        reconcileChildren(actualChildEl, tempChildEl);
+        TChildRegistry[childId] = tempChildEl;
       }
+    }
+    targetScope.innerHTML = "";
+    reconcileChildren(sourceScope, targetScope);
+    for (const childId in TChildRegistry) {
+      const actualChildEl = findByComponentId(
+        targetScope,
+        childId as ComponentId,
+      );
+      if (actualChildEl === null) continue;
+      const tempChildEl = TChildRegistry[childId as ComponentId] as HTMLElement;
+      reconcileChildren(tempChildEl, actualChildEl);
     }
   };
 }

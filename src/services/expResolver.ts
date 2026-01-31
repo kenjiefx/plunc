@@ -103,7 +103,7 @@ function resolve(
           .join(".");
         return invokeFunction(refObject, scope, funcExpression, element);
       }
-      if (!scope.hasOwnProperty(structure[0])) {
+      if (!Object.prototype.hasOwnProperty.call(scope, structure[0])) {
         return "";
       }
       return invokeFunction(scope, scope, expression, element);

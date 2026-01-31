@@ -46,6 +46,28 @@ export function composeAllElementsSelector(
   };
 }
 
+export type ElementsSelectorWithPluncAttribute = (
+  context: HTMLElement,
+  pluncAttributeKey: string,
+  pluncAttributeValue?: string,
+) => HTMLElement[];
+
+export function composeElementSelectorsWithPluncAttribute(
+  selectAllElementFn: ElementsSelector,
+  formatPluncAttributeFn: PluncAttributeKeyFormatter,
+) {
+  return function selectAllElementsWithPluncAttribute(
+    context: HTMLElement,
+    pluncAttributeKey: string,
+    pluncAttributeValue?: string,
+  ): HTMLElement[] {
+    const attributeKey = formatPluncAttributeFn(pluncAttributeKey);
+    const valuePart = pluncAttributeValue ? `="${pluncAttributeValue}"` : "";
+    const selector = `[${attributeKey}${valuePart}]`;
+    return selectAllElementFn(context, selector);
+  };
+}
+
 /**
  * Function type for getting the value of a Plunc attribute from an element
  * @param element - The HTML element to retrieve the attribute from
@@ -136,6 +158,16 @@ export function cleanChildComponents(
   };
 }
 
+export function selectLiveAppRootElement(appName: string): HTMLElement {
+  const appRootAttributeKey = `plunc-${GLOBAL_ATTR_FOR_APP_NAME}`;
+  const selector = `[${appRootAttributeKey}="${appName}"]`;
+  const element = document.querySelector<HTMLElement>(selector);
+  if (!element) {
+    throw new Error(`Cannot find the app root element for app: ${appName}`);
+  }
+  return element;
+}
+
 /**
  * Creates and returns a staging HTML element.
  * This function utilizes the DOM implementation to create a new HTML document
@@ -146,18 +178,42 @@ export type StagingElementCreator = (innerHtml?: string) => StagingHTMLElement;
 
 export function makeStagingElement(innerHtml?: string): StagingHTMLElement {
   const element = document.implementation.createHTMLDocument().body;
+  let isCommitted = false;
   if (innerHtml) {
     element.innerHTML = innerHtml;
   }
-  return element as StagingHTMLElement;
-}
-
-export function selectLiveAppRootElement(appName: string): HTMLElement {
-  const appRootAttributeKey = `plunc-${GLOBAL_ATTR_FOR_APP_NAME}`;
-  const selector = `[${appRootAttributeKey}="${appName}"]`;
-  const element = document.querySelector<HTMLElement>(selector);
-  if (!element) {
-    throw new Error(`Cannot find the app root element for app: ${appName}`);
+  function setInnerHtml(html: string) {
+    if (isCommitted) {
+      throw new Error(
+        "Cannot set innerHTML after committing to target element.",
+      );
+    }
+    element.innerHTML = html;
   }
-  return element;
+  function getInnerHtml() {
+    if (isCommitted) {
+      throw new Error(
+        "Cannot get innerHTML after committing to target element.",
+      );
+    }
+    return element.innerHTML;
+  }
+  function getElement() {
+    return element;
+  }
+  function commitTo(targetElement: HTMLElement) {
+    if (isCommitted) {
+      throw new Error("Staging element has already been committed.");
+    }
+    while (element.firstChild) {
+      targetElement.appendChild(element.firstChild);
+    }
+    isCommitted = true;
+  }
+  return Object.freeze({
+    setInnerHtml,
+    getInnerHtml,
+    commitTo,
+    getElement,
+  });
 }

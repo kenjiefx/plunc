@@ -168,6 +168,9 @@ export type BlockAPI = <TElement extends Element>(
  * Staging HTMLElements are used during rendering before they are
  * injected into the actual DOM.
  */
-export type StagingHTMLElement = HTMLElement & {
-  __brand__: Symbol;
-};
+export type StagingHTMLElement = Readonly<{
+  getInnerHtml: () => string;
+  setInnerHtml: (html: string) => void;
+  getElement: () => HTMLElement;
+  commitTo: (targetElement: HTMLElement) => void;
+}>;

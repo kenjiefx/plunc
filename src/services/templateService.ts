@@ -1,5 +1,8 @@
 import { PluncApp } from "../entities/plunc";
-import { GLOBAL_ATTR_FOR_TEMPLATE_NAME } from "./pluncAttribute";
+import {
+  BLOCK_ELEMENT_ATTR,
+  GLOBAL_ATTR_FOR_TEMPLATE_NAME,
+} from "./pluncAttribute";
 import { parseAliasNotation } from "./aliasNotation";
 import { TemplatesMap } from "../entities/templates";
 import { PluncAppContext } from "./contextBinder";
@@ -19,4 +22,23 @@ export function collectTemplateElements(
     }
   }
   return templatesMap;
+}
+
+export function getBlockTemplate(
+  appCtx: PluncAppContext,
+  componentName: string,
+  blockName: string,
+) {
+  const attributeWithValue = `plunc-${GLOBAL_ATTR_FOR_TEMPLATE_NAME}="${componentName}"`;
+  const templateElement = document.querySelector(
+    `template[${attributeWithValue}]`,
+  );
+  if (templateElement === null) return null;
+  const blockAttribute =
+    appCtx.__pluncAttributeKeyFormatter(BLOCK_ELEMENT_ATTR);
+  const blockElement = templateElement.querySelector(
+    `[${blockAttribute}="${blockName}"]`,
+  );
+  if (blockElement === null) return null;
+  return blockElement.innerHTML;
 }

@@ -38,11 +38,15 @@ import {
   makePluncAppContextBinder,
   PluncAppContext,
 } from "./services/contextBinder";
+import { composeDirectivesProcessor } from "./services/directivesProcessor";
+import { disposeElement } from "./services/disposeService";
 import { DOMHelper } from "./services/domReady";
 import {
+  cleanChildComponents,
   makeStagingElement,
   selectAllElements,
   selectElement,
+  selectLiveAppRootElement,
 } from "./services/elementService";
 import {
   composeComponentBinder,
@@ -55,9 +59,18 @@ import {
   invokeComponentHandler,
   listDependencies,
 } from "./services/handlerExecutor";
+import {
+  composeElementLocker,
+  composeIsElementLockedChecker,
+} from "./services/lockService";
 import { composeReferenceAttacher } from "./services/namedElements";
+import {
+  composeComponentReconciler,
+  reconcileChildren,
+} from "./services/scopeReconciler";
 import { collectTemplateElements } from "./services/templateService";
 import { ComponentId, PluncAppConfiguration } from "./types";
+import { resolveExpression } from "./services/expResolver";
 
 // A global array to hold all created PluncApp contexts
 const contexts: Array<PluncAppContext> = [];
@@ -88,6 +101,13 @@ const bindContext = makePluncAppContextBinder(
   composeComponentProxyFactory,
   createComponentFactory,
   createScope,
+  composeElementLocker,
+  composeIsElementLockedChecker,
+  disposeElement,
+  resolveExpression,
+  reconcileChildren,
+  cleanChildComponents,
+  makeStagingElement,
 );
 
 // Attached to the window object to provide a simple interface to interact with
@@ -149,7 +169,9 @@ async function bootstrap(contexts: Array<PluncAppContext>): Promise<void> {
     componentIdGenerator,
     referenceAttacher,
   );
-  renderComponents(appStagingElement, "" as ComponentId);
+  renderComponents(appStagingElement.getElement(), "" as ComponentId);
+
+  const allComponentObjects = appContext.__getAllFromRegistry();
 
   // At this point, we have only registered component objects.
   // The type returned by __getAllFromRegistry includes both components and services.
@@ -158,7 +180,6 @@ async function bootstrap(contexts: Array<PluncAppContext>): Promise<void> {
   // This should also mean that handler invocation starts with components.
   // All services that aren't depended on by components will not be invoked.
   // The same is true for handlers of factories and helpers.
-  const allComponentObjects = appContext.__getAllFromRegistry();
   for (const componentId in allComponentObjects) {
     const componentObject = allComponentObjects[componentId];
     // For type narrowing purposes
@@ -175,6 +196,46 @@ async function bootstrap(contexts: Array<PluncAppContext>): Promise<void> {
       dependencyResolver,
     );
   }
+
+  for (const componentId in allComponentObjects) {
+    const componentObject = allComponentObjects[componentId];
+    if (!isComponentObject(componentObject)) continue;
+    const targetComponentElement = appContext.__querySelectComponentById(
+      appStagingElement.getElement(),
+      componentObject.id,
+    );
+    // When the component element is missing, skip rendering
+    // This happens when the component is conditionally not rendered
+    if (targetComponentElement === null) continue;
+    const tempElement = document.implementation.createHTMLDocument().body;
+    tempElement.innerHTML = targetComponentElement.innerHTML;
+    const idsOfChildren = appContext.__whoAreTheChildren(componentObject.id);
+    appContext.__clearChildComponents(tempElement, idsOfChildren);
+    const processDirectives = composeDirectivesProcessor(appContext);
+    processDirectives(tempElement, componentObject.scope, false);
+    const reconcileComponent = composeComponentReconciler(
+      reconcileChildren,
+      appContext.__querySelectComponentById,
+    );
+    // At this point, the temp element has the updated structure
+    // We can now reconcile it with the target component element
+    reconcileComponent(tempElement, targetComponentElement, idsOfChildren);
+  }
+
+  // Finally, attach the staging element to the actual app element
+  const appElement = selectLiveAppRootElement(appContext.__getInstance().name);
+  appElement.replaceChildren();
+  appStagingElement.commitTo(appElement);
+
+  // Emit the ready state, and call all registered ready listeners
+  appContext.__getInstance().toReady();
+  const readyListeners = appContext.__getInstance().onReadyLtns;
+  for (let i = 0; i < readyListeners.length; i++) {
+    const listener = readyListeners[i];
+    listener();
+  }
+
+  // Proceed to bootstrap the next context
   bootstrap(rest);
 }
 

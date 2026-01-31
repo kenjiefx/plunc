@@ -7,7 +7,12 @@ app.component("FirstComponent", (LoggingService, SecondComponent) => {
   }, 2000);
   return { data: "Hello from FirstComponent" };
 });
-app.component("SecondComponent", (LoggingService, $parent) => {
+app.component("SecondComponent", ($scope, LoggingService, $parent) => {
+  $scope.firstName = "John";
+  $scope.lastName = "Doe";
+  $scope.emitAlert = () => {
+    LoggingService.alert(`Hello, ${$scope.firstName} ${$scope.lastName}!`);
+  };
   console.log("SecondComponent loaded");
   setTimeout(() => {
     LoggingService.log("SecondComponent is doing something.");
@@ -17,6 +22,9 @@ app.component("SecondComponent", (LoggingService, $parent) => {
 });
 app.service("LoggingService", () => {
   console.log("LoggingService initialized");
-  return { log: (msg) => console.log("LOG:", msg) };
+  return {
+    log: (msg) => console.log("LOG:", msg),
+    alert: (msg) => alert("ALERT: " + msg),
+  };
 });
 console.log("App initialized");

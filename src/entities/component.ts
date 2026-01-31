@@ -13,6 +13,7 @@ export type ComponentObject = {
   alias: string | null;
   scope: ComponentScope;
   proxy: ComponentExposureProxy | null;
+  template: string;
   __brand__: Symbol;
 };
 
@@ -49,6 +50,7 @@ export function createComponentFactory(
       alias: parsed.alias,
       proxy: null,
       scope: createScopeFn(),
+      template: `<!-- Component ${id} Template -->`,
       __brand__: Symbol("ComponentObject"),
     };
   };

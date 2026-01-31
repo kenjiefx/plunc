@@ -3,7 +3,7 @@
  * @param element - Element to be disposed
  * @param comment - Comment you'd like to add
  */
-export function disposeElement(element: Element, comment: string) {
+export function disposeElement(element: HTMLElement, comment: string) {
   if (null !== element) {
     element.innerHTML = "";
     if (element.parentNode !== null) {
