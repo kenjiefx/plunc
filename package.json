@@ -7,7 +7,7 @@
     "test": "test"
   },
   "scripts": {
-    "test": "tsc --module commonjs && mocha out/**/*.test.js"
+    "test": "tsc --module commonjs && mocha --require out/jsdom.js out/**/*.test.js"
   },
   "repository": {
     "type": "git",
