@@ -169,7 +169,8 @@ export type BlockAPI = <TElement extends HTMLElement>(
  */
 export type StagingHTMLElement = HTMLElement & {
   /**
-   * Indicates whether the staging element has been committed to the DOM
+   * Indicates whether the staging element has been committed to the DOM.
+   * plStgCS: Plunc Staging Committed Status
    */
-  $plStgisCommited: boolean;
+  $plStgCS: boolean;
 };
