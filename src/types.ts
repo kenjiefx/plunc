@@ -182,3 +182,21 @@ export declare const ComponentFamilyTreeBrand: unique symbol;
 export type ComponentFamilyTree = {
   readonly [ComponentFamilyTreeBrand]: true;
 };
+
+/**
+ * Represents a proxy for accessing a component's exposed members.
+ */
+export type ComponentExposedAPIProxy = Record<string, unknown> & {
+  __brand__: Symbol;
+};
+
+export type ComponentInternalRepresentation = {
+  readonly id: ComponentId;
+  readonly name: string;
+  readonly alias: string | null;
+  scope: ComponentScope;
+  setProxy(proxy: ComponentExposedAPIProxy): void;
+  getProxy(): ComponentExposedAPIProxy | null;
+  setTemplate(template: string): void;
+  getTemplate(): string;
+};
