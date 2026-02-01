@@ -4,3 +4,4 @@ export type ReCommittingStagingElementError = "ERR3";
 export type InvalidLibrarySourceError = "ERR4";
 export type InvalidComponentFamilyTreeSourceError = "ERR5";
 export type InvalidRegistrySourceError = "ERR6";
+export type MissingLiveAppRootElementError = "ERR7";
