@@ -184,6 +184,16 @@ export type ComponentFamilyTree = {
 };
 
 /**
+ * Holds a registry of ComponentInternalRepresentations and
+ * ServiceInternalRepresentations. Implementation details are hidden
+ * to prevent external manipulation.
+ */
+export declare const RegistryBrand: unique symbol;
+export type Registry = {
+  readonly [RegistryBrand]: true;
+};
+
+/**
  * Represents a proxy for accessing a component's exposed members.
  */
 export type ComponentExposedAPIProxy = Record<string, unknown> & {
@@ -199,4 +209,10 @@ export type ComponentInternalRepresentation = {
   getProxy(): ComponentExposedAPIProxy | null;
   setTemplate(template: string): void;
   getTemplate(): string;
+};
+
+export type ServiceId = string & { separator: ":" };
+
+export type ServiceInternalRepresentation = {
+  readonly title: string;
 };
