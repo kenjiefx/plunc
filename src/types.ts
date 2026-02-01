@@ -207,10 +207,10 @@ export type ComponentInternalRepresentation = {
   readonly name: string;
   readonly alias: string | null;
   scope: ComponentScope;
-  setProxy(proxy: ComponentExposedAPIProxy): void;
-  getProxy(): ComponentExposedAPIProxy | null;
-  setTemplate(template: string): void;
-  getTemplate(): string;
+  __setProxy(proxy: ComponentExposedAPIProxy): void;
+  __getProxy(): ComponentExposedAPIProxy | null;
+  __setTemplate(template: string): void;
+  __getTemplate(): string;
 };
 
 export type ServiceName = string & { __brand__: Symbol };
@@ -230,10 +230,10 @@ export type PluncAppInternalRepresentation = {
   registry: Registry;
   name: string;
   id: number;
-  getReadyListeners: () => Array<() => Promise<void>>;
-  emitReady: () => void;
-  isReady: () => boolean;
-  onReady: (listener: () => Promise<void>) => void;
+  __getReadyListeners: () => Array<() => Promise<void>>;
+  __emitReady: () => void;
+  __isReady: () => boolean;
+  __onReady: (listener: () => Promise<void>) => void;
 };
 
 export type TemplatesMap = Map<string, string>;

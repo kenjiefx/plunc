@@ -16,7 +16,7 @@ export function composeComponentProxyFactory(): ComponentProxyFactory {
         for (const id in target) {
           const component: ComponentInternalRepresentation =
             target[id as ComponentId];
-          const exposed = component.getProxy();
+          const exposed = component.__getProxy();
           if (exposed === null) {
             const name = component.name;
             throw new Error(

@@ -12,7 +12,7 @@ export function composeBlockAPI(
   componentObject: ComponentInternalRepresentation,
 ) {
   return function $block(name: string, callback: BlockCallback<HTMLElement>) {
-    if (!appCtx.__getAppRepresentationInstance().isReady()) {
+    if (!appCtx.__getAppRepresentationInstance().__isReady()) {
       throw new PluncError<UsingBlockAPIOutsideAppReadyError>("ERR8");
     }
     // At this point, the ComponentObject is guaranteed to be fully initialized,

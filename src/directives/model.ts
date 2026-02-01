@@ -56,15 +56,15 @@ function assertTimeFormat(time: string): asserts time is HTML5Time {
   }
 }
 
-const assignModelValue = (
+function assignModelValue(
   dataCtx: Readonly<{ [key: string]: unknown }>,
   expression: string,
   value: number | string | boolean | { [key: string]: any } | (() => unknown),
-) => {
+) {
   const parentObj = getParentObjAsObject(dataCtx, expression);
   const childObjExpression = getChildObjectExp(expression);
   if (undefined !== parentObj) parentObj[childObjExpression] = value;
-};
+}
 
 function setModelState(element: Element, state: boolean) {
   typeof state == "boolean" && state

@@ -251,10 +251,10 @@ async function bootstrap(contexts: Array<PluncAppContainer>): Promise<void> {
   appContainer.__commitStagingElementTo(appStagingElement, appElement);
 
   // Emit the ready state, and call all registered ready listeners
-  appContainer.__getAppRepresentationInstance().emitReady();
+  appContainer.__getAppRepresentationInstance().__emitReady();
   const readyListeners = appContainer
     .__getAppRepresentationInstance()
-    .getReadyListeners();
+    .__getReadyListeners();
   for (let i = 0; i < readyListeners.length; i++) {
     const listener = readyListeners[i];
     listener();

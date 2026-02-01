@@ -22,7 +22,7 @@ export function composeComponentAPI(
       name: componentObject.name,
       alias: componentObject.alias,
       element: (): PluncElement | null => {
-        if (!appCtx.__getAppRepresentationInstance().isReady()) {
+        if (!appCtx.__getAppRepresentationInstance().__isReady()) {
           throw new PluncError<UsingThisAPIOutsideAppReadyError>("ERR12");
         }
         const elementNode = appCtx.__querySelectComponentById(

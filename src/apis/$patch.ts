@@ -17,7 +17,7 @@ export function composePatchAPI(
   componentObject: ComponentInternalRepresentation,
 ) {
   return async function $patch(blockName: string | null = null) {
-    if (!appCtx.__getAppRepresentationInstance().isReady()) {
+    if (!appCtx.__getAppRepresentationInstance().__isReady()) {
       throw new PluncError<UsingPatchAPIOutsideAppReadyError>("ERR10");
     }
     // At this point, the ComponentObject is guaranteed to be fully initialized,
@@ -47,7 +47,7 @@ export function composePatchAPI(
       if (targetType === "COMPONENT") {
         appCtx.__setStagingElementInnerHtml(
           elementBindFrom,
-          componentObject.getTemplate(),
+          componentObject.__getTemplate(),
         );
       } else {
         if (blockName === null) continue;
@@ -101,7 +101,7 @@ export function getBlockTemplate(
   blockName: string,
 ) {
   const stagingElement = appCtx.__createStagingElement(
-    componentObject.getTemplate(),
+    componentObject.__getTemplate(),
   );
   const blockDirective = appCtx.__pluncAttributeKeyFormatter(
     BLOCK_ELEMENT_DIRECTIVE,

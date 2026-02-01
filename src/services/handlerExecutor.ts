@@ -371,7 +371,7 @@ export function invokeComponentHandler(
   resolveDependenciesFn: ReturnType<typeof composeDependencyResolver>,
 ): ComponentExposedAPIProxy {
   const proxy: ComponentExposedAPIProxy | null =
-    ComponentInternalRepresentation.getProxy();
+    ComponentInternalRepresentation.__getProxy();
   if (proxy !== null) {
     // To avoid re-invoking the component handler if the proxy already exists
     // (i.e., the component has already been initialized) we'll return the existing proxy
@@ -388,7 +388,7 @@ export function invokeComponentHandler(
     component: ComponentInternalRepresentation,
   });
   const exposedProxy = handler(...injectables) as ComponentExposedAPIProxy;
-  ComponentInternalRepresentation.setProxy(exposedProxy);
+  ComponentInternalRepresentation.__setProxy(exposedProxy);
   return exposedProxy;
 }
 

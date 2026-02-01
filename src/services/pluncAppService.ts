@@ -15,19 +15,19 @@ export function createPluncAppInternalRepresentation(
 ): PluncAppInternalRepresentation {
   const onReadyListeners: Array<() => Promise<void>> = [];
   let ready = false;
-  function emitReady() {
+  function __emitReady() {
     ready = true;
     for (const listener of onReadyListeners) {
       listener();
     }
   }
-  function isReady() {
+  function __isReady() {
     return ready;
   }
-  function onReady(listener: () => Promise<void>) {
+  function __onReady(listener: () => Promise<void>) {
     onReadyListeners.push(listener);
   }
-  function getReadyListeners() {
+  function __getReadyListeners() {
     return onReadyListeners;
   }
   return {
@@ -36,9 +36,9 @@ export function createPluncAppInternalRepresentation(
     registry,
     name,
     id,
-    getReadyListeners,
-    emitReady,
-    isReady,
-    onReady,
+    __getReadyListeners,
+    __emitReady,
+    __isReady,
+    __onReady,
   };
 }

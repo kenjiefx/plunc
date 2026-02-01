@@ -1,13 +1,13 @@
 import { PluncElement } from "./pluncElement";
 
 type ResolveType =
-  | "string"
-  | "number"
-  | "conditional"
-  | "boolean"
-  | "object"
-  | "operation"
-  | "function";
+  | "S" // string
+  | "N" // number
+  | "C" // conditional
+  | "B" // boolean
+  | "OB" // object
+  | "OP" // operation
+  | "F"; // function
 
 export type ExpressionResolver = typeof resolvePluncExpression;
 
@@ -35,21 +35,17 @@ export function resolvePluncExpression(
  * @NOTE: the expression should always have to be a string!
  */
 export function getExpressionResolveType(expression: any): ResolveType {
-  if (/^'.*'$/.test(expression)) return "string";
-  if (!isNaN(expression)) return "number";
-  if (expression.includes("(") && expression.includes("=="))
-    return "conditional";
-  if (expression.includes("(") && expression.includes("is "))
-    return "conditional";
-  if (expression.includes("(") && expression.includes(">"))
-    return "conditional";
-  if (expression.includes("(") && expression.includes("<"))
-    return "conditional";
-  if (expression.includes("(")) return "function";
-  if (expression.includes("==")) return "conditional";
-  if (expression.includes("is ")) return "conditional";
-  if (expression.includes(">")) return "conditional";
-  if (expression.includes("<")) return "conditional";
+  if (/^'.*'$/.test(expression)) return "S";
+  if (!isNaN(expression)) return "N";
+  if (expression.includes("(") && expression.includes("==")) return "C";
+  if (expression.includes("(") && expression.includes("is ")) return "C";
+  if (expression.includes("(") && expression.includes(">")) return "C";
+  if (expression.includes("(") && expression.includes("<")) return "C";
+  if (expression.includes("(")) return "F";
+  if (expression.includes("==")) return "C";
+  if (expression.includes("is ")) return "C";
+  if (expression.includes(">")) return "C";
+  if (expression.includes("<")) return "C";
   if (
     expression.includes("+") ||
     expression.includes("-") ||
@@ -57,12 +53,12 @@ export function getExpressionResolveType(expression: any): ResolveType {
     expression.includes("*") ||
     expression.includes("%")
   ) {
-    return "operation";
+    return "OP";
   }
   if (expression == "false" || expression == "true" || expression == "null") {
-    return "boolean";
+    return "B";
   }
-  return "object";
+  return "OB";
 }
 
 function initExpressionResolver(
@@ -72,21 +68,21 @@ function initExpressionResolver(
   element: PluncElement | null = null,
 ): any {
   switch (resolveType) {
-    case "string":
+    case "S":
       return expression.slice(1, -1);
       break;
 
-    case "boolean":
+    case "B":
       if (expression == "true") return true;
       if (expression == "false") return false;
       if (expression == "null") return null;
       break;
 
-    case "object":
+    case "OB":
       return evaluateObject(dataCtx, expression);
       break;
 
-    case "function":
+    case "F":
       let structure = expression.split("(");
       /** Checks to see if structure of a function resembles an object **/
       let expressionTest = structure[0].split(".");
@@ -108,7 +104,7 @@ function initExpressionResolver(
       return invokeFunction(dataCtx, dataCtx, expression, element);
       break;
 
-    case "conditional":
+    case "C":
       const evaluatorMap = {
         "!==": areTwoExpressionsNotTheSame,
         "==": areTwoExpressionsTheSame,
@@ -131,11 +127,11 @@ function initExpressionResolver(
       return false;
       break;
 
-    case "number":
+    case "N":
       return Number(expression);
       break;
 
-    case "operation":
+    case "OP":
       let finalExpression = expression;
       let operations = ["+", "-", "*", "/", "%"];
       for (var i = 0; i < operations.length; i++) {

@@ -1,34 +1,34 @@
 "use strict";
 (() => {
-  var __async = (n, e, t) =>
+  var __async = (n, t, e) =>
     new Promise((r, o) => {
-      var c = (n) => {
+      var i = (n) => {
           try {
-            u(t.next(n));
+            c(e.next(n));
           } catch (n) {
             o(n);
           }
         },
-        i = (n) => {
+        u = (n) => {
           try {
-            u(t.throw(n));
+            c(e.throw(n));
           } catch (n) {
             o(n);
           }
         },
-        u = (n) => (n.done ? r(n.value) : Promise.resolve(n.value).then(c, i));
-      u((t = t.apply(n, e)).next());
+        c = (n) => (n.done ? r(n.value) : Promise.resolve(n.value).then(i, u));
+      c((e = e.apply(n, t)).next());
     });
-  function be4(n) {
-    var e, t, r;
+  function o4(n) {
+    var t, e, r;
     return {
       prefix:
-        null !== (e = null == n ? void 0 : n.prefix) && void 0 !== e
-          ? e
+        null !== (t = null == n ? void 0 : n.prefix) && void 0 !== t
+          ? t
           : "plunc-",
       startFn:
-        null !== (t = null == n ? void 0 : n.startFn) && void 0 !== t
-          ? t
+        null !== (e = null == n ? void 0 : n.startFn) && void 0 !== e
+          ? e
           : () => new Promise((n) => n(!0)),
       endFn:
         null !== (r = null == n ? void 0 : n.endFn) && void 0 !== r
@@ -36,498 +36,496 @@
           : () => new Promise((n) => n()),
     };
   }
-  function ad1(
+  function i2(
     n,
-    e,
     t,
+    e,
     r,
     o,
-    c,
     i,
     u,
-    a,
+    c,
     s,
     l,
+    a,
     f,
     d,
-    E,
     p,
-    g,
-    b,
     m,
     h,
-    T,
-    y,
-    C,
-    R,
-    _,
+    g,
     v,
-    I,
     w,
-    L,
-    M,
-    N,
-    A,
-    O,
-    P,
+    y,
+    b,
+    E,
     $,
-    D,
-    V,
     x,
-    H,
+    C,
+    L,
+    R,
+    T,
+    M,
+    j,
+    P,
+    A,
     S,
-    F,
-    B,
-    K,
-    G,
     k,
+    H,
+    q,
+    F,
+    O,
+    I,
+    N,
+    B,
+    D,
+    X,
+    _,
   ) {
-    return function (j, U, Y = null) {
-      const X = be4(Y),
-        q = e(),
-        z = s(),
-        J = g(),
-        W = n(j, U, X, z, q),
-        Q = C(X),
-        Z = R(Q),
-        nn = _(Q),
-        en = x(Q, L),
-        tn = H(v),
-        rn = M(Q, w),
-        on = S();
+    return function (U, Y, z = null) {
+      const J = o4(z),
+        K = t(),
+        W = l(),
+        G = h(),
+        Q = n(U, Y, J, W, K),
+        V = E(J),
+        Z = $(V),
+        nn = x(V),
+        tn = F(V, T),
+        en = O(C),
+        rn = M(V, R),
+        on = I();
       return {
-        dc0: () => W,
-        ac0: function (n, e, t) {
-          l(z, n, e, t);
+        c9: () => Q,
+        f5: function (n, t, e) {
+          a(W, n, t, e);
         },
-        dg0: function (n) {
-          return f(z, n);
+        f6: function (n) {
+          return f(W, n);
         },
-        ag0: function (n) {
-          return d(z, n);
+        f7: function (n) {
+          return d(W, n);
         },
-        ac1: function (n) {
-          return E(z, n);
+        f8: function (n) {
+          return p(W, n);
         },
-        af1: function (n) {
-          return p(z, n);
+        f9: function (n) {
+          return m(W, n);
         },
-        gd0: function (n, e) {
-          t(q, n, e);
+        g0: function (n, t) {
+          e(K, n, t);
         },
-        be0: function (n) {
-          return r(q, n);
+        d7: function (n) {
+          return r(K, n);
         },
-        cd0: function (n) {
-          return o(q, n);
+        g1: function (n) {
+          return o(K, n);
         },
-        cg0: function () {
-          return c(q);
+        f0: function () {
+          return i(K);
         },
-        ac2: function (n, e) {
-          i(q, n, e);
+        g2: function (n, t) {
+          u(K, n, t);
         },
-        be2: function (n) {
-          return u(q, n);
+        g3: function (n) {
+          return c(K, n);
         },
-        cd1: function (n) {
-          return a(q, n);
+        g4: function (n) {
+          return s(K, n);
         },
-        cb0: function (n, e) {
-          b(J, n, e);
+        g5: function (n, t) {
+          g(G, n, t);
         },
-        gg0: function (n) {
-          return m(J, n);
+        g6: function (n) {
+          return v(G, n);
         },
-        ea0: function (n) {
-          return h(J, n);
+        f1: function (n) {
+          return w(G, n);
         },
-        ce0: function (n) {
-          return T(J, n);
+        d6: function (n) {
+          return y(G, n);
         },
-        ge0: function (n) {
-          return y(J, n);
+        g7: function (n) {
+          return b(G, n);
         },
-        gf0: Q,
-        ba0: Z,
-        ca1: nn,
-        bg1: v,
-        ag1: I(W),
-        dg1: w,
-        af0: L,
-        bd0: rn,
-        ee0: N(L, Q),
-        df1: A(Q),
-        de0: O(Q),
-        gc1: $(Q),
-        ag2: P(Q),
-        fc1: D,
-        ec0: V(rn),
-        da0: en,
-        ga0: tn,
-        gc0: on,
-        fe0: F,
-        fc0: B,
-        ae0: K,
-        bc0: G,
-        bf1: k,
+        e4: V,
+        g8: Z,
+        g9: nn,
+        h0: C,
+        h1: L(Q),
+        h2: R,
+        e5: T,
+        d3: rn,
+        h3: j(T, V),
+        h4: P(V),
+        h5: A(V),
+        h6: k(V),
+        h7: S(V),
+        h8: H,
+        f2: q(rn),
+        d4: tn,
+        h9: en,
+        d8: on,
+        i0: N,
+        e0: B,
+        e1: D,
+        i1: X,
+        e3: _,
       };
     };
   }
-  function de3(n) {
-    var e;
+  function l9(n) {
+    var t;
     return {
       name: n.split(" as ")[0],
-      alias: null !== (e = n.split(" as ")[1]) && void 0 !== e ? e : null,
+      alias: null !== (t = n.split(" as ")[1]) && void 0 !== t ? t : null,
     };
   }
-  var GLOBAL_DIRECTIVE_FOR_APP_NAME = "plunc-app",
-    GLOBAL_DIRECTIVE_FOR_TEMPLATE_NAME = "plunc-name",
-    GLOBAL_LOCK_ID_DIRECTIVE = "plunc-set",
-    GLOBAL_LOCK_ID_DIRECTIVE_VALUE = "true",
-    GLOBAL_EVENT_LOCK_DIRECTIVE = "plunc-event",
-    COMPONENT_ELEMENT_DIRECTIVE = "[PREFIX]component",
-    COMPONENT_ID_DIRECTIVE = "[PREFIX]cid",
-    REPEAT_ELEMENT_DIRECTIVE = "[PREFIX]repeat",
-    IF_ELEMENT_DIRECTIVE = "[PREFIX]if",
-    CHECK_ELEMENT_DIRECTIVE = "[PREFIX]check",
-    STYLE_ELEMENT_DIRECTIVE = "[PREFIX]style",
-    MODEL_ELEMENT_DIRECTIVE = "[PREFIX]model",
-    DISABLE_ELEMENT_DIRECTIVE = "[PREFIX]disable",
-    CLICK_EVENT_DIRECTIVE = "[PREFIX]click",
-    CHANGE_EVENT_DIRECTIVE = "[PREFIX]change",
-    TOUCH_EVENT_DIRECTIVE = "[PREFIX]touch",
-    BLOCK_ELEMENT_DIRECTIVE = "[PREFIX]block",
-    COMPONENT_REFERENCE_DIRECTIVE = "[PREFIX]rid",
-    SCOPE_ARGUMENT_KEY = "$scope",
-    BLOCK_ARGUMENT_KEY = "$block",
-    PARENT_ARGUMENT_KEY = "$parent",
-    PATCH_ARGUMENT_KEY = "$patch",
-    APP_ARGUMENT_KEY = "$app",
-    COMPONENT_ARGUMENT_KEY = "$this",
-    REPEAT_REFERENCE_TOKEN = "$$index";
-  function fd1(n) {
-    const e = n.prefix;
+  var a2 = "plunc-app",
+    a0 = "plunc-name",
+    a7 = "plunc-set",
+    a1 = "true",
+    a4 = "plunc-event",
+    a5 = "[PREFIX]component",
+    b4 = "[PREFIX]cid",
+    a8 = "[PREFIX]repeat",
+    c3 = "[PREFIX]if",
+    a9 = "[PREFIX]check",
+    b0 = "[PREFIX]style",
+    b1 = "[PREFIX]model",
+    a6 = "[PREFIX]disable",
+    c0 = "[PREFIX]click",
+    b7 = "[PREFIX]change",
+    c1 = "[PREFIX]touch",
+    b2 = "[PREFIX]block",
+    a3 = "[PREFIX]rid",
+    c5 = "$scope",
+    c6 = "$block",
+    c4 = "$parent",
+    c7 = "$patch",
+    c8 = "$app",
+    b8 = "$this",
+    b9 = "$$index";
+  function w2(n) {
+    const t = n.prefix;
     return function (n) {
-      return n.replace("[PREFIX]", e);
+      return n.replace("[PREFIX]", t);
     };
   }
-  function ga1(n, e, t) {
-    return `[${t(BLOCK_ELEMENT_DIRECTIVE)}="${n}"][${t(COMPONENT_REFERENCE_DIRECTIVE)}="${e.id}"]`;
+  function m0(n, t, e) {
+    return `[${e(b2)}="${n}"][${e(a3)}="${t.id}"]`;
   }
-  function be3(n, e) {
-    return function (t, r) {
-      const o = ga1(t, r, n);
+  function m1(n, t) {
+    return function (e, r) {
+      const o = m0(e, r, n);
       return function (n) {
-        return e(n, o);
+        return t(n, o);
       };
     };
   }
-  function gf1() {
+  function m5() {
     return function (n) {
       return new Proxy(n, {
-        get: function (n, e) {
-          for (const t in n) {
-            const r = n[t],
-              o = r.getProxy();
+        get: function (n, t) {
+          for (const e in n) {
+            const r = n[e],
+              o = r.m4();
             if (null === o) {
               const n = r.name;
               throw new Error(
                 `Cannot invoke component "${n}}" before $app is ready`,
               );
             }
-            if (!(e in o))
+            if (!(t in o))
               throw new Error(
-                `Calling undefined member "${e}" in component "${r.name}"`,
+                `Calling undefined member "${t}" in component "${r.name}"`,
               );
-            return o[e];
+            return o[t];
           }
         },
       });
     };
   }
-  function ae1(n) {
-    return function (e, t) {
-      const { name: r, alias: o } = n(t);
-      let c = null,
-        i = `\x3c!-- Component ${e} Template --\x3e`;
+  function m9(n) {
+    return function (t, e) {
+      const { name: r, alias: o } = n(e);
+      let i = null,
+        u = `\x3c!-- Component ${t} Template --\x3e`;
       return {
-        id: e,
+        id: t,
         name: r,
         alias: o,
         scope: {},
-        setProxy: function (n) {
-          c = n;
-        },
-        getProxy: function () {
-          return c;
-        },
-        setTemplate: function (n) {
+        m7: function (n) {
           i = n;
         },
-        getTemplate: function () {
+        m4: function () {
           return i;
+        },
+        m8: function (n) {
+          u = n;
+        },
+        e2: function () {
+          return u;
         },
       };
     };
   }
-  function fe2(n) {
-    return function (e, t) {
-      return "" !== t
-        ? `${t}.${e.toString()}`
-        : `${n.id.toString()}.${e.toString()}`;
+  function n2(n) {
+    return function (t, e) {
+      return "" !== e
+        ? `${e}.${t.toString()}`
+        : `${n.id.toString()}.${t.toString()}`;
     };
   }
-  function bd2(n, e, t, r, o) {
-    function c(i, u) {
-      const a = bb1(i, n, t);
-      let s = 0;
-      a.forEach((t) => {
-        const i = r(s, u);
-        (s++,
-          (function (t, r, i) {
-            const u = cg2(n, t);
-            (n.ca1(t, COMPONENT_ID_DIRECTIVE, r), n.cb0(i, r));
-            const a = db1(r, u, ee2(n, t), n);
-            (cb2(n, a), n.gd0(r, a));
-            const s = e.get(u);
-            if (void 0 === s)
-              throw new Error(`Template not found for component: ${u}`);
-            ((t.innerHTML = s), o(r, t), c(t, r), a.setTemplate(t.innerHTML));
-          })(t, i, u));
+  function n3(n, t, e, r, o) {
+    function i(u, c) {
+      const s = n6(u, n, e);
+      let l = 0;
+      s.forEach((e) => {
+        const u = r(l, c);
+        (l++,
+          (function (e, r, u) {
+            const c = n9(n, e);
+            (n.g9(e, b4, r), n.g5(u, r));
+            const s = o3(r, c, o0(n, e), n);
+            (o2(n, s), n.g0(r, s));
+            const l = t.get(c);
+            if (void 0 === l)
+              throw new Error(`Template not found for component: ${c}`);
+            ((e.innerHTML = l), o(r, e), i(e, r), s.m8(e.innerHTML));
+          })(e, u, c));
       });
     }
-    return c;
+    return i;
   }
-  function bb1(n, e, t) {
-    return t(n, `[${e.gf0(COMPONENT_ELEMENT_DIRECTIVE)}]`);
+  function n6(n, t, e) {
+    return e(n, `[${t.e4(a5)}]`);
   }
-  function bd3(n, e) {
-    return function (t, r) {
-      const o = n(COMPONENT_ID_DIRECTIVE);
-      return e(t, `[${o}="${r}"]`);
+  function n7(n, t) {
+    return function (e, r) {
+      const o = n(b4);
+      return t(e, `[${o}="${r}"]`);
     };
   }
-  function cg2(n, e) {
-    const t = fb2(n, e);
-    return n.bg1(t).name;
+  function n9(n, t) {
+    const e = o1(n, t);
+    return n.h0(e).name;
   }
-  function ee2(n, e) {
-    const t = fb2(n, e);
-    return n.bg1(t).alias;
+  function o0(n, t) {
+    const e = o1(n, t);
+    return n.h0(e).alias;
   }
-  function fb2(n, e) {
-    const t = n.ba0(e, COMPONENT_ELEMENT_DIRECTIVE);
-    if (!t)
-      throw new Error(
-        `Component element is missing the ${COMPONENT_ELEMENT_DIRECTIVE} attribute.`,
-      );
-    return t;
+  function o1(n, t) {
+    const e = n.g8(t, a5);
+    if (!e)
+      throw new Error(`Component element is missing the ${a5} attribute.`);
+    return e;
   }
-  function cb2(n, e) {
-    const t = e.name,
-      r = n.gg0(e.id);
-    n.cd0(r).forEach((n) => {
-      if (n && "name" in n && n.name === t)
-        throw new Error(`Circular dependency detected for component: ${t}`);
+  function o2(n, t) {
+    const e = t.name,
+      r = n.g6(t.id);
+    n.g1(r).forEach((n) => {
+      if (n && "name" in n && n.name === e)
+        throw new Error(`Circular dependency detected for component: ${e}`);
     });
   }
-  function db1(n, e, t, r) {
-    const o = r.be0(n);
-    return null !== o ? o : r.ga0(n, t ? `${e}:${t}` : e);
+  function o3(n, t, e, r) {
+    const o = r.d7(n);
+    return null !== o ? o : r.h9(n, e ? `${t}:${e}` : t);
   }
-  function gg1(n) {
-    return function (e, t) {
-      n.ee0(e, CHECK_ELEMENT_DIRECTIVE).forEach((e) => {
-        if (n.de0(e)) return;
-        const r = n.ba0(e, CHECK_ELEMENT_DIRECTIVE);
+  function i4(n) {
+    return function (t, e) {
+      n.h3(t, a9).forEach((t) => {
+        if (n.h5(t)) return;
+        const r = n.g8(t, a9);
         if (null === r || "" === r.trim()) return;
-        const o = n.fe0(t, r);
+        const o = n.i0(e, r);
         ("boolean" == typeof o &&
           (o
-            ? e.setAttribute("checked", "true")
-            : e.removeAttribute("checked")),
-          n.df1(e));
+            ? t.setAttribute("checked", "true")
+            : t.removeAttribute("checked")),
+          n.h4(t));
       });
     };
   }
-  function fe1(n) {
-    return function (e, t) {
-      n.ee0(e, IF_ELEMENT_DIRECTIVE).forEach((e) => {
-        if (n.de0(e)) return;
-        const r = n.ba0(e, IF_ELEMENT_DIRECTIVE);
+  function i6(n) {
+    return function (t, e) {
+      n.h3(t, c3).forEach((t) => {
+        if (n.h5(t)) return;
+        const r = n.g8(t, c3);
         if (null === r || "" === r.trim()) return;
-        const o = n.fe0(t, r);
+        const o = n.i0(e, r);
         ("boolean" == typeof o &&
           !1 === o &&
-          n.fc1(e, "condition evaluated to false"),
-          n.df1(e));
+          n.h8(t, "condition evaluated to false"),
+          n.h4(t));
       });
     };
   }
-  function gb0(n) {
-    return function (e, t) {
-      n.ee0(e, DISABLE_ELEMENT_DIRECTIVE).forEach((e) => {
-        if (n.de0(e)) return;
-        const r = n.ba0(e, DISABLE_ELEMENT_DIRECTIVE);
+  function i8(n) {
+    return function (t, e) {
+      n.h3(t, a6).forEach((t) => {
+        if (n.h5(t)) return;
+        const r = n.g8(t, a6);
         if (null === r || "" === r.trim()) return;
-        const o = n.fe0(t, r);
+        const o = n.i0(e, r);
         ("boolean" == typeof o &&
           (o
-            ? e.setAttribute("disabled", "true")
-            : e.removeAttribute("disabled")),
-          n.df1(e));
+            ? t.setAttribute("disabled", "true")
+            : t.removeAttribute("disabled")),
+          n.h4(t));
       });
     };
   }
-  function cd3(n, e, t = null) {
-    return gf2(n, e, ac6(e), t);
+  function p9(n, t, e = null) {
+    return q1(n, t, q0(t), e);
   }
-  function ac6(n) {
+  function q0(n) {
     return /^'.*'$/.test(n)
-      ? "string"
+      ? "S"
       : isNaN(n)
         ? (n.includes("(") && n.includes("==")) ||
           (n.includes("(") && n.includes("is ")) ||
           (n.includes("(") && n.includes(">")) ||
           (n.includes("(") && n.includes("<"))
-          ? "conditional"
+          ? "C"
           : n.includes("(")
-            ? "function"
+            ? "F"
             : n.includes("==") ||
                 n.includes("is ") ||
                 n.includes(">") ||
                 n.includes("<")
-              ? "conditional"
+              ? "C"
               : n.includes("+") ||
                   n.includes("-") ||
                   n.includes("/") ||
                   n.includes("*") ||
                   n.includes("%")
-                ? "operation"
+                ? "OP"
                 : "false" == n || "true" == n || "null" == n
-                  ? "boolean"
-                  : "object"
-        : "number";
+                  ? "B"
+                  : "OB"
+        : "N";
   }
-  function gf2(dataCtx, expression, resolveType, element = null) {
+  function q1(dataCtx, expression, resolveType, element = null) {
     switch (resolveType) {
-      case "string":
+      case "S":
         return expression.slice(1, -1);
-      case "boolean":
+      case "B":
         if ("true" == expression) return !0;
         if ("false" == expression) return !1;
         if ("null" == expression) return null;
         break;
-      case "object":
-        return ca2(dataCtx, expression);
-      case "function":
+      case "OB":
+        return q2(dataCtx, expression);
+      case "F":
         let structure = expression.split("("),
           expressionTest = structure[0].split(".");
         if (expressionTest.length > 1) {
-          let n = cd3(dataCtx, bb2(structure[0])),
-            e = expression
+          let n = p9(dataCtx, q4(structure[0])),
+            t = expression
               .split(".")
               .slice(expressionTest.length - 1)
               .join(".");
-          return ae2(n, dataCtx, e, element);
+          return q3(n, dataCtx, t, element);
         }
         return Object.prototype.hasOwnProperty.call(dataCtx, structure[0])
-          ? ae2(dataCtx, dataCtx, expression, element)
+          ? q3(dataCtx, dataCtx, expression, element)
           : "";
-      case "conditional":
+      case "C":
         const evaluatorMap = {
-          "!==": be5,
-          "==": ad2,
-          "is not ": be5,
-          "is ": ad2,
-          ">=": ad3,
-          ">": fc3,
-          "<=": ce4,
-          "<": fc4,
+          "!==": q8,
+          "==": q7,
+          "is not ": q8,
+          "is ": q7,
+          ">=": r0,
+          ">": q9,
+          "<=": r2,
+          "<": r1,
         };
         for (const n in evaluatorMap)
           if (expression.includes(n))
             return evaluatorMap[n](dataCtx, expression, n);
         return !1;
-      case "number":
+      case "N":
         return Number(expression);
-      case "operation":
+      case "OP":
         let finalExpression = expression,
           operations = ["+", "-", "*", "/", "%"];
         for (var i = 0; i < operations.length; i++)
           if (expression.includes(operations[i])) {
             let n = expression.split(operations[i]),
-              e = cd3(dataCtx, n[0].trim());
-            var right = cd3(dataCtx, n[1].trim());
-            finalExpression = e + operations[i] + right;
+              t = p9(dataCtx, n[0].trim());
+            var right = p9(dataCtx, n[1].trim());
+            finalExpression = t + operations[i] + right;
           }
         return eval(finalExpression);
     }
   }
-  function ca2(n, e) {
-    return "$dataCtx" === e
+  function q2(n, t) {
+    return "$dataCtx" === t
       ? n
-      : e.split(".").reduce(function (n, e) {
-          if (null != n && void 0 !== n[e]) return n[e];
+      : t.split(".").reduce(function (n, t) {
+          if (null != n && void 0 !== n[t]) return n[t];
         }, n);
   }
-  function ae2(n, e, t, r) {
+  function q3(n, t, e, r) {
     if (void 0 === n) return "";
-    const o = t.match(/\(([^)]+)\)/);
-    let c = t.split("(")[0];
+    const o = e.match(/\(([^)]+)\)/);
+    let i = e.split("(")[0];
     if (null !== o) {
-      const t = new Array(),
-        i = o[1].split(",");
-      for (let n = 0; n < i.length; n++) t.push(cd3(e, i[n].trim()));
+      const e = new Array(),
+        u = o[1].split(",");
+      for (let n = 0; n < u.length; n++) e.push(p9(t, u[n].trim()));
       return (
-        null !== r && t.push(r),
-        n[c] instanceof Function ? n[c](...t) : ""
+        null !== r && e.push(r),
+        n[i] instanceof Function ? n[i](...e) : ""
       );
     }
     if (null !== r) {
-      const e = new Array();
-      return (e.push(r), n[c](...e));
+      const t = new Array();
+      return (t.push(r), n[i](...t));
     }
-    return n[c] instanceof Function ? n[c]() : "";
+    return n[i] instanceof Function ? n[i]() : "";
   }
-  function bb2(n) {
-    let e = n.split(".");
-    return e.length < 2 ? "$dataCtx" : (e.pop(), e.join("."));
+  function q4(n) {
+    let t = n.split(".");
+    return t.length < 2 ? "$dataCtx" : (t.pop(), t.join("."));
   }
-  function gf3(n, e) {
-    return cd3(n, bb2(e));
+  function q5(n, t) {
+    return p9(n, q4(t));
   }
-  function ga2(n) {
-    let e = n.split(".");
-    return e[e.length - 1];
+  function q6(n) {
+    let t = n.split(".");
+    return t[t.length - 1];
   }
-  function ad2(n, e, t) {
-    const [r, o] = e.split(t).map((e) => cd3(n, e.trim()));
+  function q7(n, t, e) {
+    const [r, o] = t.split(e).map((t) => p9(n, t.trim()));
     return r === o;
   }
-  function be5(n, e, t) {
-    const [r, o] = e.split(t).map((e) => cd3(n, e.trim()));
+  function q8(n, t, e) {
+    const [r, o] = t.split(e).map((t) => p9(n, t.trim()));
     return r !== o;
   }
-  function fc3(n, e, t) {
-    const [r, o] = e.split(t).map((e) => cd3(n, e.trim()));
+  function q9(n, t, e) {
+    const [r, o] = t.split(e).map((t) => p9(n, t.trim()));
     return r > o;
   }
-  function ad3(n, e, t) {
-    const [r, o] = e.split(t).map((e) => cd3(n, e.trim()));
+  function r0(n, t, e) {
+    const [r, o] = t.split(e).map((t) => p9(n, t.trim()));
     return r >= o;
   }
-  function fc4(n, e, t) {
-    const [r, o] = e.split(t).map((e) => cd3(n, e.trim()));
+  function r1(n, t, e) {
+    const [r, o] = t.split(e).map((t) => p9(n, t.trim()));
     return r < o;
   }
-  function ce4(n, e, t) {
-    const [r, o] = e.split(t).map((e) => cd3(n, e.trim()));
+  function r2(n, t, e) {
+    const [r, o] = t.split(e).map((t) => p9(n, t.trim()));
     return r <= o;
   }
   var PluncElement = class n {
-    constructor(n, e = null) {
+    constructor(n, t = null) {
       (Object.defineProperty(this, "$element", {
         enumerable: !0,
         configurable: !0,
@@ -554,11 +552,11 @@
         }),
         (this.$element = n),
         (this.state = null),
-        this.ed3(null != e ? e : 1));
+        this.w5(null != t ? t : 1));
     }
-    ed3(e) {
-      const t = this.$element.parentElement;
-      e > 3 || null === t || (this.$parent = new n(t, e++));
+    w5(t) {
+      const e = this.$element.parentElement;
+      t > 3 || null === e || (this.$parent = new n(e, t++));
     }
     get() {
       return this.$element;
@@ -585,104 +583,102 @@
       this.$element.classList.remove(n);
     }
     toggleClass(n) {
-      const e = this.listClass();
-      for (var t = 0; t < e.length; t++) {
-        e[t] === n ? this.removeClass(n) : this.addClass(n);
+      const t = this.listClass();
+      for (var e = 0; e < t.length; e++) {
+        t[e] === n ? this.removeClass(n) : this.addClass(n);
       }
     }
   };
-  function fg0(n, e, t, r) {
-    "function" === ac6(t) &&
-      e.addEventListener(r, () => {
-        const r = new PluncElement(e);
-        cd3(n, t, r);
+  function j0(n, t, e, r) {
+    "F" === q0(e) &&
+      t.addEventListener(r, () => {
+        const r = new PluncElement(t);
+        p9(n, e, r);
       });
   }
-  function dd0(n) {
-    return function (e, t) {
+  function j1(n) {
+    return function (t, e) {
       [
-        { type: "click", attr: CLICK_EVENT_DIRECTIVE },
-        { type: "change", attr: CHANGE_EVENT_DIRECTIVE },
-        { type: "keyup", attr: TOUCH_EVENT_DIRECTIVE },
+        { t: "click", a: c0 },
+        { t: "change", a: b7 },
+        { t: "keyup", a: c1 },
       ].forEach((r) => {
-        n.ee0(e, r.attr).forEach((e) => {
-          if (n.ag2(e, r.type)) return;
-          const o = n.ba0(e, r.attr);
-          null !== o &&
-            "" !== o.trim() &&
-            (fg0(t, e, o, r.type), n.gc1(e, r.type));
+        n.h3(t, r.a).forEach((t) => {
+          if (n.h7(t, r.t)) return;
+          const o = n.g8(t, r.a);
+          null !== o && "" !== o.trim() && (j0(e, t, o, r.t), n.h6(t, r.t));
         });
       });
     };
   }
-  function ef0(n) {
-    var e, t, r;
+  function j3(n) {
+    var t, e, r;
     const o = n.split("-"),
-      c = null !== (e = o[0]) && void 0 !== e ? e : null;
-    if (null === c || c.length < 4)
+      i = null !== (t = o[0]) && void 0 !== t ? t : null;
+    if (null === i || i.length < 4)
       throw new Error(
         "models assigned to Date input elements must follow standard HTML5 format YYYY-MM-DD",
       );
-    const i = null !== (t = o[1]) && void 0 !== t ? t : null;
-    if (null === i || parseInt(i) > 12) throw new Error(i);
-    const u = null !== (r = o[2]) && void 0 !== r ? r : null;
-    if (null === u || parseInt(u) > 31) throw new Error(u);
+    const u = null !== (e = o[1]) && void 0 !== e ? e : null;
+    if (null === u || parseInt(u) > 12) throw new Error(u);
+    const c = null !== (r = o[2]) && void 0 !== r ? r : null;
+    if (null === c || parseInt(c) > 31) throw new Error(c);
   }
-  function ce1(n) {
-    var e, t;
+  function j4(n) {
+    var t, e;
     const r =
         "models assigned to Time input elements must follow standard HTML5 format HH:MM",
       o = n.split(":"),
-      c = null !== (e = o[0]) && void 0 !== e ? e : null;
-    if (null === c || c.length < 2 || parseInt(c) > 23) throw new Error(r);
-    const i = null !== (t = o[1]) && void 0 !== t ? t : null;
-    if (null === i || i.length < 2 || parseInt(i) > 59) throw new Error(r);
+      i = null !== (t = o[0]) && void 0 !== t ? t : null;
+    if (null === i || i.length < 2 || parseInt(i) > 23) throw new Error(r);
+    const u = null !== (e = o[1]) && void 0 !== e ? e : null;
+    if (null === u || u.length < 2 || parseInt(u) > 59) throw new Error(r);
   }
-  var assignModelValue = (n, e, t) => {
-    const r = gf3(n, e),
-      o = ga2(e);
-    void 0 !== r && (r[o] = t);
-  };
-  function fa0(n, e) {
-    "boolean" == typeof e && e
+  function j5(n, t, e) {
+    const r = q5(n, t),
+      o = q6(t);
+    void 0 !== r && (r[o] = e);
+  }
+  function j6(n, t) {
+    "boolean" == typeof t && t
       ? n.setAttribute("checked", "")
       : n.removeAttribute("checked");
   }
-  function de1() {
+  function j7() {
     const n = new Date(Date.now()),
-      e = n.getMonth() + 1,
-      t = e < 10 ? `0${e}` : e,
-      r = `${n.getFullYear()}-${t}-${n.getDate()}`;
-    return (ef0(r), r);
+      t = n.getMonth() + 1,
+      e = t < 10 ? `0${t}` : t,
+      r = `${n.getFullYear()}-${e}-${n.getDate()}`;
+    return (j3(r), r);
   }
-  function da1() {
+  function j8() {
     const n = new Date(Date.now()),
-      e =
+      t =
         (n.getHours() < 10 ? `0${n.getHours()}` : n.getHours()) +
         ":" +
         (n.getMinutes() < 10 ? `0${n.getMinutes()}` : n.getMinutes());
-    return (ce1(e), e);
+    return (j4(t), t);
   }
-  function fc2(n) {
+  function j9(n) {
     return null == n
       ? ""
       : "object" == typeof n
         ? JSON.stringify(n)
         : String(n);
   }
-  function cg1(n, e, t, r) {
+  function k0(n, t, e, r) {
     const o = n.type.toLowerCase();
     if ("radio" !== o && "checkbox" !== o) return;
-    const c = n;
+    const i = n;
     void 0 === r
-      ? (assignModelValue(e, t, !1), fa0(c, !1))
+      ? (j5(t, e, !1), j6(i, !1))
       : "boolean" == typeof r
-        ? fa0(c, r)
+        ? j6(i, r)
         : console.warn(
             "Model directive assigned to checkbox/radio input elements must be of boolean type.",
           );
   }
-  function ac3(n, e, t, r) {
+  function k1(n, t, e, r) {
     const o = n.type.toLowerCase();
     if (
       "text" === o ||
@@ -693,191 +689,185 @@
       "tel" === o
     ) {
       const o = n;
-      void 0 === r ? assignModelValue(e, t, o.value) : (o.value = fc2(r));
+      void 0 === r ? j5(t, e, o.value) : (o.value = j9(r));
     }
   }
-  function bb0(n, e, t, r) {
+  function k2(n, t, e, r) {
     if ("number" === n.type.toLowerCase()) {
       const o = n;
-      void 0 === r
-        ? (assignModelValue(e, t, 0), (o.value = "0"))
-        : (o.value = fc2(r));
+      void 0 === r ? (j5(t, e, 0), (o.value = "0")) : (o.value = j9(r));
     }
   }
-  function bf2(n, e, t, r) {
+  function k3(n, t, e, r) {
     return function (o) {
-      o(n, e, t, r);
+      o(n, t, e, r);
     };
   }
-  function fd0(n, e, t, r) {
+  function k5(n, t, e, r) {
     if ("date" === n.type.toLowerCase()) {
       const o = n;
       if (void 0 === r) {
-        const n = de1();
-        (assignModelValue(e, t, n), (o.value = n));
+        const n = j7();
+        (j5(t, e, n), (o.value = n));
       } else {
-        const n = fc2(r);
-        (ef0(n), (o.value = n));
+        const n = j9(r);
+        (j3(n), (o.value = n));
       }
     }
   }
-  function bd1(n, e, t, r) {
+  function k6(n, t, e, r) {
     if ("time" === n.type.toLowerCase()) {
       const o = n;
       if (void 0 === r) {
-        const n = da1();
-        (assignModelValue(e, t, n), (o.value = n));
+        const n = j8();
+        (j5(t, e, n), (o.value = n));
       } else {
-        const n = fc2(r);
-        (ce1(n), (o.value = n));
+        const n = j9(r);
+        (j4(n), (o.value = n));
       }
     }
   }
-  function gb1(n) {
-    return function (e, t) {
-      n.ee0(e, MODEL_ELEMENT_DIRECTIVE).forEach((e) => {
-        const r = n.ba0(e, MODEL_ELEMENT_DIRECTIVE);
+  function k7(n) {
+    return function (t, e) {
+      n.h3(t, b1).forEach((t) => {
+        const r = n.g8(t, b1);
         if (null === r || "" === r.trim()) return;
-        if (n.de0(e)) return;
-        let o = n.fe0(t, r);
-        if ("INPUT" === e.tagName || "SELECT" === e.tagName) {
-          if (e instanceof HTMLInputElement) {
-            const n = bf2(e, t, r, o);
-            (n(cg1), n(ac3), n(bb0), n(fd0), n(bd1));
+        if (n.h5(t)) return;
+        let o = n.i0(e, r);
+        if ("INPUT" === t.tagName || "SELECT" === t.tagName) {
+          if (t instanceof HTMLInputElement) {
+            const n = k3(t, e, r, o);
+            (n(k0), n(k1), n(k2), n(k5), n(k6));
           }
-          (e instanceof HTMLSelectElement &&
-            (void 0 === o
-              ? assignModelValue(t, r, e.value)
-              : (e.value = fc2(o))),
-            e.addEventListener("change", (n) => {
-              const e = n.target;
-              if (e instanceof HTMLInputElement) {
-                const n = e.type.toLowerCase();
+          (t instanceof HTMLSelectElement &&
+            (void 0 === o ? j5(e, r, t.value) : (t.value = j9(o))),
+            t.addEventListener("change", (n) => {
+              const t = n.target;
+              if (t instanceof HTMLInputElement) {
+                const n = t.type.toLowerCase();
                 if ("radio" === n || "checkbox" === n) {
-                  const n = e.checked;
-                  return void assignModelValue(t, r, n);
+                  const n = t.checked;
+                  return void j5(e, r, n);
                 }
-                assignModelValue(t, r, e.value);
+                j5(e, r, t.value);
               }
-              e instanceof HTMLSelectElement && assignModelValue(t, r, e.value);
+              t instanceof HTMLSelectElement && j5(e, r, t.value);
             }));
         } else
-          "TEXTAREA" === e.tagName &&
-            e instanceof HTMLTextAreaElement &&
-            (void 0 === o
-              ? assignModelValue(t, r, e.value)
-              : (e.value = fc2(o)),
-            e.addEventListener("change", (n) => {
-              const e = n.target;
-              if (!(e instanceof HTMLTextAreaElement)) return;
-              const o = e.value;
-              assignModelValue(t, r, o);
+          "TEXTAREA" === t.tagName &&
+            t instanceof HTMLTextAreaElement &&
+            (void 0 === o ? j5(e, r, t.value) : (t.value = j9(o)),
+            t.addEventListener("change", (n) => {
+              const t = n.target;
+              if (!(t instanceof HTMLTextAreaElement)) return;
+              const o = t.value;
+              j5(e, r, o);
             }));
-        n.df1(e);
+        n.h4(t);
       });
     };
   }
-  function de2(n) {
-    return function (e, t) {
+  function k9(n) {
+    return function (t, e) {
       const r = new RegExp("(?<=\\{{).+?(?=\\}})", "g"),
-        o = e.innerHTML.match(r);
+        o = t.innerHTML.match(r);
       null !== o &&
         o.forEach((r) => {
           const o = r.trim();
-          let c = n.fe0(t, o);
-          null == c && (c = "");
-          const i = `{{${r}}}`;
-          e.innerHTML = e.innerHTML.replace(i, String(c));
+          let i = n.i0(e, o);
+          null == i && (i = "");
+          const u = `{{${r}}}`;
+          t.innerHTML = t.innerHTML.replace(u, String(i));
         });
     };
   }
-  function eg0(n) {
+  function l1(n) {
     return n.includes("until ")
-      ? [REPEAT_REFERENCE_TOKEN, n.split("until")[1].trim()]
+      ? [b9, n.split("until")[1].trim()]
       : [n.split(" as ")[0].trim(), n.split(" as ")[1].trim()];
   }
-  function ce2(n) {
+  function l2(n) {
     if (n instanceof Array) return n.length;
     if ("number" == typeof n && Number.isInteger(n)) return n;
     throw new Error("Repeatable elements must have repeatable values");
   }
-  function bc1(n) {
+  function l3(n) {
     return null !== n && ("object" == typeof n || Array.isArray(n));
   }
-  function ea1(n) {
-    let e = () => {};
-    function t(t, r) {
+  function l4(n) {
+    let t = () => {};
+    function e(e, r) {
       const o = Object.assign({}, r),
-        c = t.innerHTML;
-      t.replaceChildren();
-      let i = n.ba0(t, REPEAT_ELEMENT_DIRECTIVE);
-      if (null === i || "" === i.trim()) return;
-      let [u, a] = eg0(i);
-      if (u === REPEAT_REFERENCE_TOKEN) {
-        let e = ce2(n.fe0(o, a));
+        i = e.innerHTML;
+      e.replaceChildren();
+      let u = n.g8(e, a8);
+      if (null === u || "" === u.trim()) return;
+      let [c, s] = l1(u);
+      if (c === b9) {
+        let t = l2(n.i0(o, s));
         o.$$index = {};
-        let t = 0;
-        for (; t < e; ) o.$$index["props" + t++] = new Object();
+        let e = 0;
+        for (; e < t; ) o.$$index["props" + e++] = new Object();
       }
-      const s = n.fe0(o, u);
-      if (!bc1(s)) return;
-      let l = 0;
-      for (const [o, i] of Object.entries(s)) {
-        const o = { $parent: r, $index: l, [a]: i },
-          u = n.fc0(c);
-        (e(u, o), n.bf1(u, t), l++);
+      const l = n.i0(o, c);
+      if (!l3(l)) return;
+      let a = 0;
+      for (const [o, u] of Object.entries(l)) {
+        const o = { $parent: r, $index: a, [s]: u },
+          c = n.e0(i);
+        (t(c, o), n.e3(c, e), a++);
       }
     }
-    return function (r, o, c) {
-      const i = n.ee0(r, REPEAT_ELEMENT_DIRECTIVE);
-      e = c;
-      for (const n of i) t(n, o);
+    return function (r, o, i) {
+      const u = n.h3(r, a8);
+      t = i;
+      for (const n of u) e(n, o);
     };
   }
-  function ba2(n) {
-    return function (e, t) {
-      n.ee0(e, STYLE_ELEMENT_DIRECTIVE).forEach((e) => {
-        if (n.de0(e)) return;
-        const r = n.ba0(e, STYLE_ELEMENT_DIRECTIVE);
+  function l7(n) {
+    return function (t, e) {
+      n.h3(t, b0).forEach((t) => {
+        if (n.h5(t)) return;
+        const r = n.g8(t, b0);
         if (null === r || "" === r.trim()) return;
-        const o = n.fe0(t, r);
+        const o = n.i0(e, r);
         if ("string" == typeof o && "" !== o.trim()) {
           o.split(" ")
             .map((n) => n.trim())
             .forEach((n) => {
-              "" !== n && e.classList.add(n);
+              "" !== n && t.classList.add(n);
             });
         }
-        n.df1(e);
+        n.h4(t);
       });
     };
   }
-  function ac4(n) {
-    const e = ea1(n),
-      t = gg1(n),
-      r = fe1(n),
-      o = gb0(n),
-      c = dd0(n),
-      i = gb1(n),
-      u = de2(n),
-      a = ba2(n);
-    return function n(s, l, f = !0) {
-      (e(s, l, n),
-        r(s, l),
-        u(s, l),
-        t(s, l),
-        a(s, l),
-        i(s, l),
-        o(s, l),
-        !1 === f && c(s, l));
+  function o5(n) {
+    const t = l4(n),
+      e = i4(n),
+      r = i6(n),
+      o = i8(n),
+      i = j1(n),
+      u = k7(n),
+      c = k9(n),
+      s = l7(n);
+    return function n(l, a, f = !0) {
+      (t(l, a, n),
+        r(l, a),
+        c(l, a),
+        e(l, a),
+        s(l, a),
+        u(l, a),
+        o(l, a),
+        !1 === f && i(l, a));
     };
   }
-  function eg1(n, e) {
+  function o7(n, t) {
     null !== n &&
       ((n.innerHTML = ""),
       null !== n.parentNode &&
         (n.outerHTML =
-          "\x3c!-- plunc.js: " + n.outerHTML + " | " + e + " --\x3e"));
+          "\x3c!-- plunc.js: " + n.outerHTML + " | " + t + " --\x3e"));
   }
   var userAgent = navigator.userAgent.toLowerCase(),
     browser = {
@@ -898,11 +888,11 @@
     }
   }
   function addLoadEvent(n) {
-    var e = window.onload;
+    var t = window.onload;
     "function" != typeof window.onload
       ? (window.onload = n)
       : (window.onload = function () {
-          (e && e(), n());
+          (t && t(), n());
         });
   }
   function bindReady() {
@@ -919,7 +909,7 @@
             if (!isReady) {
               try {
                 document.documentElement.doScroll("left");
-              } catch (e) {
+              } catch (t) {
                 return void setTimeout(n, 0);
               }
               domReady();
@@ -930,8 +920,8 @@
             "DOMContentLoaded",
             function n() {
               if (!isReady) {
-                for (var e = 0; e < document.styleSheets.length; e++)
-                  if (document.styleSheets[e].disabled)
+                for (var t = 0; t < document.styleSheets.length; t++)
+                  if (document.styleSheets[t].disabled)
                     return void setTimeout(n, 0);
                 domReady();
               }
@@ -940,7 +930,7 @@
           ),
         browser.safari)
       )
-        !(function e() {
+        !(function t() {
           if (!isReady)
             if (
               "loaded" == document.readyState ||
@@ -948,16 +938,16 @@
             ) {
               if (void 0 === n) {
                 for (
-                  var t = document.getElementsByTagName("link"), r = 0;
-                  r < t.length;
+                  var e = document.getElementsByTagName("link"), r = 0;
+                  r < e.length;
                   r++
                 )
-                  "stylesheet" == t[r].getAttribute("rel") && n++;
+                  "stylesheet" == e[r].getAttribute("rel") && n++;
                 var o = document.getElementsByTagName("style");
                 n += o.length;
               }
-              document.styleSheets.length == n ? domReady() : setTimeout(e, 0);
-            } else setTimeout(e, 0);
+              document.styleSheets.length == n ? domReady() : setTimeout(t, 0);
+            } else setTimeout(t, 0);
         })();
       addLoadEvent(domReady);
     }
@@ -970,69 +960,69 @@
       });
     },
   };
-  function bc2(n, e) {
-    return n.querySelector(e);
+  function o8(n, t) {
+    return n.querySelector(t);
   }
-  function db2(n, e) {
-    return Array.from(n.querySelectorAll(e));
+  function o9(n, t) {
+    return Array.from(n.querySelectorAll(t));
   }
-  function ef1(n, e) {
-    return function (t, r, o) {
-      const c = e(r);
-      return n(t, `[${c}${o ? `="${o}"` : ""}]`);
+  function p0(n, t) {
+    return function (e, r, o) {
+      const i = t(r);
+      return n(e, `[${i}${o ? `="${o}"` : ""}]`);
     };
   }
-  function bf3(n) {
-    return function (e, t) {
-      const r = n(t);
-      return e.getAttribute(r);
+  function p2(n) {
+    return function (t, e) {
+      const r = n(e);
+      return t.getAttribute(r);
     };
   }
-  function gg2(n) {
-    return function (e, t, r) {
-      const o = n(t);
-      e.setAttribute(o, r);
+  function p4(n) {
+    return function (t, e, r) {
+      const o = n(e);
+      t.setAttribute(o, r);
     };
   }
-  function ee3(n) {
-    return function (e, t) {
-      for (let r = 0; r < t.length; r++) {
-        const o = t[r],
-          c = n(e, o);
-        null !== c && (c.innerHTML = "");
+  function p6(n) {
+    return function (t, e) {
+      for (let r = 0; r < e.length; r++) {
+        const o = e[r],
+          i = n(t, o);
+        null !== i && (i.innerHTML = "");
       }
     };
   }
-  function gb2(n) {
-    const e = `[${`${GLOBAL_DIRECTIVE_FOR_APP_NAME}`}="${n}"]`,
-      t = document.querySelector(e);
-    if (!t) throw new Error(`Cannot find the app root element for app: ${n}`);
-    return t;
+  function p8(n) {
+    const t = `[${`${a2}`}="${n}"]`,
+      e = document.querySelector(t);
+    if (!e) throw new Error(`Cannot find the app root element for app: ${n}`);
+    return e;
   }
-  function ac7(n) {
-    return function (e, t) {
-      n.ac0(e, "component", t);
+  function r3(n) {
+    return function (t, e) {
+      n.f5(t, "component", e);
     };
   }
-  function bc3(n) {
-    return function (e, t) {
-      n.ac0(e, "service", t);
+  function r5(n) {
+    return function (t, e) {
+      n.f5(t, "service", e);
     };
   }
-  function de4(n) {
-    return function (e, t) {
-      n.ac0(e, "factory", t);
+  function r7(n) {
+    return function (t, e) {
+      n.f5(t, "factory", e);
     };
   }
-  function ca3(n) {
-    return function (e, t) {
-      n.ac0(e, "helper", t);
+  function r9(n) {
+    return function (t, e) {
+      n.f5(t, "helper", e);
     };
   }
-  function bf0(n) {
+  function d1(n) {
     return {
-      ready: (e) => {
-        n.dc0().onReady(e);
+      ready: (t) => {
+        n.c9().d0(t);
       },
     };
   }
@@ -1045,117 +1035,117 @@
         Object.setPrototypeOf(this, Error.prototype));
     }
   };
-  function ca0(n, e) {
-    return function (t, r) {
-      if (!n.dc0().isReady()) throw new PluncError("ERR8");
-      const o = n.bd0(document.body, e.id);
+  function d5(n, t) {
+    return function (e, r) {
+      if (!n.c9().d2()) throw new PluncError("ERR8");
+      const o = n.d3(document.body, t.id);
       if (!o) throw new PluncError("ERR9");
-      const c = n.da0(t, e)(o);
-      0 !== c.length
-        ? c.forEach((n) => {
+      const i = n.d4(e, t)(o);
+      0 !== i.length
+        ? i.forEach((n) => {
             r(new PluncElement(n));
           })
         : r(null);
     };
   }
-  function ad0(n, e) {
+  function d9(n, t) {
     return function () {
-      const t = n.ce0(e.id);
-      if (null === t) return null;
-      const r = n.be0(t);
+      const e = n.d6(t.id);
+      if (null === e) return null;
+      const r = n.d7(e);
       if (!r) return null;
       const o = {};
-      return ((o[t] = r), n.gc0(o));
+      return ((o[e] = r), n.d8(o));
     };
   }
-  function df0(n, e) {
-    return function (t = null) {
+  function e6(n, t) {
+    return function (e = null) {
       return __async(this, null, function* () {
-        if (!n.dc0().isReady()) throw new PluncError("ERR10");
-        const r = n.bd0(document.body, e.id);
+        if (!n.c9().d2()) throw new PluncError("ERR10");
+        const r = n.d3(document.body, t.id);
         if (!r) throw new PluncError("ERR9");
-        const { targetType: o, patchTargetNodes: c } = dc1(t, r, e, n);
-        for (const r of c) {
-          const c = r;
-          if (null === c) continue;
-          let i = n.fc0();
-          if ("COMPONENT" === o) n.ae0(i, e.getTemplate());
+        const { targetType: o, patchTargetNodes: i } = e7(e, r, t, n);
+        for (const r of i) {
+          const i = r;
+          if (null === i) continue;
+          let u = n.e0();
+          if ("COMPONENT" === o) n.e1(u, t.e2());
           else {
-            if (null === t) continue;
-            const r = be1(n, e, t);
-            n.ae0(i, r);
+            if (null === e) continue;
+            const r = e8(n, t, e);
+            n.e1(u, r);
           }
-          (ac4(n)(i, e.scope, !1), (c.innerHTML = ""), n.bf1(i, c));
+          (o5(n)(u, t.scope, !1), (i.innerHTML = ""), n.e3(u, i));
         }
       });
     };
   }
-  function dc1(n, e, t, r) {
+  function e7(n, t, e, r) {
     if (null !== n) {
-      return { targetType: "BLOCK", patchTargetNodes: r.da0(n, t)(e) };
+      return { targetType: "BLOCK", patchTargetNodes: r.d4(n, e)(t) };
     }
-    return { targetType: "COMPONENT", patchTargetNodes: [e] };
+    return { targetType: "COMPONENT", patchTargetNodes: [t] };
   }
-  function be1(n, e, t) {
-    const r = n.fc0(e.getTemplate()),
-      o = `[${n.gf0(BLOCK_ELEMENT_DIRECTIVE)}="${t}"][${n.gf0(COMPONENT_REFERENCE_DIRECTIVE)}="${e.id}"]`,
-      c = n.af0(r, o);
-    if (0 === c.length) throw new PluncError("ERR11");
-    return c[0].innerHTML;
+  function e8(n, t, e) {
+    const r = n.e0(t.e2()),
+      o = `[${n.e4(b2)}="${e}"][${n.e4(a3)}="${t.id}"]`,
+      i = n.e5(r, o);
+    if (0 === i.length) throw new PluncError("ERR11");
+    return i[0].innerHTML;
   }
-  function bg0(n, e) {
+  function e9(n, t) {
     return function () {
       return {
-        id: e.id,
-        name: e.name,
-        alias: e.alias,
+        id: t.id,
+        name: t.name,
+        alias: t.alias,
         element: () => {
-          if (!n.dc0().isReady()) throw new PluncError("ERR12");
-          const t = n.bd0(document.body, e.id);
-          return null === t ? null : new PluncElement(t);
+          if (!n.c9().d2()) throw new PluncError("ERR12");
+          const e = n.d3(document.body, t.id);
+          return null === e ? null : new PluncElement(e);
         },
       };
     };
   }
-  function fg1(n) {
-    const e = n.toString().split("{")[0];
-    if ("(" !== e.charAt(0)) {
-      const n = e.split("=>")[0];
-      return n === e ? [] : [n.trim()];
+  function s1(n) {
+    const t = n.toString().split("{")[0];
+    if ("(" !== t.charAt(0)) {
+      const n = t.split("=>")[0];
+      return n === t ? [] : [n.trim()];
     }
-    const t = e.match(new RegExp("(?<=\\().+?(?=\\))", "g"));
-    return null === t || /[(={})]/g.test(t[0])
+    const e = t.match(new RegExp("(?<=\\().+?(?=\\))", "g"));
+    return null === e || /[(={})]/g.test(e[0])
       ? []
-      : t[0].split(",").map((n) => n.trim());
+      : e[0].split(",").map((n) => n.trim());
   }
-  function fb3(n, e) {
-    return function t(r) {
+  function s2(n, t) {
+    return function e(r) {
       const o = [];
       return (
-        r.dependencies.forEach((c) => {
-          if (ed1(c)) o.push(ag3(r));
-          else if (cf1(c)) o.push(gb3(c, r, n));
-          else if (ca4(n, c)) {
-            const r = bc4(c, n, e, t);
+        r.dependencies.forEach((i) => {
+          if (s4(i)) o.push(s9(r));
+          else if (s5(i)) o.push(t0(i, r, n));
+          else if (s6(n, i)) {
+            const r = t8(i, n, t, e);
             o.push(r);
-          } else if (dc2(n, c)) {
-            const r = gg3(c, n, e, t);
+          } else if (s7(n, i)) {
+            const r = t7(i, n, t, e);
             o.push(r);
           } else {
-            if (cf2(n, c)) {
+            if (s8(n, i)) {
               if ("component" === r.type || "helper" === r.type) {
-                const i = ff2(c, n, e, t, r.component);
-                return void o.push(i);
+                const u = t9(i, n, t, e, r.component);
+                return void o.push(u);
               }
               throw new Error(
-                `Helper dependency "${c}" can only be injected into components or helpers`,
+                `Helper dependency "${i}" can only be injected into components or helpers`,
               );
             }
             if ("component" !== r.type)
-              (console.warn(`Unresolved dependency: "${c}"`), o.push(null));
+              (console.warn(`Unresolved dependency: "${i}"`), o.push(null));
             else {
-              const e = ab0(c, r.component, n);
-              o.push(e);
+              const t = t3(i, r.component, n);
+              o.push(t);
             }
           }
         }),
@@ -1163,136 +1153,136 @@
       );
     };
   }
-  function ed1(n) {
-    return n === SCOPE_ARGUMENT_KEY;
+  function s4(n) {
+    return n === c5;
   }
-  function cf1(n) {
+  function s5(n) {
     return n.startsWith("$");
   }
-  function ca4(n, e) {
-    return null !== n.dg0(e);
+  function s6(n, t) {
+    return null !== n.f6(t);
   }
-  function dc2(n, e) {
-    return null !== n.ac1(e);
+  function s7(n, t) {
+    return null !== n.f8(t);
   }
-  function cf2(n, e) {
-    return null !== n.af1(e);
+  function s8(n, t) {
+    return null !== n.f9(t);
   }
-  function ag3(n) {
+  function s9(n) {
     return "component" === n.type || "helper" === n.type
       ? n.component.scope
       : null;
   }
-  function gb3(n, e, t) {
-    if ("service" === e.type || "factory" === e.type) return {};
+  function t0(n, t, e) {
+    if ("service" === t.type || "factory" === t.type) return {};
     switch (n) {
-      case BLOCK_ARGUMENT_KEY:
-        return ca0(t, e.component);
-      case PATCH_ARGUMENT_KEY:
-        return df0(t, e.component);
-      case PARENT_ARGUMENT_KEY:
-        return ad0(t, e.component);
-      case APP_ARGUMENT_KEY:
-        return bf0(t);
-      case COMPONENT_ARGUMENT_KEY:
-        return bg0(t, e.component);
+      case c6:
+        return d5(e, t.component);
+      case c7:
+        return e6(e, t.component);
+      case c4:
+        return d9(e, t.component);
+      case c8:
+        return d1(e);
+      case b8:
+        return e9(e, t.component);
       default:
         return {};
     }
   }
-  function fe3(n, e, t, r) {
-    if (ca5(t, n.id, r).has(e))
+  function t1(n, t, e, r) {
+    if (t2(e, n.id, r).has(t))
       throw new Error(
-        `Circular dependency detected: Component "${n.name}" cannot depend on its parent "${e}".`,
+        `Circular dependency detected: Component "${n.name}" cannot depend on its parent "${t}".`,
       );
   }
-  function ca5(n, e, t) {
+  function t2(n, t, e) {
     const r = new Set(),
-      o = n.ce0(e);
+      o = n.d6(t);
     if (null !== o) {
-      const e = n.be0(o);
-      if (null !== e) {
-        t.tryAlias ? null !== e.alias && r.add(e.alias) : r.add(e.name);
-        ca5(n, o, t).forEach((n) => r.add(n));
+      const t = n.d7(o);
+      if (null !== t) {
+        e.tryAlias ? null !== t.alias && r.add(t.alias) : r.add(t.name);
+        t2(n, o, e).forEach((n) => r.add(n));
       }
     }
     return r;
   }
-  function ab0(n, e, t) {
+  function t3(n, t, e) {
     function r({ withAlias: r }) {
       return (
-        fe3(e, n, t, { tryAlias: r }),
-        dg3(n, e, t, { matchUsingAlias: r })
+        t1(t, n, e, { tryAlias: r }),
+        t4(n, t, e, { matchUsingAlias: r })
       );
     }
     const o = r({ withAlias: !1 });
     return null !== o ? o : r({ withAlias: !0 });
   }
-  function dg3(n, e, t, r) {
-    if (e.name === n)
+  function t4(n, t, e, r) {
+    if (t.name === n)
       throw new Error(
-        `Circular dependency detected: Component "${e.name}" cannot depend on itself.`,
+        `Circular dependency detected: Component "${t.name}" cannot depend on itself.`,
       );
-    const o = ad4(e, n, t, r);
+    const o = t5(t, n, e, r);
     if (o.length > 0) {
       const n = {};
-      for (let e = 0; e < o.length; e++) {
-        const r = o[e];
-        ac8(r.name, r, t, fg1, fb3(t, fg1));
+      for (let t = 0; t < o.length; t++) {
+        const r = o[t];
+        t6(r.name, r, e, s1, s2(e, s1));
         n[r.id] = r;
       }
-      return t.gc0(n);
+      return e.d8(n);
     }
     return null;
   }
-  function ad4(n, e, t, r) {
-    const o = t.ea0(n.id),
-      c = [];
+  function t5(n, t, e, r) {
+    const o = e.f1(n.id),
+      i = [];
     return (
       o.forEach((n) => {
-        const o = t.be0(n);
+        const o = e.d7(n);
         if (null !== o) {
-          if (r.matchUsingAlias && o.alias === e) return void c.push(o);
-          if (!r.matchUsingAlias && o.name === e) return void c.push(o);
+          if (r.matchUsingAlias && o.alias === t) return void i.push(o);
+          if (!r.matchUsingAlias && o.name === t) return void i.push(o);
         }
       }),
-      c
+      i
     );
   }
-  function ac8(n, e, t, r, o) {
-    const c = e.getProxy();
-    if (null !== c) return c;
-    const i = t.ag0(n);
-    if (null === i) throw new Error(`Missing component handler ${n}`);
-    const u = i(...o({ dependencies: r(i), type: "component", component: e }));
-    return (e.setProxy(u), u);
+  function t6(n, t, e, r, o) {
+    const i = t.m4();
+    if (null !== i) return i;
+    const u = e.f7(n);
+    if (null === u) throw new Error(`Missing component handler ${n}`);
+    const c = u(...o({ dependencies: r(u), type: "component", component: t }));
+    return (t.m7(c), c);
   }
-  function gg3(n, e, t, r) {
-    let o = e.ac1(n);
+  function t7(n, t, e, r) {
+    let o = t.f8(n);
     if (null === o) throw new Error(`Missing factory handler ${n}`);
-    const c = o(...r({ dependencies: t(o), type: "factory" }));
-    if ("function" == typeof c) return c;
+    const i = o(...r({ dependencies: e(o), type: "factory" }));
+    if ("function" == typeof i) return i;
     throw new Error(`Factory ${n} handler must return class reference`);
   }
-  function bc4(n, e, t, r) {
-    e.be2(n);
-    const o = e.dg0(n);
+  function t8(n, t, e, r) {
+    t.g3(n);
+    const o = t.f6(n);
     if (null === o) throw new Error(`Missing service handler ${n}`);
-    let c = o(...r({ dependencies: t(o), type: "service" }));
-    return (null == c && (c = {}), e.ac2(n, c), c);
+    let i = o(...r({ dependencies: e(o), type: "service" }));
+    return (null == i && (i = {}), t.g2(n, i), i);
   }
-  function ff2(n, e, t, r, o) {
-    let c = e.af1(n);
-    if (null === c) throw new Error(`Missing helper handler ${n}`);
-    const i = c(...r({ component: o, dependencies: t(c), type: "helper" }));
-    if (null != i && "object" != typeof i)
+  function t9(n, t, e, r, o) {
+    let i = t.f9(n);
+    if (null === i) throw new Error(`Missing helper handler ${n}`);
+    const u = i(...r({ component: o, dependencies: e(i), type: "helper" }));
+    if (null != u && "object" != typeof u)
       throw new Error(`Helper ${n} must return an object`);
-    return i;
+    return u;
   }
   var LibraryBrand = Symbol("LibraryBrand"),
     ComponentFamilyTreeBrand = Symbol("ComponentFamilyTreeBrand"),
     RegistryBrand = Symbol("RegistryBrand");
-  function dg4() {
+  function u0() {
     return {
       data: {
         component: new Map(),
@@ -1303,358 +1293,351 @@
       [LibraryBrand]: !0,
     };
   }
-  function eb0(n) {
+  function u1(n) {
     if ("data" in n) return n;
     throw new PluncError("ERR4");
   }
-  function gf6(n, e, t, r) {
-    const o = eb0(n);
-    switch (t) {
+  function u2(n, t, e, r) {
+    const o = u1(n);
+    switch (e) {
       case "component":
-        o.data.component.set(e, r);
+        o.data.component.set(t, r);
         break;
       case "service":
-        o.data.service.set(e, r);
+        o.data.service.set(t, r);
         break;
       case "factory":
-        o.data.factory.set(e, r);
+        o.data.factory.set(t, r);
         break;
       case "helper":
-        o.data.helper.set(e, r);
+        o.data.helper.set(t, r);
     }
   }
-  function dc3(n, e) {
-    var t;
-    return null !== (t = eb0(n).data.component.get(e)) && void 0 !== t
-      ? t
+  function u3(n, t) {
+    var e;
+    return null !== (e = u1(n).data.component.get(t)) && void 0 !== e
+      ? e
       : null;
   }
-  function dg5(n, e) {
-    var t;
-    return null !== (t = eb0(n).data.service.get(e)) && void 0 !== t ? t : null;
+  function u4(n, t) {
+    var e;
+    return null !== (e = u1(n).data.service.get(t)) && void 0 !== e ? e : null;
   }
-  function aa0(n, e) {
-    var t;
-    return null !== (t = eb0(n).data.factory.get(e)) && void 0 !== t ? t : null;
+  function u5(n, t) {
+    var e;
+    return null !== (e = u1(n).data.factory.get(t)) && void 0 !== e ? e : null;
   }
-  function ba3(n, e) {
-    var t;
-    return null !== (t = eb0(n).data.helper.get(e)) && void 0 !== t ? t : null;
+  function u6(n, t) {
+    var e;
+    return null !== (e = u1(n).data.helper.get(t)) && void 0 !== e ? e : null;
   }
-  function ec2(n) {
+  function u7(n) {
     if ("data" in n) return n;
     throw new PluncError("ERR5");
   }
-  function cc1() {
+  function u8() {
     return { data: {}, [ComponentFamilyTreeBrand]: !0 };
   }
-  function be6(n, e, t) {
-    const r = ec2(n);
-    (void 0 === r.data[e] && (r.data[e] = { parent: null, children: [] }),
-      r.data[e].children.push(t),
-      void 0 === r.data[t] && (r.data[t] = { parent: e, children: [] }));
+  function u9(n, t, e) {
+    const r = u7(n);
+    (void 0 === r.data[t] && (r.data[t] = { parent: null, children: [] }),
+      r.data[t].children.push(e),
+      void 0 === r.data[e] && (r.data[e] = { parent: t, children: [] }));
   }
-  function eb1(n, e) {
-    const t = ec2(n);
-    if (void 0 === t.data[e]) return [];
+  function v0(n, t) {
+    const e = u7(n);
+    if (void 0 === e.data[t]) return [];
     const r = [];
-    let o = t.data[e].parent;
-    for (; null !== o; ) (r.push(o), (o = t.data[o].parent));
+    let o = e.data[t].parent;
+    for (; null !== o; ) (r.push(o), (o = e.data[o].parent));
     return r;
   }
-  function df2(n, e) {
-    const t = ec2(n);
-    return void 0 === t.data[e] ? [] : t.data[e].children;
+  function v1(n, t) {
+    const e = u7(n);
+    return void 0 === e.data[t] ? [] : e.data[t].children;
   }
-  function cb3(n, e) {
-    const t = ec2(n);
-    return void 0 === t.data[e] ? null : t.data[e].parent;
+  function v2(n, t) {
+    const e = u7(n);
+    return void 0 === e.data[t] ? null : e.data[t].parent;
   }
-  function ed2(n, e) {
-    const t = ec2(n);
-    if (void 0 === t.data[e]) return [];
-    const r = t.data[e].parent;
+  function v3(n, t) {
+    const e = u7(n);
+    if (void 0 === e.data[t]) return [];
+    const r = e.data[t].parent;
     if (null === r) return [];
-    return t.data[r].children.filter((n) => n !== e);
+    return e.data[r].children.filter((n) => n !== t);
   }
-  function bd4(n) {
-    return function (e) {
-      const t = n(GLOBAL_LOCK_ID_DIRECTIVE);
-      e.setAttribute(t, GLOBAL_LOCK_ID_DIRECTIVE_VALUE);
+  function v4(n) {
+    return function (t) {
+      const e = n(a7);
+      t.setAttribute(e, a1);
     };
   }
-  function ad5(n) {
-    return function (e) {
-      const t = n(GLOBAL_LOCK_ID_DIRECTIVE);
-      return null !== e.getAttribute(t);
+  function v5(n) {
+    return function (t) {
+      const e = n(a7);
+      return null !== t.getAttribute(e);
     };
   }
-  function dc4(n) {
-    return function (e, t) {
-      const r = n(GLOBAL_EVENT_LOCK_DIRECTIVE),
-        o = e.getAttribute(r);
+  function v6(n) {
+    return function (t, e) {
+      const r = n(a4),
+        o = t.getAttribute(r);
       if (null === o) return !1;
-      return o.split(",").includes(t);
+      return o.split(",").includes(e);
     };
   }
-  function dd3(n) {
-    return function (e, t) {
-      const r = n(GLOBAL_EVENT_LOCK_DIRECTIVE),
-        o = e.getAttribute(r);
-      if (null === o) return void e.setAttribute(r, t);
-      let c = o.split(",");
-      for (let n = 0; n < c.length; n++) {
-        c[n] !== t && c.push(t);
+  function v7(n) {
+    return function (t, e) {
+      const r = n(a4),
+        o = t.getAttribute(r);
+      if (null === o) return void t.setAttribute(r, e);
+      let i = o.split(",");
+      for (let n = 0; n < i.length; n++) {
+        i[n] !== e && i.push(e);
       }
-      e.setAttribute(r, c.join(","));
+      t.setAttribute(r, i.join(","));
     };
   }
-  function eb2(n, e) {
-    return function (t, r) {
-      [BLOCK_ELEMENT_DIRECTIVE].forEach((o) => {
-        const c = n.gf0(o);
-        e(r, `[${c}]`).forEach((e) => {
-          n.ca1(e, COMPONENT_REFERENCE_DIRECTIVE, t);
+  function v8(n, t) {
+    return function (e, r) {
+      [b2].forEach((o) => {
+        const i = n.e4(o);
+        t(r, `[${i}]`).forEach((t) => {
+          n.g9(t, a3, e);
         });
       });
     };
   }
-  function fe4(n, e, t, r, o) {
-    const c = [];
-    let i = !1;
+  function w0(n, t, e, r, o) {
+    const i = [];
+    let u = !1;
     return {
-      config: t,
+      config: e,
       library: r,
       registry: o,
-      name: e,
+      name: t,
       id: n,
-      ad6: function () {
-        return c;
-      },
-      emitReady: function () {
-        i = !0;
-        for (const n of c) n();
-      },
-      isReady: function () {
+      f4: function () {
         return i;
       },
-      onReady: function (n) {
-        c.push(n);
+      f3: function () {
+        u = !0;
+        for (const n of i) n();
+      },
+      d2: function () {
+        return u;
+      },
+      d0: function (n) {
+        i.push(n);
       },
     };
   }
-  function df3() {
+  function w6() {
     return {
       data: { components: new Map(), services: new Map() },
       [RegistryBrand]: !0,
     };
   }
-  function gb4(n) {
+  function w7(n) {
     if ("data" in n) return n;
     throw new PluncError("ERR6");
   }
-  function gd0(n, e, t) {
-    gb4(n).data.components.set(e, t);
+  function g0(n, t, e) {
+    w7(n).data.components.set(t, e);
   }
-  function be0(n, e) {
-    var t;
-    return null !== (t = gb4(n).data.components.get(e)) && void 0 !== t
-      ? t
+  function d7(n, t) {
+    var e;
+    return null !== (e = w7(n).data.components.get(t)) && void 0 !== e
+      ? e
       : null;
   }
-  function cd0(n, e) {
-    const t = gb4(n),
+  function g1(n, t) {
+    const e = w7(n),
       r = [];
     return (
-      e.forEach((n) => {
-        const e = t.data.components.get(n);
-        e && r.push(e);
+      t.forEach((n) => {
+        const t = e.data.components.get(n);
+        t && r.push(t);
       }),
       r
     );
   }
-  function cg0(n) {
-    const e = gb4(n);
-    return Array.from(e.data.components.values());
+  function f0(n) {
+    const t = w7(n);
+    return Array.from(t.data.components.values());
   }
-  function ac2(n, e, t) {
-    gb4(n).data.services.set(e, t);
+  function g2(n, t, e) {
+    w7(n).data.services.set(t, e);
   }
-  function be2(n, e) {
-    var t;
-    return null !== (t = gb4(n).data.services.get(e)) && void 0 !== t
-      ? t
-      : null;
+  function g3(n, t) {
+    var e;
+    return null !== (e = w7(n).data.services.get(t)) && void 0 !== e ? e : null;
   }
-  function cd1(n, e) {
-    const t = gb4(n),
+  function g4(n, t) {
+    const e = w7(n),
       r = [];
     return (
-      e.forEach((n) => {
-        const e = t.data.services.get(n);
-        e && r.push(e);
+      t.forEach((n) => {
+        const t = e.data.services.get(n);
+        t && r.push(t);
       }),
       r
     );
   }
-  function gc2(n, e) {
+  function w8(n, t) {
     if (null !== n)
-      for (; n.childNodes.length > 0; ) e.appendChild(n.childNodes[0]);
+      for (; n.childNodes.length > 0; ) t.appendChild(n.childNodes[0]);
   }
-  function ed4(n, e) {
-    return function (t, r, o) {
-      const c = {};
-      for (let t = 0; t < o.length; t++) {
-        const i = o[t],
-          u = document.implementation.createHTMLDocument().body,
-          a = e(r, i);
-        null !== a && (n(a, u), (c[i] = u));
+  function x0(n, t) {
+    return function (e, r, o) {
+      const i = {};
+      for (let e = 0; e < o.length; e++) {
+        const u = o[e],
+          c = document.implementation.createHTMLDocument().body,
+          s = t(r, u);
+        null !== s && (n(s, c), (i[u] = c));
       }
-      ((r.innerHTML = ""), n(t, r));
-      for (const t in c) {
-        const o = e(r, t);
+      ((r.innerHTML = ""), n(e, r));
+      for (const e in i) {
+        const o = t(r, e);
         if (null === o) continue;
-        const i = c[t];
-        n(i, o);
+        const u = i[e];
+        n(u, o);
       }
     };
   }
-  function fc0(n) {
-    const e = document.implementation.createHTMLDocument().body;
+  function e0(n) {
+    const t = document.implementation.createHTMLDocument().body;
     return (
-      Object.defineProperty(e, "$plStgCS", {
+      Object.defineProperty(t, "$plStgCS", {
         value: !1,
         writable: !0,
         enumerable: !1,
         configurable: !1,
       }),
-      n && (e.innerHTML = n),
-      e
+      n && (t.innerHTML = n),
+      t
     );
   }
-  function ae0(n, e) {
+  function e1(n, t) {
     if (n.$plStgCS) throw new PluncError("ERR1");
-    n.innerHTML = e;
+    n.innerHTML = t;
   }
-  function bc0(n) {
+  function i1(n) {
     if (n.$plStgCS) throw new PluncError("ERR2");
     return n.innerHTML;
   }
-  function bf1(n, e) {
+  function e3(n, t) {
     if (n.$plStgCS) throw new PluncError("ERR3");
-    for (; n.firstChild; ) e.appendChild(n.firstChild);
+    for (; n.firstChild; ) t.appendChild(n.firstChild);
     n.$plStgCS = !0;
   }
-  function dc5(n) {
-    const e = new Map(),
-      t = Array.from(n.querySelectorAll("template")),
-      r = `${GLOBAL_DIRECTIVE_FOR_TEMPLATE_NAME}`;
-    for (const n of t) {
-      const t = n.getAttribute(r);
-      t && e.set(t, n.innerHTML);
+  function x2(n) {
+    const t = new Map(),
+      e = Array.from(n.querySelectorAll("template")),
+      r = `${a0}`;
+    for (const n of e) {
+      const e = n.getAttribute(r);
+      e && t.set(e, n.innerHTML);
     }
-    return e;
+    return t;
   }
   var contexts = [],
-    createContainer = ad1(
-      fe4,
-      df3,
-      gd0,
-      be0,
-      cd0,
-      cg0,
-      ac2,
-      be2,
-      cd1,
-      dg4,
-      gf6,
-      dg5,
-      dc3,
-      aa0,
-      ba3,
-      cc1,
-      be6,
-      eb1,
-      df2,
-      cb3,
-      ed2,
-      fd1,
-      bf3,
-      gg2,
-      de3,
-      fe2,
-      bc2,
-      db2,
-      bd3,
-      ef1,
-      bd4,
-      ad5,
-      dc4,
-      dd3,
-      eg1,
-      ee3,
-      be3,
-      ae1,
-      gf1,
-      cd3,
-      fc0,
-      ae0,
-      bc0,
-      bf1,
+    createContainer = i2(
+      w0,
+      w6,
+      g0,
+      d7,
+      g1,
+      f0,
+      g2,
+      g3,
+      g4,
+      u0,
+      u2,
+      u4,
+      u3,
+      u5,
+      u6,
+      u8,
+      u9,
+      v0,
+      v1,
+      v2,
+      v3,
+      w2,
+      p2,
+      p4,
+      l9,
+      n2,
+      o8,
+      o9,
+      n7,
+      p0,
+      v4,
+      v5,
+      v6,
+      v7,
+      o7,
+      p6,
+      m1,
+      m9,
+      m5,
+      p9,
+      e0,
+      e1,
+      i1,
+      e3,
     ),
     plunc = (window.plunc = {
-      create: (n, e = null) => {
-        const t = contexts.length + 1,
-          r = createContainer(t, n, e);
+      create: (n, t = null) => {
+        const e = contexts.length + 1,
+          r = createContainer(e, n, t);
         return (
           contexts.push(r),
-          {
-            component: ac7(r),
-            service: bc3(r),
-            factory: de4(r),
-            helper: ca3(r),
-          }
+          { component: r3(r), service: r5(r), factory: r7(r), helper: r9(r) }
         );
       },
     });
   function shouldInit(n) {
     return __async(this, null, function* () {
-      return n.dc0().config.startFn();
+      return n.c9().config.startFn();
     });
   }
   function bootstrap(n) {
     return __async(this, null, function* () {
       if (0 === n.length) return;
-      const [e, ...t] = n;
-      if (!(yield shouldInit(e))) return;
-      const r = dc5(document.body),
-        o = fc0(r.get(e.dc0().name)),
-        c = fe2(e.dc0());
-      bd2(e, r, db2, c, eb2(e, db2))(o, "");
-      const i = e.cg0();
-      for (const n in i) {
-        const t = i[n],
-          r = fb3(e, fg1);
-        ac8(t.name, t, e, fg1, r);
+      const [t, ...e] = n;
+      if (!(yield shouldInit(t))) return;
+      const r = x2(document.body),
+        o = e0(r.get(t.c9().name)),
+        i = n2(t.c9());
+      n3(t, r, o9, i, v8(t, o9))(o, "");
+      const u = t.f0();
+      for (const n in u) {
+        const e = u[n],
+          r = s2(t, s1);
+        t6(e.name, e, t, s1, r);
       }
-      for (const n in i) {
-        const t = i[n],
-          r = e.bd0(o, t.id);
+      for (const n in u) {
+        const e = u[n],
+          r = t.d3(o, e.id);
         if (null === r) continue;
-        const c = document.implementation.createHTMLDocument().body;
-        c.innerHTML = r.innerHTML;
-        const u = e.ea0(t.id);
-        e.ec0(c, u);
-        ac4(e)(c, t.scope, !1);
-        ed4(gc2, e.bd0)(c, r, u);
+        const i = document.implementation.createHTMLDocument().body;
+        i.innerHTML = r.innerHTML;
+        const c = t.f1(e.id);
+        t.f2(i, c);
+        o5(t)(i, e.scope, !1);
+        x0(w8, t.d3)(i, r, c);
       }
-      const u = gb2(e.dc0().name);
-      (u.replaceChildren(), e.bf1(o, u), e.dc0().emitReady());
-      const a = e.dc0().ad6();
-      for (let n = 0; n < a.length; n++) {
-        (0, a[n])();
+      const c = p8(t.c9().name);
+      (c.replaceChildren(), t.e3(o, c), t.c9().f3());
+      const s = t.c9().f4();
+      for (let n = 0; n < s.length; n++) {
+        (0, s[n])();
       }
-      bootstrap(t);
+      bootstrap(e);
     });
   }
   DOMHelper.ready(bootstrap.bind(null, contexts));

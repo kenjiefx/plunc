@@ -33,16 +33,16 @@ export function createComponentInternalRepresentationFactory(
     let proxy: ComponentExposedAPIProxy | null = null;
     let template: string = `<!-- Component ${id} Template -->`;
     const scope: { [key: string]: any } = {};
-    function setProxy(p: ComponentExposedAPIProxy): void {
+    function __setProxy(p: ComponentExposedAPIProxy): void {
       proxy = p;
     }
-    function getProxy(): ComponentExposedAPIProxy | null {
+    function __getProxy(): ComponentExposedAPIProxy | null {
       return proxy;
     }
-    function setTemplate(t: string): void {
+    function __setTemplate(t: string): void {
       template = t;
     }
-    function getTemplate(): string {
+    function __getTemplate(): string {
       return template;
     }
     return {
@@ -50,10 +50,10 @@ export function createComponentInternalRepresentationFactory(
       name,
       alias,
       scope,
-      setProxy,
-      getProxy,
-      setTemplate,
-      getTemplate,
+      __setProxy,
+      __getProxy,
+      __setTemplate,
+      __getTemplate,
     };
   };
 }
@@ -126,7 +126,7 @@ export function composeComponentRenderer(
     componentWrapperElement.innerHTML = componentTemplate;
     attachReferenceToNamedElementsFn(componentId, componentWrapperElement);
     renderComponentsOfParent(componentWrapperElement, componentId);
-    componentInternalRepresentation.setTemplate(
+    componentInternalRepresentation.__setTemplate(
       componentWrapperElement.innerHTML,
     );
   }
