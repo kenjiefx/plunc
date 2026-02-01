@@ -1,19 +1,18 @@
-import { ComponentObject, isComponentObject } from "../entities/component";
-import { PluncAppContext } from "../services/contextBinder";
-import { ComponentId } from "../types";
+import { PluncAppContainer } from "../container";
+import { ComponentId, ComponentInternalRepresentation } from "../types";
 
 export function composeParentAPI(
-  appCtx: PluncAppContext,
-  componentObject: ComponentObject,
+  appCtx: PluncAppContainer,
+  componentObject: ComponentInternalRepresentation,
 ) {
   return function $parent() {
     const parentId = appCtx.__whoIsTheParent(componentObject.id);
     if (parentId === null) return null;
-    const parentComponentObject = appCtx.__getFromRegistryById(parentId);
+    const parentComponentObject =
+      appCtx.__getComponentFromRegistryById(parentId);
     if (!parentComponentObject) return null;
-    if (!isComponentObject(parentComponentObject)) return null;
 
-    const wrapper: { [id: ComponentId]: ComponentObject } = {};
+    const wrapper: { [id: ComponentId]: ComponentInternalRepresentation } = {};
     wrapper[parentId] = parentComponentObject;
     return appCtx.__createComponentProxy(wrapper);
   };

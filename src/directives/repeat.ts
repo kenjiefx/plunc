@@ -1,9 +1,9 @@
-import { PluncAppContext } from "../services/contextBinder";
-import { resolveExpression } from "../services/expResolver";
+import { PluncAppContainer } from "../container";
 import {
-  REPEAT_ELEMENT_ATTR,
+  REPEAT_ELEMENT_DIRECTIVE,
   REPEAT_REFERENCE_TOKEN,
 } from "../services/pluncAttribute";
+import { PluncAppConfiguration } from "../types";
 
 export function dissectRepeatExpression(expression: string): Array<string> {
   if (expression.includes("until ")) {
@@ -22,11 +22,11 @@ export function countRepeatable(repetitions: unknown): number {
   throw new Error(`Repeatable elements must have repeatable values`);
 }
 
-function isIterableWithEntries(value: unknown): boolean {
+function isIterableWithEntries(value: unknown): value is object | unknown[] {
   return value !== null && (typeof value === "object" || Array.isArray(value));
 }
 
-export function composeRepeatDirectiveProcessor(appCtx: PluncAppContext) {
+export function composeRepeatDirectiveProcessor(appCtx: PluncAppContainer) {
   let processDirectivesOnRepeatedElementFn: (
     repeatedElement: HTMLElement,
     repeatedDataCtx: { [key: string]: unknown },
@@ -42,7 +42,7 @@ export function composeRepeatDirectiveProcessor(appCtx: PluncAppContext) {
     repeatableElementCtx.replaceChildren();
     let repeatExpression = appCtx.__pluncAttributeValueGetter(
       repeatableElementCtx,
-      REPEAT_ELEMENT_ATTR,
+      REPEAT_ELEMENT_DIRECTIVE,
     );
     if (repeatExpression === null || repeatExpression.trim() === "") {
       return;
@@ -50,7 +50,7 @@ export function composeRepeatDirectiveProcessor(appCtx: PluncAppContext) {
     let [dataSourceExpr, itemAlias] = dissectRepeatExpression(repeatExpression);
     if (dataSourceExpr === REPEAT_REFERENCE_TOKEN) {
       // This creates a new object that we can loop through
-      const repetitions = resolveExpression(scope, itemAlias);
+      const repetitions = appCtx.__resolveExpression(scope, itemAlias);
       // How many repitions to be made
       let times = countRepeatable(repetitions);
       scope["$$index"] = {};
@@ -58,7 +58,7 @@ export function composeRepeatDirectiveProcessor(appCtx: PluncAppContext) {
       while (k < times) scope["$$index"]["props" + k++] = new Object();
     }
 
-    const repeatableObject = resolveExpression(scope, dataSourceExpr);
+    const repeatableObject = appCtx.__resolveExpression(scope, dataSourceExpr);
 
     if (!isIterableWithEntries(repeatableObject)) {
       return;
@@ -72,13 +72,11 @@ export function composeRepeatDirectiveProcessor(appCtx: PluncAppContext) {
         $index: indexNumber,
         [itemAlias]: value,
       };
-      const repeatedElementCtx =
-        document.implementation.createHTMLDocument().body;
-      repeatedElementCtx.innerHTML = template;
+      const repeatedElementCtx = appCtx.__createStagingElement(template);
       // Process other directives on the repeated element
       processDirectivesOnRepeatedElementFn(repeatedElementCtx, repeatDataCtx);
       // Append processed element to the repeatable element context
-      appCtx.__reconcileChildren(repeatedElementCtx, repeatableElementCtx);
+      appCtx.__commitStagingElementTo(repeatedElementCtx, repeatableElementCtx);
       indexNumber++;
     }
   }
@@ -94,7 +92,7 @@ export function composeRepeatDirectiveProcessor(appCtx: PluncAppContext) {
     // Get elements with the repeat directive
     const repeatElements = appCtx.__querySelectAllByPluncAttribute(
       elementCtx,
-      REPEAT_ELEMENT_ATTR,
+      REPEAT_ELEMENT_DIRECTIVE,
     );
     processDirectivesOnRepeatedElementFn = processDirectivesOnRepeatedElement;
     for (const repeatElement of repeatElements) {

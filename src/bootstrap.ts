@@ -1,53 +1,30 @@
 import {
-  composeComponentIdGenerator,
-  createComponentFactory,
-  isComponentObject,
-} from "./entities/component";
-import {
-  addToLibrary,
-  getComponentHandlerFromLibrary,
-  getFactoryHandlerFromLibrary,
-  getHelperHandlerFromLibrary,
-  getServiceHandlerFromLibrary,
-} from "./entities/library";
-import {
-  addRecordToLineage,
-  lookupLineage,
-  whoAreTheChildren,
-  whoAreTheSiblings,
-  whoIsTheParent,
-} from "./entities/lineage";
-import { createPluncApp, PluncApp } from "./entities/plunc";
-import {
-  addToRegistry,
-  getAllFromRegistry,
-  getFromRegistryById,
-  getFromRegistryByIds,
-} from "./entities/registry";
-import { createScope } from "./entities/scope";
-import { TemplatesMap } from "./entities/templates";
+  composePluncAppContainerFactory,
+  PluncAppContainer,
+} from "./container";
 import { parseAliasNotation } from "./services/aliasNotation";
 import { composeBlockElementSelector } from "./services/blockService";
 import { composeComponentProxyFactory } from "./services/componentProxy";
 import {
+  composeComponentIdGenerator,
   composeComponentRenderer,
   composeComponentSelectorById,
+  createComponentInternalRepresentationFactory,
 } from "./services/componentService";
 import { resolveConfiguration } from "./services/configuration";
-import {
-  makePluncAppContextBinder,
-  PluncAppContext,
-} from "./services/contextBinder";
 import { composeDirectivesProcessor } from "./services/directivesProcessor";
 import { disposeElement } from "./services/disposeService";
 import { DOMHelper } from "./services/domReady";
 import {
-  cleanChildComponents,
-  makeStagingElement,
+  composeChildComponentCleaner,
+  composeElementSelectorsWithPluncAttribute,
+  composePluncAttributeValueGetter,
+  composePluncAttributeValueSetter,
   selectAllElements,
   selectElement,
   selectLiveAppRootElement,
 } from "./services/elementService";
+import { resolvePluncExpression } from "./services/expressionResolver";
 import {
   composeComponentBinder,
   composeFactoryBinder,
@@ -60,54 +37,102 @@ import {
   listDependencies,
 } from "./services/handlerExecutor";
 import {
+  addHandlerToLibrary,
+  createNewHandlerLibrary,
+  getComponentHandlerFromLibrary,
+  getFactoryHandlerFromLibrary,
+  getHelperHandlerFromLibrary,
+  getServiceHandlerFromLibrary,
+} from "./services/libraryService";
+import {
+  addRecordToComponentLineage,
+  createComponentLineage,
+  lookupComponentLineage,
+  whoAreTheChildrenOfComponent,
+  whoAreTheSiblingsOfComponent,
+  whoIsTheParentOfComponent,
+} from "./services/lineageService";
+import {
   composeElementLocker,
+  composeEventLocker,
   composeIsElementLockedChecker,
+  composeIsEventLockChecker,
 } from "./services/lockService";
 import { composeReferenceAttacher } from "./services/namedElements";
+import { createPluncAppInternalRepresentation } from "./services/pluncAppService";
+import { composePluncAttributeKeyFormatter } from "./services/pluncAttribute";
+import {
+  addComponentToRegistry,
+  addServiceToRegistry,
+  createNewComponentAndServiceRegistry,
+  getAllComponentsFromRegistry,
+  getComponentFromRegistryById,
+  getComponentsFromRegistryByIds,
+  getServiceFromRegistryById,
+  getServicesFromRegistryByIds,
+} from "./services/registryService";
 import {
   composeComponentReconciler,
   reconcileChildren,
 } from "./services/scopeReconciler";
-import { collectTemplateElements } from "./services/templateService";
+import {
+  commitStagingElementTo,
+  createStagingElement,
+  getStagingElementInnerHtml,
+  setStagingElementInnerHtml,
+} from "./services/stagingElement";
+import { collectTemplateElementsInnerHtml } from "./services/templateService";
 import { ComponentId, PluncAppConfiguration } from "./types";
-import { resolveExpression } from "./services/expResolver";
 
-// A global array to hold all created PluncApp contexts
-const contexts: Array<PluncAppContext> = [];
+// A global array to hold all created PluncApp container
+const contexts: Array<PluncAppContainer> = [];
 
 // Create the PluncApp context binder function
-const bindContext = makePluncAppContextBinder(
-  resolveConfiguration,
-  createPluncApp,
-  addToLibrary,
+const createContainer = composePluncAppContainerFactory(
+  createPluncAppInternalRepresentation,
+  createNewComponentAndServiceRegistry,
+  addComponentToRegistry,
+  getComponentFromRegistryById,
+  getComponentsFromRegistryByIds,
+  getAllComponentsFromRegistry,
+  addServiceToRegistry,
+  getServiceFromRegistryById,
+  getServicesFromRegistryByIds,
+  createNewHandlerLibrary,
+  addHandlerToLibrary,
   getServiceHandlerFromLibrary,
   getComponentHandlerFromLibrary,
   getFactoryHandlerFromLibrary,
   getHelperHandlerFromLibrary,
-  addToRegistry,
-  getFromRegistryByIds,
-  getFromRegistryById,
-  getAllFromRegistry,
-  addRecordToLineage,
-  lookupLineage,
-  whoAreTheChildren,
-  whoIsTheParent,
-  whoAreTheSiblings,
+  createComponentLineage,
+  addRecordToComponentLineage,
+  lookupComponentLineage,
+  whoAreTheChildrenOfComponent,
+  whoIsTheParentOfComponent,
+  whoAreTheSiblingsOfComponent,
+  composePluncAttributeKeyFormatter,
+  composePluncAttributeValueGetter,
+  composePluncAttributeValueSetter,
   parseAliasNotation,
+  composeComponentIdGenerator,
   selectElement,
   selectAllElements,
-  composeBlockElementSelector,
   composeComponentSelectorById,
-  composeComponentProxyFactory,
-  createComponentFactory,
-  createScope,
+  composeElementSelectorsWithPluncAttribute,
   composeElementLocker,
   composeIsElementLockedChecker,
+  composeIsEventLockChecker,
+  composeEventLocker,
   disposeElement,
-  resolveExpression,
-  reconcileChildren,
-  cleanChildComponents,
-  makeStagingElement,
+  composeChildComponentCleaner,
+  composeBlockElementSelector,
+  createComponentInternalRepresentationFactory,
+  composeComponentProxyFactory,
+  resolvePluncExpression,
+  createStagingElement,
+  setStagingElementInnerHtml,
+  getStagingElementInnerHtml,
+  commitStagingElementTo,
 );
 
 // Attached to the window object to provide a simple interface to interact with
@@ -121,101 +146,97 @@ const plunc = (window["plunc"] = {
     configuration: PluncAppConfiguration | null = null,
   ) => {
     const instanceId = contexts.length + 1;
-    const appContext = bindContext(instanceId, applicationName, configuration);
-    contexts.push(appContext);
+    const appContainer = createContainer(
+      instanceId,
+      applicationName,
+      configuration,
+    );
+    contexts.push(appContainer);
     return {
-      component: composeComponentBinder(appContext),
-      service: composeServiceBinder(appContext),
-      factory: composeFactoryBinder(appContext),
-      helper: composeHelperBinder(appContext),
+      component: composeComponentBinder(appContainer),
+      service: composeServiceBinder(appContainer),
+      factory: composeFactoryBinder(appContainer),
+      helper: composeHelperBinder(appContainer),
     };
   },
 });
 
-async function shouldInit(appContext: PluncAppContext): Promise<boolean> {
-  return appContext.__getInstance().config.startFn();
+async function shouldInit(appContainer: PluncAppContainer): Promise<boolean> {
+  return appContainer.__getAppRepresentationInstance().config.startFn();
 }
 
-function createStagingAppElement(
-  appCtx: PluncAppContext,
-  templatesMap: TemplatesMap,
-) {
-  const appName = appCtx.__getInstance().name;
-  const template = templatesMap.get(appCtx.__getInstance().name);
-  if (template === undefined) {
-    throw new Error(`Missing app template for: ${appName}`);
-  }
-  return makeStagingElement(template);
-}
-
-async function bootstrap(contexts: Array<PluncAppContext>): Promise<void> {
+async function bootstrap(contexts: Array<PluncAppContainer>): Promise<void> {
   if (contexts.length === 0) return;
-  const [appContext, ...rest] = contexts;
-  if (!(await shouldInit(appContext))) return;
+  const [appContainer, ...rest] = contexts;
+  if (!(await shouldInit(appContainer))) return;
   // Collect all template elements from the HTML context
-  const templatesMap = collectTemplateElements(document.body);
-  const appStagingElement = createStagingAppElement(appContext, templatesMap);
+  const templatesMap = collectTemplateElementsInnerHtml(document.body);
+  const appStagingElement = createStagingElement(
+    templatesMap.get(appContainer.__getAppRepresentationInstance().name),
+  );
   const componentIdGenerator = composeComponentIdGenerator(
-    appContext.__getInstance(),
+    appContainer.__getAppRepresentationInstance(),
   );
   const referenceAttacher = composeReferenceAttacher(
-    appContext,
+    appContainer,
     selectAllElements,
   );
   const renderComponents = composeComponentRenderer(
-    appContext,
+    appContainer,
     templatesMap,
     selectAllElements,
     componentIdGenerator,
     referenceAttacher,
   );
-  renderComponents(appStagingElement.getElement(), "" as ComponentId);
+  renderComponents(appStagingElement, "" as ComponentId);
 
-  const allComponentObjects = appContext.__getAllFromRegistry();
+  const allComponentInternalRepresentation =
+    appContainer.__getAllComponentsFromRegistry();
 
   // At this point, we have only registered component objects.
-  // The type returned by __getAllFromRegistry includes both components and services.
-  // However, since we haven't invoked any handlers yet, we can be sure that
-  // all registered objects are components at this stage.
-  // This should also mean that handler invocation starts with components.
   // All services that aren't depended on by components will not be invoked.
   // The same is true for handlers of factories and helpers.
-  for (const componentId in allComponentObjects) {
-    const componentObject = allComponentObjects[componentId];
-    // For type narrowing purposes
-    if (!isComponentObject(componentObject)) continue;
+  for (const componentId in allComponentInternalRepresentation) {
+    const componentInternalRepresentation =
+      allComponentInternalRepresentation[componentId];
     const dependencyResolver = composeDependencyResolver(
-      appContext,
+      appContainer,
       listDependencies,
     );
     invokeComponentHandler(
-      componentObject.name,
-      componentObject,
-      appContext,
+      componentInternalRepresentation.name,
+      componentInternalRepresentation,
+      appContainer,
       listDependencies,
       dependencyResolver,
     );
   }
 
-  for (const componentId in allComponentObjects) {
-    const componentObject = allComponentObjects[componentId];
-    if (!isComponentObject(componentObject)) continue;
-    const targetComponentElement = appContext.__querySelectComponentById(
-      appStagingElement.getElement(),
-      componentObject.id,
+  for (const componentId in allComponentInternalRepresentation) {
+    const componentInternalRepresentation =
+      allComponentInternalRepresentation[componentId];
+    const targetComponentElement = appContainer.__querySelectComponentById(
+      appStagingElement,
+      componentInternalRepresentation.id,
     );
     // When the component element is missing, skip rendering
     // This happens when the component is conditionally not rendered
     if (targetComponentElement === null) continue;
     const tempElement = document.implementation.createHTMLDocument().body;
     tempElement.innerHTML = targetComponentElement.innerHTML;
-    const idsOfChildren = appContext.__whoAreTheChildren(componentObject.id);
-    appContext.__clearChildComponents(tempElement, idsOfChildren);
-    const processDirectives = composeDirectivesProcessor(appContext);
-    processDirectives(tempElement, componentObject.scope, false);
+    const idsOfChildren = appContainer.__whoAreTheChildren(
+      componentInternalRepresentation.id,
+    );
+    appContainer.__clearChildComponents(tempElement, idsOfChildren);
+    const processDirectives = composeDirectivesProcessor(appContainer);
+    processDirectives(
+      tempElement,
+      componentInternalRepresentation.scope,
+      false,
+    );
     const reconcileComponent = composeComponentReconciler(
       reconcileChildren,
-      appContext.__querySelectComponentById,
+      appContainer.__querySelectComponentById,
     );
     // At this point, the temp element has the updated structure
     // We can now reconcile it with the target component element
@@ -223,13 +244,17 @@ async function bootstrap(contexts: Array<PluncAppContext>): Promise<void> {
   }
 
   // Finally, attach the staging element to the actual app element
-  const appElement = selectLiveAppRootElement(appContext.__getInstance().name);
+  const appElement = selectLiveAppRootElement(
+    appContainer.__getAppRepresentationInstance().name,
+  );
   appElement.replaceChildren();
-  appStagingElement.commitTo(appElement);
+  appContainer.__commitStagingElementTo(appStagingElement, appElement);
 
   // Emit the ready state, and call all registered ready listeners
-  appContext.__getInstance().toReady();
-  const readyListeners = appContext.__getInstance().onReadyLtns;
+  appContainer.__getAppRepresentationInstance().emitReady();
+  const readyListeners = appContainer
+    .__getAppRepresentationInstance()
+    .getReadyListeners();
   for (let i = 0; i < readyListeners.length; i++) {
     const listener = readyListeners[i];
     listener();

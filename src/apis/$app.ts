@@ -1,9 +1,9 @@
-import { PluncAppContext } from "../services/contextBinder";
+import { PluncAppContainer } from "../container";
 
-export function composeAppAPI(appCtx: PluncAppContext) {
+export function composeAppAPI(appCtx: PluncAppContainer) {
   return {
     ready: (listener: () => Promise<void>) => {
-      appCtx.__getInstance().onReady(listener);
+      appCtx.__getAppRepresentationInstance().onReady(listener);
     },
   };
 }

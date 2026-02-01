@@ -1,11 +1,12 @@
-import { PluncAppContext } from "../services/contextBinder";
 import {
-  CLICK_EVENT_ATTR,
-  CHANGE_EVENT_ATTR,
-  TOUCH_EVENT_ATTR,
+  CLICK_EVENT_DIRECTIVE,
+  CHANGE_EVENT_DIRECTIVE,
+  TOUCH_EVENT_DIRECTIVE,
 } from "../services/pluncAttribute";
-import { getResolveType } from "../services/expResolver";
-import { resolveExpression } from "../services/expResolver";
+import { resolvePluncExpression } from "../services/expressionResolver";
+import { getExpressionResolveType } from "../services/expressionResolver";
+import { PluncAppContainer } from "../container";
+import { PluncElement } from "../services/pluncElement";
 
 /**
  * This function adds event listener to elements which is bound to a function
@@ -17,21 +18,22 @@ function bindEventListenerToElement(
   fnExpression: string,
   eventType: string,
 ) {
-  if (getResolveType(fnExpression) !== "function") return;
+  if (getExpressionResolveType(fnExpression) !== "function") return;
   bindToElement.addEventListener(eventType, () => {
-    resolveExpression(dataCtx, fnExpression, bindToElement);
+    const pluncElement = new PluncElement(bindToElement);
+    resolvePluncExpression(dataCtx, fnExpression, pluncElement);
   });
 }
 
-export function composeEventDirectiveProcessor(appCtx: PluncAppContext) {
+export function composeEventDirectiveProcessor(appCtx: PluncAppContainer) {
   return function processEventDirectives(
     elementCtx: HTMLElement,
     dataCtx: Readonly<{ [key: string]: unknown }>,
   ) {
     const events = [
-      { type: "click", attr: CLICK_EVENT_ATTR },
-      { type: "change", attr: CHANGE_EVENT_ATTR },
-      { type: "keyup", attr: TOUCH_EVENT_ATTR },
+      { type: "click", attr: CLICK_EVENT_DIRECTIVE },
+      { type: "change", attr: CHANGE_EVENT_DIRECTIVE },
+      { type: "keyup", attr: TOUCH_EVENT_DIRECTIVE },
     ];
     events.forEach((event) => {
       const elementsToProcess = appCtx.__querySelectAllByPluncAttribute(
@@ -39,9 +41,10 @@ export function composeEventDirectiveProcessor(appCtx: PluncAppContext) {
         event.attr,
       );
       elementsToProcess.forEach((element) => {
-        if (appCtx.__isElementLocked(element)) {
+        if (appCtx.__isElementLockedToEvent(element, event.type)) {
           return;
         }
+
         const fnExpression = appCtx.__pluncAttributeValueGetter(
           element,
           event.attr,
@@ -50,7 +53,7 @@ export function composeEventDirectiveProcessor(appCtx: PluncAppContext) {
           return;
         }
         bindEventListenerToElement(dataCtx, element, fnExpression, event.type);
-        appCtx.__lockElement(element);
+        appCtx.__lockElementToEvent(element, event.type);
       });
     });
   };

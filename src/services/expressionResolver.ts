@@ -1,5 +1,4 @@
-import { PluncElement } from "../entities/element";
-import { ComponentScope } from "../types";
+import { PluncElement } from "./pluncElement";
 
 type ResolveType =
   | "string"
@@ -10,7 +9,7 @@ type ResolveType =
   | "operation"
   | "function";
 
-export type ExpressionResolver = typeof resolveExpression;
+export type ExpressionResolver = typeof resolvePluncExpression;
 
 /**
  * Resolves an expression based on a given object
@@ -19,14 +18,14 @@ export type ExpressionResolver = typeof resolveExpression;
  *
  * @returns the value of the resolved expression
  */
-export const resolveExpression = (
-  scope: ComponentScope,
+export function resolvePluncExpression(
+  dataCtx: { [key: string]: any },
   expression: string,
-  element: Element | null = null,
-) => {
-  const resolveType = getResolveType(expression);
-  return resolve(scope, expression, resolveType, element);
-};
+  element: PluncElement | null = null,
+) {
+  const resolveType = getExpressionResolveType(expression);
+  return initExpressionResolver(dataCtx, expression, resolveType, element);
+}
 
 /**
  * Determines the type of an expression
@@ -35,7 +34,7 @@ export const resolveExpression = (
  *
  * @NOTE: the expression should always have to be a string!
  */
-export function getResolveType(expression: any): ResolveType {
+export function getExpressionResolveType(expression: any): ResolveType {
   if (/^'.*'$/.test(expression)) return "string";
   if (!isNaN(expression)) return "number";
   if (expression.includes("(") && expression.includes("=="))
@@ -66,11 +65,11 @@ export function getResolveType(expression: any): ResolveType {
   return "object";
 }
 
-function resolve(
-  scope: ComponentScope,
+function initExpressionResolver(
+  dataCtx: { [key: string]: any },
   expression: string,
   resolveType: ResolveType,
-  element: Element | null = null,
+  element: PluncElement | null = null,
 ): any {
   switch (resolveType) {
     case "string":
@@ -84,7 +83,7 @@ function resolve(
       break;
 
     case "object":
-      return evalObject(scope, expression);
+      return evaluateObject(dataCtx, expression);
       break;
 
     case "function":
@@ -93,20 +92,20 @@ function resolve(
       let expressionTest = structure[0].split(".");
       /** If the said function is a method of an object **/
       if (expressionTest.length > 1) {
-        let refObject = resolveExpression(
-          scope,
+        let refObject = resolvePluncExpression(
+          dataCtx,
           getParentObjectExp(structure[0]),
         );
         let funcExpression = expression
           .split(".")
           .slice(expressionTest.length - 1)
           .join(".");
-        return invokeFunction(refObject, scope, funcExpression, element);
+        return invokeFunction(refObject, dataCtx, funcExpression, element);
       }
-      if (!Object.prototype.hasOwnProperty.call(scope, structure[0])) {
+      if (!Object.prototype.hasOwnProperty.call(dataCtx, structure[0])) {
         return "";
       }
-      return invokeFunction(scope, scope, expression, element);
+      return invokeFunction(dataCtx, dataCtx, expression, element);
       break;
 
     case "conditional":
@@ -123,7 +122,7 @@ function resolve(
       for (const comparator in evaluatorMap) {
         if (expression.includes(comparator)) {
           return evaluatorMap[comparator as keyof typeof evaluatorMap](
-            scope,
+            dataCtx,
             expression,
             comparator,
           );
@@ -142,8 +141,8 @@ function resolve(
       for (var i = 0; i < operations.length; i++) {
         if (expression.includes(operations[i])) {
           let exp = expression.split(operations[i]);
-          let left = resolveExpression(scope, exp[0].trim());
-          var right = resolveExpression(scope, exp[1].trim());
+          let left = resolvePluncExpression(dataCtx, exp[0].trim());
+          var right = resolvePluncExpression(dataCtx, exp[1].trim());
           finalExpression = left + operations[i] + right;
         }
       }
@@ -155,39 +154,39 @@ function resolve(
   }
 }
 
-function evalObject(scope: ComponentScope, expression: string) {
-  if (expression === "$scope") {
-    return scope;
+function evaluateObject(dataCtx: { [key: string]: any }, expression: string) {
+  if (expression === "$dataCtx") {
+    return dataCtx;
   }
   return expression.split(".").reduce(function (o, x) {
     if (o === undefined) return;
     if (o === null) return;
     if (o[x] === undefined) return;
     return o[x];
-  }, scope);
+  }, dataCtx);
 }
 
 /**
  * Invokes/calls a given function based on the function expression
  *
  * @param object refObject - The object where the function to invoke is a member of
- * @param object argScope - The object where we can reference the argument expression
+ * @param object argdataCtx - The object where we can reference the argument expression
  * of the function to invoke
  * @param string functionExpression - The function expression, for example
  * myFunction(arg)
  */
 function invokeFunction(
-  scope: ComponentScope,
+  dataCtx: { [key: string]: any },
   object: { [key: string]: any },
   expression: string,
-  element: Element | null,
+  element: PluncElement | null,
 ): any {
   /**
    * @TODO Need to check cases where this returns undefined
    * One example,this returns undefined in cases when the
    * repeats are nested together
    */
-  if (scope === undefined) return "";
+  if (dataCtx === undefined) return "";
 
   /** Parses function structure **/
   const splitExpression = expression.match(/\(([^)]+)\)/);
@@ -199,16 +198,16 @@ function invokeFunction(
     const argsVault = new Array();
     const splitArguments = splitExpression[1].split(",");
     for (let i = 0; i < splitArguments.length; i++) {
-      argsVault.push(resolveExpression(object, splitArguments[i].trim()));
+      argsVault.push(resolvePluncExpression(object, splitArguments[i].trim()));
     }
     if (element !== null) {
-      argsVault.push(new PluncElement(element as HTMLElement));
+      argsVault.push(element);
     }
     // Checks if the given is a function
-    if (!(scope[name] instanceof Function)) {
+    if (!(dataCtx[name] instanceof Function)) {
       return "";
     }
-    return scope[name](...argsVault);
+    return dataCtx[name](...argsVault);
   }
 
   // When there is no argument added to the function, and
@@ -218,27 +217,27 @@ function invokeFunction(
   if (element !== null) {
     // Function argument holder
     const argsVault = new Array();
-    argsVault.push(new PluncElement(element as HTMLElement));
-    return scope[name](...argsVault);
+    argsVault.push(element);
+    return dataCtx[name](...argsVault);
   }
-  if (!(scope[name] instanceof Function)) {
+  if (!(dataCtx[name] instanceof Function)) {
     return "";
   }
   // If it has no argument, and no Element object is required to
   // be passed as argument to the referenced function to
-  return scope[name]();
+  return dataCtx[name]();
 }
 
 function getParentObjectExp(expression: string) {
   let pieces = expression.split(".");
-  if (pieces.length < 2) return "$scope";
+  if (pieces.length < 2) return "$dataCtx";
   pieces.pop();
   return pieces.join(".");
 }
 
 export function getParentObjAsObject(base: object, expression: string) {
   const parentObjExp = getParentObjectExp(expression);
-  return resolveExpression(base, parentObjExp);
+  return resolvePluncExpression(base, parentObjExp);
 }
 
 export function getChildObjectExp(expression: string) {
@@ -247,67 +246,67 @@ export function getChildObjectExp(expression: string) {
 }
 
 export function areTwoExpressionsTheSame(
-  scope: ComponentScope,
+  dataCtx: { [key: string]: any },
   expression: string,
   comparator: string,
 ): boolean {
   const [left, right] = expression.split(comparator).map((arm) => {
-    return resolveExpression(scope, arm.trim());
+    return resolvePluncExpression(dataCtx, arm.trim());
   });
   return left === right;
 }
 
 function areTwoExpressionsNotTheSame(
-  scope: ComponentScope,
+  dataCtx: { [key: string]: any },
   expression: string,
   comparator: string,
 ): boolean {
   const [left, right] = expression.split(comparator).map((arm) => {
-    return resolveExpression(scope, arm.trim());
+    return resolvePluncExpression(dataCtx, arm.trim());
   });
   return left !== right;
 }
 
 function isGreaterThanTheOther(
-  scope: ComponentScope,
+  dataCtx: { [key: string]: any },
   expression: string,
   comparator: string,
 ): boolean {
   const [left, right] = expression.split(comparator).map((arm) => {
-    return resolveExpression(scope, arm.trim());
+    return resolvePluncExpression(dataCtx, arm.trim());
   });
   return left > right;
 }
 
 function isGreaterThanOrEqualToTheOther(
-  scope: ComponentScope,
+  dataCtx: { [key: string]: any },
   expression: string,
   comparator: string,
 ): boolean {
   const [left, right] = expression.split(comparator).map((arm) => {
-    return resolveExpression(scope, arm.trim());
+    return resolvePluncExpression(dataCtx, arm.trim());
   });
   return left >= right;
 }
 
 function isLessThanTheOther(
-  scope: ComponentScope,
+  dataCtx: { [key: string]: any },
   expression: string,
   comparator: string,
 ): boolean {
   const [left, right] = expression.split(comparator).map((arm) => {
-    return resolveExpression(scope, arm.trim());
+    return resolvePluncExpression(dataCtx, arm.trim());
   });
   return left < right;
 }
 
 function isLessThanOrEqualToTheOther(
-  scope: ComponentScope,
+  dataCtx: { [key: string]: any },
   expression: string,
   comparator: string,
 ): boolean {
   const [left, right] = expression.split(comparator).map((arm) => {
-    return resolveExpression(scope, arm.trim());
+    return resolvePluncExpression(dataCtx, arm.trim());
   });
   return left <= right;
 }

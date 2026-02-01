@@ -1,7 +1,7 @@
 "use strict";
 (() => {
   var __async = (__this, __arguments, generator) => {
-    return new Promise((resolve2, reject) => {
+    return new Promise((resolve, reject) => {
       var fulfilled = (value) => {
         try {
           step(generator.next(value));
@@ -18,153 +18,208 @@
       };
       var step = (x) =>
         x.done
-          ? resolve2(x.value)
+          ? resolve(x.value)
           : Promise.resolve(x.value).then(fulfilled, rejected);
       step((generator = generator.apply(__this, __arguments)).next());
     });
   };
 
-  // out/entities/component.js
-  const createComponentFactory = (parseAliasNotationFn, createScopeFn) => {
-    return function createComponent(id, nameThatMayHaveAlias) {
-      const parsed = parseAliasNotationFn(nameThatMayHaveAlias);
-      return {
-        id,
-        name: parsed.name,
-        alias: parsed.alias,
-        proxy: null,
-        scope: createScopeFn(),
-        template: `<!-- Component ${id} Template -->`,
-        __brand__: Symbol("ComponentObject"),
-      };
-    };
-  };
-  function isComponentObject(entity) {
-    return (
-      entity && typeof entity === "object" && "id" in entity && "name" in entity
-    );
-  }
-  function composeComponentIdGenerator(appCtx) {
-    return function generateComponentId(childIteration, parentComponentId) {
-      if (parentComponentId !== "") {
-        return `${parentComponentId}.${childIteration.toString()}`;
-      }
-      return `${appCtx.id.toString()}.${childIteration.toString()}`;
-    };
-  }
-
-  // out/entities/library.js
-  function createNamespace(type, name) {
-    return `${type}.${name}`;
-  }
-  function addToLibrary(library, name, type, handler) {
-    library.data[createNamespace(type, name)] = handler;
-  }
-  function getComponentHandlerFromLibrary(library, name) {
-    const result = library.data[createNamespace("component", name)];
-    if (!result) {
-      throw new Error(`Component handler "${name}" not found in the library.`);
-    }
-    return result;
-  }
-  function getServiceHandlerFromLibrary(library, name) {
-    const result = library.data[createNamespace("service", name)];
-    return result !== null && result !== void 0 ? result : null;
-  }
-  function getFactoryHandlerFromLibrary(library, name) {
-    const result = library.data[createNamespace("factory", name)];
-    return result !== null && result !== void 0 ? result : null;
-  }
-  function getHelperHandlerFromLibrary(library, name) {
-    const result = library.data[createNamespace("helper", name)];
-    return result !== null && result !== void 0 ? result : null;
-  }
-
-  // out/entities/lineage.js
-  function addRecordToLineage(lineage, parent, child) {
-    if (lineage.genealogy[parent] === void 0) {
-      lineage.genealogy[parent] = {
-        parent: null,
-        children: [],
-      };
-    }
-    if (child === null) return;
-    lineage.genealogy[parent].children.push(child);
-    if (lineage.genealogy[child] === void 0) {
-      lineage.genealogy[child] = {
-        parent,
-        children: [],
-      };
-    }
-  }
-  function lookupLineage(lineage, child) {
-    if (lineage.genealogy[child] === void 0) return [];
-    const parents = [];
-    let parent = lineage.genealogy[child].parent;
-    while (parent !== null) {
-      parents.push(parent);
-      parent = lineage.genealogy[parent].parent;
-    }
-    return parents;
-  }
-  function whoAreTheChildren(lineage, parent) {
-    if (lineage.genealogy[parent] === void 0) return [];
-    return lineage.genealogy[parent].children;
-  }
-  function whoIsTheParent(lineage, child) {
-    if (lineage.genealogy[child] === void 0) return null;
-    return lineage.genealogy[child].parent;
-  }
-  function whoAreTheSiblings(lineage, child) {
-    const parent = whoIsTheParent(lineage, child);
-    if (parent === null) return [];
-    const siblings = whoAreTheChildren(lineage, parent).filter(
-      (sibling) => sibling !== child,
-    );
-    return siblings;
-  }
-
-  // out/entities/plunc.js
-  function createPluncApp(name, id, configuration, registry, library) {
-    let ready = false;
-    let onReadyLtns = [];
+  // out/services/configuration.js
+  function resolveConfiguration(config) {
+    var _a, _b, _c;
+    const startFn = () => new Promise((resolve) => resolve(true));
+    const endFn = () => new Promise((resolve) => resolve());
     return {
-      name,
-      id,
-      config: configuration,
-      registry,
-      library,
-      onReadyLtns,
-      toReady: () => {
-        ready = true;
-      },
-      isReady: () => ready,
-      onReady: (listener) => {
-        onReadyLtns.push(listener);
-      },
+      prefix:
+        (_a = config === null || config === void 0 ? void 0 : config.prefix) !==
+          null && _a !== void 0
+          ? _a
+          : "plunc-",
+      startFn:
+        (_b =
+          config === null || config === void 0 ? void 0 : config.startFn) !==
+          null && _b !== void 0
+          ? _b
+          : startFn,
+      endFn:
+        (_c = config === null || config === void 0 ? void 0 : config.endFn) !==
+          null && _c !== void 0
+          ? _c
+          : endFn,
     };
   }
 
-  // out/entities/registry.js
-  function addToRegistry(registry, id, entity) {
-    registry.data[id] = entity;
-  }
-  function getFromRegistryByIds(registry, ids) {
-    return ids
-      .map((id) => registry.data[id])
-      .filter((entity) => entity !== void 0);
-  }
-  function getFromRegistryById(registry, id) {
-    var _a;
-    return (_a = registry.data[id]) !== null && _a !== void 0 ? _a : null;
-  }
-  function getAllFromRegistry(registry) {
-    return registry.data;
-  }
-
-  // out/entities/scope.js
-  function createScope() {
-    return /* @__PURE__ */ Object.create(null);
+  // out/container.js
+  function composePluncAppContainerFactory(
+    createAppRepresentationInstance,
+    createRegistryFn,
+    addComponentToRegistryFn,
+    getComponentByIdFromRegistryFn,
+    getComponentsByIdFromRegistryFn,
+    getAllComponentsFromRegistryFn,
+    addServiceToRegistryFn,
+    getServiceByIdFromRegistryFn,
+    getServicesByIdFromRegistryFn,
+    createLibraryFn,
+    addToLibraryFn,
+    getServiceHandlerFn,
+    getComponentHandlerFn,
+    getFactoryHandlerFn,
+    getHelperHandlerFn,
+    createLineageFn,
+    addParentChildRecordFn,
+    getComponentAncestorsFn,
+    getComponentChildrenFn,
+    getComponentParentFn,
+    getComponentSiblingsFn,
+    composePluncAttributeKeyFormatterFn,
+    composePluncAttributeKeyGetterFn,
+    composePluncAttributeKeySetterFn,
+    aliasNotationParserFn,
+    composeComponentIdGeneratorFn,
+    selectElementFn,
+    selectAllElementsFn,
+    composeComponentSelectorByIdFn,
+    composeElementSelectorsWithPluncAttributeFn,
+    composeElementLockerFn,
+    composeIsElementLockedCheckerFn,
+    composeIsEventLockCheckerFn,
+    composeEventLockerFn,
+    disposeElementFn,
+    composeChildComponentCleanerFn,
+    composeBlockElementSelectorFn,
+    createComponentInternalRepresentationFactoryFn,
+    composeComponentProxyFactoryFn,
+    pluncExpressionResolverFn,
+    createStagingElementFn,
+    setStagingElementInnerHtmlFn,
+    getStagingElementInnerHtmlFn,
+    commitStagingElementToFn,
+  ) {
+    return function createPluncAppContainer(
+      instanceId,
+      applicationName,
+      configuration = null,
+    ) {
+      const requiredConfiguration = resolveConfiguration(configuration);
+      const registry = createRegistryFn();
+      const library = createLibraryFn();
+      const lineage = createLineageFn();
+      const appRepresentation = createAppRepresentationInstance(
+        instanceId,
+        applicationName,
+        requiredConfiguration,
+        library,
+        registry,
+      );
+      const pluncAttributeKeyFormatter = composePluncAttributeKeyFormatterFn(
+        requiredConfiguration,
+      );
+      const pluncAttributeValueGetter = composePluncAttributeKeyGetterFn(
+        pluncAttributeKeyFormatter,
+      );
+      const pluncAttributeValueSetter = composePluncAttributeKeySetterFn(
+        pluncAttributeKeyFormatter,
+      );
+      const blockSelectorFactory = composeBlockElementSelectorFn(
+        pluncAttributeKeyFormatter,
+        selectAllElementsFn,
+      );
+      const componentFactory = createComponentInternalRepresentationFactoryFn(
+        aliasNotationParserFn,
+      );
+      const selectComponentById = composeComponentSelectorByIdFn(
+        pluncAttributeKeyFormatter,
+        selectElementFn,
+      );
+      const componentProxyFactory = composeComponentProxyFactoryFn();
+      return {
+        __getAppRepresentationInstance: () => appRepresentation,
+        __addToLibrary: function (name, type, handler) {
+          addToLibraryFn(library, name, type, handler);
+        },
+        __getServiceHandler: function (name) {
+          return getServiceHandlerFn(library, name);
+        },
+        __getComponentHandler: function (name) {
+          return getComponentHandlerFn(library, name);
+        },
+        __getFactoryHandler: function (name) {
+          return getFactoryHandlerFn(library, name);
+        },
+        __getHelperHandler: function (name) {
+          return getHelperHandlerFn(library, name);
+        },
+        __addComponentToRegistry: function (id, component) {
+          addComponentToRegistryFn(registry, id, component);
+        },
+        __getComponentFromRegistryById: function (id) {
+          return getComponentByIdFromRegistryFn(registry, id);
+        },
+        __getComponentsFromRegistryByIds: function (ids) {
+          return getComponentsByIdFromRegistryFn(registry, ids);
+        },
+        __getAllComponentsFromRegistry: function () {
+          return getAllComponentsFromRegistryFn(registry);
+        },
+        __addServiceToRegistry: function (name, service) {
+          addServiceToRegistryFn(registry, name, service);
+        },
+        __getServiceFromRegistryById: function (name) {
+          return getServiceByIdFromRegistryFn(registry, name);
+        },
+        __getServicesFromRegistryByIds: function (ids) {
+          return getServicesByIdFromRegistryFn(registry, ids);
+        },
+        __addRecordToLineage: function (parent, child) {
+          addParentChildRecordFn(lineage, parent, child);
+        },
+        __lookupLineage: function (child) {
+          return getComponentAncestorsFn(lineage, child);
+        },
+        __whoAreTheChildren: function (parent) {
+          return getComponentChildrenFn(lineage, parent);
+        },
+        __whoIsTheParent: function (child) {
+          return getComponentParentFn(lineage, child);
+        },
+        __whoAreTheSiblings: function (child) {
+          return getComponentSiblingsFn(lineage, child);
+        },
+        __pluncAttributeKeyFormatter: pluncAttributeKeyFormatter,
+        __pluncAttributeValueGetter: pluncAttributeValueGetter,
+        __pluncAttributeValueSetter: pluncAttributeValueSetter,
+        __aliasNotationParser: aliasNotationParserFn,
+        __generateComponentId: composeComponentIdGeneratorFn(appRepresentation),
+        __querySelectElement: selectElementFn,
+        __querySelectAllElements: selectAllElementsFn,
+        __querySelectComponentById: selectComponentById,
+        __querySelectAllByPluncAttribute:
+          composeElementSelectorsWithPluncAttributeFn(
+            selectAllElementsFn,
+            pluncAttributeKeyFormatter,
+          ),
+        __lockElement: composeElementLockerFn(pluncAttributeKeyFormatter),
+        __isElementLocked: composeIsElementLockedCheckerFn(
+          pluncAttributeKeyFormatter,
+        ),
+        __lockElementToEvent: composeEventLockerFn(pluncAttributeKeyFormatter),
+        __isElementLockedToEvent: composeIsEventLockCheckerFn(
+          pluncAttributeKeyFormatter,
+        ),
+        __trashElement: disposeElementFn,
+        __clearChildComponents:
+          composeChildComponentCleanerFn(selectComponentById),
+        __createBlockSelector: blockSelectorFactory,
+        __createComponentInternalRepresentation: componentFactory,
+        __createComponentProxy: componentProxyFactory,
+        __resolveExpression: pluncExpressionResolverFn,
+        __createStagingElement: createStagingElementFn,
+        __setStagingElementInnerHtml: setStagingElementInnerHtmlFn,
+        __getStagingElementInnerHtml: getStagingElementInnerHtmlFn,
+        __commitStagingElementTo: commitStagingElementToFn,
+      };
+    };
   }
 
   // out/services/aliasNotation.js
@@ -177,20 +232,24 @@
   }
 
   // out/services/pluncAttribute.js
-  var GLOBAL_ATTR_FOR_APP_NAME = "app";
-  var GLOBAL_ATTR_FOR_TEMPLATE_NAME = "name";
-  var COMPONENT_ELEMENT_ATTR = "component";
-  var COMPONENT_ID_ATTR = "cid";
-  var REPEAT_ELEMENT_ATTR = "repeat";
-  var IF_ELEMENT_ATTR = "if";
-  var CHECK_ELEMENT_ATTR = "check";
-  var STYLE_ELEMENT_ATTR = "style";
-  var MODEL_ELEMENT_ATTR = "model";
-  var DISABLE_ELEMENT_ATTR = "disable";
-  var CLICK_EVENT_ATTR = "click";
-  var CHANGE_EVENT_ATTR = "change";
-  var TOUCH_EVENT_ATTR = "touch";
-  var BLOCK_ELEMENT_ATTR = "block";
+  var GLOBAL_DIRECTIVE_FOR_APP_NAME = "plunc-app";
+  var GLOBAL_DIRECTIVE_FOR_TEMPLATE_NAME = "plunc-name";
+  var GLOBAL_LOCK_ID_DIRECTIVE = "plunc-set";
+  var GLOBAL_LOCK_ID_DIRECTIVE_VALUE = "true";
+  var GLOBAL_EVENT_LOCK_DIRECTIVE = "plunc-event";
+  var COMPONENT_ELEMENT_DIRECTIVE = "[PREFIX]component";
+  var COMPONENT_ID_DIRECTIVE = "[PREFIX]cid";
+  var REPEAT_ELEMENT_DIRECTIVE = "[PREFIX]repeat";
+  var IF_ELEMENT_DIRECTIVE = "[PREFIX]if";
+  var CHECK_ELEMENT_DIRECTIVE = "[PREFIX]check";
+  var STYLE_ELEMENT_DIRECTIVE = "[PREFIX]style";
+  var MODEL_ELEMENT_DIRECTIVE = "[PREFIX]model";
+  var DISABLE_ELEMENT_DIRECTIVE = "[PREFIX]disable";
+  var CLICK_EVENT_DIRECTIVE = "[PREFIX]click";
+  var CHANGE_EVENT_DIRECTIVE = "[PREFIX]change";
+  var TOUCH_EVENT_DIRECTIVE = "[PREFIX]touch";
+  var BLOCK_ELEMENT_DIRECTIVE = "[PREFIX]block";
+  var COMPONENT_REFERENCE_DIRECTIVE = "[PREFIX]rid";
   var SCOPE_ARGUMENT_KEY = "$scope";
   var BLOCK_ARGUMENT_KEY = "$block";
   var PARENT_ARGUMENT_KEY = "$parent";
@@ -198,36 +257,38 @@
   var APP_ARGUMENT_KEY = "$app";
   var COMPONENT_ARGUMENT_KEY = "$this";
   var REPEAT_REFERENCE_TOKEN = "$$index";
-  var LOCK_ID_ATTR_KEY = "set";
-  var LOCK_ID_ATTR_VALUE = "true";
-  var ELEMENT_REFERENCE_ATTR = "rid";
-  function composePluncAttributeKeyFormatter(instance) {
-    const prefix = instance.config.prefix;
+  function composePluncAttributeKeyFormatter(config) {
+    const prefix = config.prefix;
     return function pluncAttributeFormatter(key) {
-      return `${prefix}${key}`;
+      return key.replace("[PREFIX]", prefix);
     };
   }
 
   // out/services/blockService.js
   function createSelectorUsingAttributes(
     name,
-    componentObject,
+    componentInternalRepresentation,
     pluncAttributeKeyFormatter,
   ) {
-    const blockAttributeKey = pluncAttributeKeyFormatter(BLOCK_ELEMENT_ATTR);
-    const referenceAttributeKey = pluncAttributeKeyFormatter(
-      ELEMENT_REFERENCE_ATTR,
+    const blockAttributeKey = pluncAttributeKeyFormatter(
+      BLOCK_ELEMENT_DIRECTIVE,
     );
-    return `[${blockAttributeKey}="${name}"][${referenceAttributeKey}="${componentObject.id}"]`;
+    const referenceAttributeKey = pluncAttributeKeyFormatter(
+      COMPONENT_REFERENCE_DIRECTIVE,
+    );
+    return `[${blockAttributeKey}="${name}"][${referenceAttributeKey}="${componentInternalRepresentation.id}"]`;
   }
   function composeBlockElementSelector(
     pluncAttributeKeyFormatter,
     querySelectAllElements,
   ) {
-    return function composeSelector(name, componentObject) {
+    return function composeSelector(
+      blockName,
+      componentInternalRepresentation,
+    ) {
       const blockSelector = createSelectorUsingAttributes(
-        name,
-        componentObject,
+        blockName,
+        componentInternalRepresentation,
         pluncAttributeKeyFormatter,
       );
       return function selectElements(context) {
@@ -243,7 +304,7 @@
         get: function get(target, name) {
           for (const id in target) {
             const component = target[id];
-            const exposed = component.proxy;
+            const exposed = component.getProxy();
             if (exposed === null) {
               const name2 = component.name;
               throw new Error(
@@ -264,6 +325,47 @@
   }
 
   // out/services/componentService.js
+  function createComponentInternalRepresentationFactory(aliasParser) {
+    return function createComponentInternalRepresentation(
+      id,
+      nameThatMayHaveAlias,
+    ) {
+      const { name, alias } = aliasParser(nameThatMayHaveAlias);
+      let proxy = null;
+      let template = `<!-- Component ${id} Template -->`;
+      const scope = {};
+      function setProxy(p) {
+        proxy = p;
+      }
+      function getProxy() {
+        return proxy;
+      }
+      function setTemplate(t) {
+        template = t;
+      }
+      function getTemplate() {
+        return template;
+      }
+      return {
+        id,
+        name,
+        alias,
+        scope,
+        setProxy,
+        getProxy,
+        setTemplate,
+        getTemplate,
+      };
+    };
+  }
+  function composeComponentIdGenerator(pluncApp) {
+    return function generateComponentId(childIteration, parentComponentId) {
+      if (parentComponentId !== "") {
+        return `${parentComponentId}.${childIteration.toString()}`;
+      }
+      return `${pluncApp.id.toString()}.${childIteration.toString()}`;
+    };
+  }
   function composeComponentRenderer(
     appCtx,
     templatesMap,
@@ -279,19 +381,23 @@
       const componentName = getComponentName(appCtx, componentWrapperElement);
       appCtx.__pluncAttributeValueSetter(
         componentWrapperElement,
-        COMPONENT_ID_ATTR,
+        COMPONENT_ID_DIRECTIVE,
         componentId,
       );
       appCtx.__addRecordToLineage(parentComponentId, componentId);
       const componentAlias = getComponentAlias(appCtx, componentWrapperElement);
-      const componentObject = createOrGetComponentObject(
+      const componentInternalRepresentation =
+        createOrGetComponentInternalRepresentation(
+          componentId,
+          componentName,
+          componentAlias,
+          appCtx,
+        );
+      assertNoCircularDependency(appCtx, componentInternalRepresentation);
+      appCtx.__addComponentToRegistry(
         componentId,
-        componentName,
-        componentAlias,
-        appCtx,
+        componentInternalRepresentation,
       );
-      assertNoCircularDependency(appCtx, componentObject);
-      appCtx.__addRecordToRegistry(componentId, componentObject);
       const componentTemplate = templatesMap.get(componentName);
       if (componentTemplate === void 0) {
         throw new Error(`Template not found for component: ${componentName}`);
@@ -299,7 +405,9 @@
       componentWrapperElement.innerHTML = componentTemplate;
       attachReferenceToNamedElementsFn(componentId, componentWrapperElement);
       renderComponentsOfParent(componentWrapperElement, componentId);
-      componentObject.template = componentWrapperElement.innerHTML;
+      componentInternalRepresentation.setTemplate(
+        componentWrapperElement.innerHTML,
+      );
     }
     function renderComponentsOfParent(parentElement, parentComponentId) {
       const componentWrapperElements = selectAllComponentElementsInTarget(
@@ -329,7 +437,7 @@
     elementsSelector,
   ) {
     const componentAttributeKey = appCtx.__pluncAttributeKeyFormatter(
-      COMPONENT_ELEMENT_ATTR,
+      COMPONENT_ELEMENT_DIRECTIVE,
     );
     return elementsSelector(target, `[${componentAttributeKey}]`);
   }
@@ -338,7 +446,7 @@
     elementSelector,
   ) {
     return function selectComponentById(selectContext, componentId) {
-      const attributeKey = pluncAttributeKeyFormatter(COMPONENT_ID_ATTR);
+      const attributeKey = pluncAttributeKeyFormatter(COMPONENT_ID_DIRECTIVE);
       const selector = `[${attributeKey}="${componentId}"]`;
       return elementSelector(selectContext, selector);
     };
@@ -360,308 +468,50 @@
   function getComponentNameThatMayHaveAlias(appCtx, componentElement) {
     const componentNameThatMayHaveAlias = appCtx.__pluncAttributeValueGetter(
       componentElement,
-      COMPONENT_ELEMENT_ATTR,
+      COMPONENT_ELEMENT_DIRECTIVE,
     );
     if (!componentNameThatMayHaveAlias) {
       throw new Error(
-        `Component element is missing the ${COMPONENT_ELEMENT_ATTR} attribute.`,
+        `Component element is missing the ${COMPONENT_ELEMENT_DIRECTIVE} attribute.`,
       );
     }
     return componentNameThatMayHaveAlias;
   }
-  function assertNoCircularDependency(appCtx, component) {
-    const name = component.name;
-    const idsOfParents = appCtx.__lookupLineage(component.id);
-    const parentNames = appCtx.__getFromRegistryByIds(idsOfParents);
+  function assertNoCircularDependency(appCtx, componentInternalRepresentation) {
+    const name = componentInternalRepresentation.name;
+    const idsOfParents = appCtx.__lookupLineage(
+      componentInternalRepresentation.id,
+    );
+    const parentNames = appCtx.__getComponentsFromRegistryByIds(idsOfParents);
     parentNames.forEach((parent) => {
       if (parent && "name" in parent && parent.name === name) {
         throw new Error(`Circular dependency detected for component: ${name}`);
       }
     });
   }
-  function createOrGetComponentObject(componentId, name, alias, appCtx) {
-    const existingComponent = appCtx.__getFromRegistryById(componentId);
-    if (existingComponent && isComponentObject(existingComponent)) {
+  function createOrGetComponentInternalRepresentation(
+    componentId,
+    name,
+    alias,
+    appCtx,
+  ) {
+    const existingComponent =
+      appCtx.__getComponentFromRegistryById(componentId);
+    if (existingComponent !== null) {
       return existingComponent;
     }
-    return appCtx.__createComponentObject(
+    return appCtx.__createComponentInternalRepresentation(
       componentId,
       alias ? `${name}:${alias}` : name,
     );
   }
 
-  // out/services/configuration.js
-  function resolveConfiguration(config) {
-    var _a, _b, _c;
-    const startFn = () => new Promise((resolve2) => resolve2(true));
-    const endFn = () => new Promise((resolve2) => resolve2());
-    return {
-      prefix:
-        (_a = config === null || config === void 0 ? void 0 : config.prefix) !==
-          null && _a !== void 0
-          ? _a
-          : "plunc-",
-      startFn:
-        (_b =
-          config === null || config === void 0 ? void 0 : config.startFn) !==
-          null && _b !== void 0
-          ? _b
-          : startFn,
-      endFn:
-        (_c = config === null || config === void 0 ? void 0 : config.endFn) !==
-          null && _c !== void 0
-          ? _c
-          : endFn,
-    };
-  }
-
-  // out/services/elementService.js
-  function selectElement(context, selector) {
-    return context.querySelector(selector);
-  }
-  function selectAllElements(context, selector) {
-    return Array.from(context.querySelectorAll(selector));
-  }
-  function composeElementSelectorsWithPluncAttribute(
-    selectAllElementFn,
-    formatPluncAttributeFn,
-  ) {
-    return function selectAllElementsWithPluncAttribute(
-      context,
-      pluncAttributeKey,
-      pluncAttributeValue,
-    ) {
-      const attributeKey = formatPluncAttributeFn(pluncAttributeKey);
-      const valuePart = pluncAttributeValue ? `="${pluncAttributeValue}"` : "";
-      const selector = `[${attributeKey}${valuePart}]`;
-      return selectAllElementFn(context, selector);
-    };
-  }
-  function composePluncAttributeValueGetter(formatPluncAttributeFn) {
-    return function getPluncAttributeValue(element2, key) {
-      const attributeKey = formatPluncAttributeFn(key);
-      return element2.getAttribute(attributeKey);
-    };
-  }
-  function composePluncAttributeValueSetter(formatPluncAttributeFn) {
-    return function setPluncAttributeValue(element2, key, value) {
-      const attributeKey = formatPluncAttributeFn(key);
-      element2.setAttribute(attributeKey, value);
-    };
-  }
-  function cleanChildComponents(selectElementByComponentId) {
-    return function (component, childIds) {
-      for (let i2 = 0; i2 < childIds.length; i2++) {
-        const childId = childIds[i2];
-        const child = selectElementByComponentId(component, childId);
-        if (child !== null) child.innerHTML = "";
-      }
-    };
-  }
-  function selectLiveAppRootElement(appName) {
-    const appRootAttributeKey = `plunc-${GLOBAL_ATTR_FOR_APP_NAME}`;
-    const selector = `[${appRootAttributeKey}="${appName}"]`;
-    const element2 = document.querySelector(selector);
-    if (!element2) {
-      throw new Error(`Cannot find the app root element for app: ${appName}`);
-    }
-    return element2;
-  }
-  function makeStagingElement(innerHtml) {
-    const element2 = document.implementation.createHTMLDocument().body;
-    let isCommitted = false;
-    if (innerHtml) {
-      element2.innerHTML = innerHtml;
-    }
-    function setInnerHtml(html) {
-      if (isCommitted) {
-        throw new Error(
-          "Cannot set innerHTML after committing to target element.",
-        );
-      }
-      element2.innerHTML = html;
-    }
-    function getInnerHtml() {
-      if (isCommitted) {
-        throw new Error(
-          "Cannot get innerHTML after committing to target element.",
-        );
-      }
-      return element2.innerHTML;
-    }
-    function getElement() {
-      return element2;
-    }
-    function commitTo(targetElement) {
-      if (isCommitted) {
-        throw new Error("Staging element has already been committed.");
-      }
-      while (element2.firstChild) {
-        targetElement.appendChild(element2.firstChild);
-      }
-      isCommitted = true;
-    }
-    return Object.freeze({
-      setInnerHtml,
-      getInnerHtml,
-      commitTo,
-      getElement,
-    });
-  }
-
-  // out/services/contextBinder.js
-  function makePluncAppContextBinder(
-    configResolver,
-    createPluncAppFn,
-    addToLibraryFn,
-    getServiceHandlerFn,
-    getComponentHandlerFn,
-    getFactoryHandlerFn,
-    getHelperHandlerFn,
-    addToRegistryFn,
-    getFromRegistryByIdsFn,
-    getFromRegistryByIdFn,
-    getAllFromRegistryFn,
-    addRecordToLineageFn,
-    lookupLineageFn,
-    whoAreTheChildrenFn,
-    whoIsTheParentFn,
-    whoAreTheSiblingsFn,
-    parseAliasNotationFn,
-    selectElementFn,
-    selectAllElementsFn,
-    composeBlockElementSelectorFn,
-    composeComponentSelectorByIdFn,
-    composeComponentProxyFactoryFn,
-    createComponentFactoryFn,
-    createScopeObjectFn,
-    composeElementLockerFn,
-    composeElementLockCheckerFn,
-    disposeElementFn,
-    resolveExpression2,
-    reconcileChildrenFn,
-    cleanChildComponentsFn,
-    makeStagingElementFn,
-  ) {
-    return function bindPluncAppContext(
-      instanceId,
-      applicationName,
-      configuration = null,
-    ) {
-      const requiredConfiguration = configResolver(configuration);
-      const registry = { data: {} };
-      const library = { data: {} };
-      const lineage = { genealogy: {} };
-      const instance = createPluncAppFn(
-        applicationName,
-        instanceId,
-        requiredConfiguration,
-        registry,
-        library,
-      );
-      const attributeKeyFormatter = composePluncAttributeKeyFormatter(instance);
-      const attributeValueGetter = composePluncAttributeValueGetter(
-        attributeKeyFormatter,
-      );
-      const attributeValueSetter = composePluncAttributeValueSetter(
-        attributeKeyFormatter,
-      );
-      const generateComponentId = composeComponentIdGenerator(instance);
-      const blockSelectorCreator = composeBlockElementSelectorFn(
-        attributeKeyFormatter,
-        selectAllElementsFn,
-      );
-      const componentSelectorById = composeComponentSelectorByIdFn(
-        attributeKeyFormatter,
-        selectElementFn,
-      );
-      const componentObjectFactory = createComponentFactoryFn(
-        parseAliasNotationFn,
-        createScopeObjectFn,
-      );
-      const querySelectorByPluncAttribute =
-        composeElementSelectorsWithPluncAttribute(
-          selectAllElementsFn,
-          attributeKeyFormatter,
-        );
-      return {
-        __getInstance: function () {
-          return instance;
-        },
-        __addToLibrary: function (name, type, handler) {
-          addToLibraryFn(library, name, type, handler);
-        },
-        __getServiceHandler: function (name) {
-          return getServiceHandlerFn(library, name);
-        },
-        __getComponentHandler: function (name) {
-          return getComponentHandlerFn(library, name);
-        },
-        __getFactoryHandler: function (name) {
-          return getFactoryHandlerFn(library, name);
-        },
-        __getHelperHandler: function (name) {
-          return getHelperHandlerFn(library, name);
-        },
-        __addRecordToRegistry: function (id, entity) {
-          addToRegistryFn(registry, id, entity);
-        },
-        __getFromRegistryByIds: function (ids) {
-          return getFromRegistryByIdsFn(registry, ids);
-        },
-        __getFromRegistryById: function (id) {
-          return getFromRegistryByIdFn(registry, id);
-        },
-        __getAllFromRegistry: function () {
-          return getAllFromRegistryFn(registry);
-        },
-        __addRecordToLineage: function (parent, child) {
-          addRecordToLineageFn(lineage, parent, child);
-        },
-        __whoAreTheChildren: function (parent) {
-          return whoAreTheChildrenFn(lineage, parent);
-        },
-        __whoIsTheParent: function (child) {
-          return whoIsTheParentFn(lineage, child);
-        },
-        __whoAreTheSiblings: function (child) {
-          return whoAreTheSiblingsFn(lineage, child);
-        },
-        __lookupLineage: function (child) {
-          return lookupLineageFn(lineage, child);
-        },
-        __getLineage: function () {
-          return lineage;
-        },
-        __pluncAttributeKeyFormatter: attributeKeyFormatter,
-        __pluncAttributeValueGetter: attributeValueGetter,
-        __pluncAttributeValueSetter: attributeValueSetter,
-        __aliasNotationParser: parseAliasNotationFn,
-        __generateComponentId: generateComponentId,
-        __querySelectElement: selectElementFn,
-        __querySelectAllElements: selectAllElementsFn,
-        __querySelectComponentById: componentSelectorById,
-        __createBlockSelector: blockSelectorCreator,
-        __createComponentProxy: composeComponentProxyFactoryFn(),
-        __createComponentObject: componentObjectFactory,
-        __querySelectAllByPluncAttribute: querySelectorByPluncAttribute,
-        __lockElement: composeElementLockerFn(attributeKeyFormatter),
-        __isElementLocked: composeElementLockCheckerFn(attributeKeyFormatter),
-        __trashElement: disposeElementFn,
-        __resolveExpression: resolveExpression2,
-        __reconcileChildren: reconcileChildrenFn,
-        __clearChildComponents: cleanChildComponentsFn(componentSelectorById),
-        __createStagingElement: makeStagingElementFn,
-      };
-    };
-  }
-
   // out/directives/check.js
   function composeCheckDirectiveProcessor(appCtx) {
-    return function processCheckDirective(elementCtx, dataCtx) {
+    return function processCheckDirective(elementCtx, dataCtx2) {
       const elementsToProcess = appCtx.__querySelectAllByPluncAttribute(
         elementCtx,
-        CHECK_ELEMENT_ATTR,
+        CHECK_ELEMENT_DIRECTIVE,
       );
       elementsToProcess.forEach((element2) => {
         if (appCtx.__isElementLocked(element2)) {
@@ -669,13 +519,13 @@
         }
         const checkExpression = appCtx.__pluncAttributeValueGetter(
           element2,
-          CHECK_ELEMENT_ATTR,
+          CHECK_ELEMENT_DIRECTIVE,
         );
         if (checkExpression === null || checkExpression.trim() === "") {
           return;
         }
         const evaluatedResult = appCtx.__resolveExpression(
-          dataCtx,
+          dataCtx2,
           checkExpression,
         );
         if (typeof evaluatedResult === "boolean") {
@@ -690,10 +540,10 @@
 
   // out/directives/conditionals.js
   function composeConditionalDirectivesProcessor(appCtx) {
-    return function processConditionalDirectives(elementCtx, dataCtx) {
+    return function processConditionalDirectives(elementCtx, dataCtx2) {
       const elementsToProcess = appCtx.__querySelectAllByPluncAttribute(
         elementCtx,
-        IF_ELEMENT_ATTR,
+        IF_ELEMENT_DIRECTIVE,
       );
       elementsToProcess.forEach((element2) => {
         if (appCtx.__isElementLocked(element2)) {
@@ -701,13 +551,13 @@
         }
         const conditionExpression = appCtx.__pluncAttributeValueGetter(
           element2,
-          IF_ELEMENT_ATTR,
+          IF_ELEMENT_DIRECTIVE,
         );
         if (conditionExpression === null || conditionExpression.trim() === "") {
           return;
         }
         const evaluationResult = appCtx.__resolveExpression(
-          dataCtx,
+          dataCtx2,
           conditionExpression,
         );
         if (
@@ -723,10 +573,10 @@
 
   // out/directives/disable.js
   function composeDisableDirectiveProcessor(appCtx) {
-    return function processDisableDirective(elementCtx, dataCtx) {
+    return function processDisableDirective(elementCtx, dataCtx2) {
       const elementsToProcess = appCtx.__querySelectAllByPluncAttribute(
         elementCtx,
-        DISABLE_ELEMENT_ATTR,
+        DISABLE_ELEMENT_DIRECTIVE,
       );
       elementsToProcess.forEach((element2) => {
         if (appCtx.__isElementLocked(element2)) {
@@ -734,13 +584,13 @@
         }
         const disableExpression = appCtx.__pluncAttributeValueGetter(
           element2,
-          DISABLE_ELEMENT_ATTR,
+          DISABLE_ELEMENT_DIRECTIVE,
         );
         if (disableExpression === null || disableExpression.trim() === "") {
           return;
         }
         const evaluatedResult = appCtx.__resolveExpression(
-          dataCtx,
+          dataCtx2,
           disableExpression,
         );
         if (typeof evaluatedResult === "boolean") {
@@ -753,7 +603,219 @@
     };
   }
 
-  // out/entities/element.js
+  // out/services/expressionResolver.js
+  function resolvePluncExpression(dataCtx2, expression2, element2 = null) {
+    const resolveType2 = getExpressionResolveType(expression2);
+    return initExpressionResolver(
+      dataCtx2,
+      expression2,
+      resolveType2,
+      element2,
+    );
+  }
+  function getExpressionResolveType(expression2) {
+    if (/^'.*'$/.test(expression2)) return "string";
+    if (!isNaN(expression2)) return "number";
+    if (expression2.includes("(") && expression2.includes("=="))
+      return "conditional";
+    if (expression2.includes("(") && expression2.includes("is "))
+      return "conditional";
+    if (expression2.includes("(") && expression2.includes(">"))
+      return "conditional";
+    if (expression2.includes("(") && expression2.includes("<"))
+      return "conditional";
+    if (expression2.includes("(")) return "function";
+    if (expression2.includes("==")) return "conditional";
+    if (expression2.includes("is ")) return "conditional";
+    if (expression2.includes(">")) return "conditional";
+    if (expression2.includes("<")) return "conditional";
+    if (
+      expression2.includes("+") ||
+      expression2.includes("-") ||
+      expression2.includes("/") ||
+      expression2.includes("*") ||
+      expression2.includes("%")
+    ) {
+      return "operation";
+    }
+    if (
+      expression2 == "false" ||
+      expression2 == "true" ||
+      expression2 == "null"
+    ) {
+      return "boolean";
+    }
+    return "object";
+  }
+  function initExpressionResolver(
+    dataCtx,
+    expression,
+    resolveType,
+    element = null,
+  ) {
+    switch (resolveType) {
+      case "string":
+        return expression.slice(1, -1);
+        break;
+      case "boolean":
+        if (expression == "true") return true;
+        if (expression == "false") return false;
+        if (expression == "null") return null;
+        break;
+      case "object":
+        return evaluateObject(dataCtx, expression);
+        break;
+      case "function":
+        let structure = expression.split("(");
+        let expressionTest = structure[0].split(".");
+        if (expressionTest.length > 1) {
+          let refObject = resolvePluncExpression(
+            dataCtx,
+            getParentObjectExp(structure[0]),
+          );
+          let funcExpression = expression
+            .split(".")
+            .slice(expressionTest.length - 1)
+            .join(".");
+          return invokeFunction(refObject, dataCtx, funcExpression, element);
+        }
+        if (!Object.prototype.hasOwnProperty.call(dataCtx, structure[0])) {
+          return "";
+        }
+        return invokeFunction(dataCtx, dataCtx, expression, element);
+        break;
+      case "conditional":
+        const evaluatorMap = {
+          "!==": areTwoExpressionsNotTheSame,
+          "==": areTwoExpressionsTheSame,
+          "is not ": areTwoExpressionsNotTheSame,
+          "is ": areTwoExpressionsTheSame,
+          ">=": isGreaterThanOrEqualToTheOther,
+          ">": isGreaterThanTheOther,
+          "<=": isLessThanOrEqualToTheOther,
+          "<": isLessThanTheOther,
+        };
+        for (const comparator in evaluatorMap) {
+          if (expression.includes(comparator)) {
+            return evaluatorMap[comparator](dataCtx, expression, comparator);
+          }
+        }
+        return false;
+        break;
+      case "number":
+        return Number(expression);
+        break;
+      case "operation":
+        let finalExpression = expression;
+        let operations = ["+", "-", "*", "/", "%"];
+        for (var i = 0; i < operations.length; i++) {
+          if (expression.includes(operations[i])) {
+            let exp = expression.split(operations[i]);
+            let left = resolvePluncExpression(dataCtx, exp[0].trim());
+            var right = resolvePluncExpression(dataCtx, exp[1].trim());
+            finalExpression = left + operations[i] + right;
+          }
+        }
+        return eval(finalExpression);
+        break;
+      default:
+        break;
+    }
+  }
+  function evaluateObject(dataCtx2, expression2) {
+    if (expression2 === "$dataCtx") {
+      return dataCtx2;
+    }
+    return expression2.split(".").reduce(function (o, x) {
+      if (o === void 0) return;
+      if (o === null) return;
+      if (o[x] === void 0) return;
+      return o[x];
+    }, dataCtx2);
+  }
+  function invokeFunction(dataCtx2, object, expression2, element2) {
+    if (dataCtx2 === void 0) return "";
+    const splitExpression = expression2.match(/\(([^)]+)\)/);
+    let struct = expression2.split("(");
+    let name = struct[0];
+    if (splitExpression !== null) {
+      const argsVault = new Array();
+      const splitArguments = splitExpression[1].split(",");
+      for (let i2 = 0; i2 < splitArguments.length; i2++) {
+        argsVault.push(
+          resolvePluncExpression(object, splitArguments[i2].trim()),
+        );
+      }
+      if (element2 !== null) {
+        argsVault.push(element2);
+      }
+      if (!(dataCtx2[name] instanceof Function)) {
+        return "";
+      }
+      return dataCtx2[name](...argsVault);
+    }
+    if (element2 !== null) {
+      const argsVault = new Array();
+      argsVault.push(element2);
+      return dataCtx2[name](...argsVault);
+    }
+    if (!(dataCtx2[name] instanceof Function)) {
+      return "";
+    }
+    return dataCtx2[name]();
+  }
+  function getParentObjectExp(expression2) {
+    let pieces = expression2.split(".");
+    if (pieces.length < 2) return "$dataCtx";
+    pieces.pop();
+    return pieces.join(".");
+  }
+  function getParentObjAsObject(base, expression2) {
+    const parentObjExp = getParentObjectExp(expression2);
+    return resolvePluncExpression(base, parentObjExp);
+  }
+  function getChildObjectExp(expression2) {
+    let pieces = expression2.split(".");
+    return pieces[pieces.length - 1];
+  }
+  function areTwoExpressionsTheSame(dataCtx2, expression2, comparator) {
+    const [left, right2] = expression2.split(comparator).map((arm) => {
+      return resolvePluncExpression(dataCtx2, arm.trim());
+    });
+    return left === right2;
+  }
+  function areTwoExpressionsNotTheSame(dataCtx2, expression2, comparator) {
+    const [left, right2] = expression2.split(comparator).map((arm) => {
+      return resolvePluncExpression(dataCtx2, arm.trim());
+    });
+    return left !== right2;
+  }
+  function isGreaterThanTheOther(dataCtx2, expression2, comparator) {
+    const [left, right2] = expression2.split(comparator).map((arm) => {
+      return resolvePluncExpression(dataCtx2, arm.trim());
+    });
+    return left > right2;
+  }
+  function isGreaterThanOrEqualToTheOther(dataCtx2, expression2, comparator) {
+    const [left, right2] = expression2.split(comparator).map((arm) => {
+      return resolvePluncExpression(dataCtx2, arm.trim());
+    });
+    return left >= right2;
+  }
+  function isLessThanTheOther(dataCtx2, expression2, comparator) {
+    const [left, right2] = expression2.split(comparator).map((arm) => {
+      return resolvePluncExpression(dataCtx2, arm.trim());
+    });
+    return left < right2;
+  }
+  function isLessThanOrEqualToTheOther(dataCtx2, expression2, comparator) {
+    const [left, right2] = expression2.split(comparator).map((arm) => {
+      return resolvePluncExpression(dataCtx2, arm.trim());
+    });
+    return left <= right2;
+  }
+
+  // out/services/pluncElement.js
   var PluncElement = class _PluncElement {
     /**
      * @param element - The Element
@@ -806,8 +868,8 @@
       if (state === null) return;
       this.state = state;
     }
-    setScope(scope2) {
-      this.scope = scope2;
+    setScope(scope) {
+      this.scope = scope;
     }
     getScope() {
       return this.scope;
@@ -832,224 +894,25 @@
     }
   };
 
-  // out/services/expResolver.js
-  var resolveExpression = (scope2, expression2, element2 = null) => {
-    const resolveType2 = getResolveType(expression2);
-    return resolve(scope2, expression2, resolveType2, element2);
-  };
-  function getResolveType(expression2) {
-    if (/^'.*'$/.test(expression2)) return "string";
-    if (!isNaN(expression2)) return "number";
-    if (expression2.includes("(") && expression2.includes("=="))
-      return "conditional";
-    if (expression2.includes("(") && expression2.includes("is "))
-      return "conditional";
-    if (expression2.includes("(") && expression2.includes(">"))
-      return "conditional";
-    if (expression2.includes("(") && expression2.includes("<"))
-      return "conditional";
-    if (expression2.includes("(")) return "function";
-    if (expression2.includes("==")) return "conditional";
-    if (expression2.includes("is ")) return "conditional";
-    if (expression2.includes(">")) return "conditional";
-    if (expression2.includes("<")) return "conditional";
-    if (
-      expression2.includes("+") ||
-      expression2.includes("-") ||
-      expression2.includes("/") ||
-      expression2.includes("*") ||
-      expression2.includes("%")
-    ) {
-      return "operation";
-    }
-    if (
-      expression2 == "false" ||
-      expression2 == "true" ||
-      expression2 == "null"
-    ) {
-      return "boolean";
-    }
-    return "object";
-  }
-  function resolve(scope, expression, resolveType, element = null) {
-    switch (resolveType) {
-      case "string":
-        return expression.slice(1, -1);
-        break;
-      case "boolean":
-        if (expression == "true") return true;
-        if (expression == "false") return false;
-        if (expression == "null") return null;
-        break;
-      case "object":
-        return evalObject(scope, expression);
-        break;
-      case "function":
-        let structure = expression.split("(");
-        let expressionTest = structure[0].split(".");
-        if (expressionTest.length > 1) {
-          let refObject = resolveExpression(
-            scope,
-            getParentObjectExp(structure[0]),
-          );
-          let funcExpression = expression
-            .split(".")
-            .slice(expressionTest.length - 1)
-            .join(".");
-          return invokeFunction(refObject, scope, funcExpression, element);
-        }
-        if (!Object.prototype.hasOwnProperty.call(scope, structure[0])) {
-          return "";
-        }
-        return invokeFunction(scope, scope, expression, element);
-        break;
-      case "conditional":
-        const evaluatorMap = {
-          "!==": areTwoExpressionsNotTheSame,
-          "==": areTwoExpressionsTheSame,
-          "is not ": areTwoExpressionsNotTheSame,
-          "is ": areTwoExpressionsTheSame,
-          ">=": isGreaterThanOrEqualToTheOther,
-          ">": isGreaterThanTheOther,
-          "<=": isLessThanOrEqualToTheOther,
-          "<": isLessThanTheOther,
-        };
-        for (const comparator in evaluatorMap) {
-          if (expression.includes(comparator)) {
-            return evaluatorMap[comparator](scope, expression, comparator);
-          }
-        }
-        return false;
-        break;
-      case "number":
-        return Number(expression);
-        break;
-      case "operation":
-        let finalExpression = expression;
-        let operations = ["+", "-", "*", "/", "%"];
-        for (var i = 0; i < operations.length; i++) {
-          if (expression.includes(operations[i])) {
-            let exp = expression.split(operations[i]);
-            let left = resolveExpression(scope, exp[0].trim());
-            var right = resolveExpression(scope, exp[1].trim());
-            finalExpression = left + operations[i] + right;
-          }
-        }
-        return eval(finalExpression);
-        break;
-      default:
-        break;
-    }
-  }
-  function evalObject(scope2, expression2) {
-    if (expression2 === "$scope") {
-      return scope2;
-    }
-    return expression2.split(".").reduce(function (o, x) {
-      if (o === void 0) return;
-      if (o === null) return;
-      if (o[x] === void 0) return;
-      return o[x];
-    }, scope2);
-  }
-  function invokeFunction(scope2, object, expression2, element2) {
-    if (scope2 === void 0) return "";
-    const splitExpression = expression2.match(/\(([^)]+)\)/);
-    let struct = expression2.split("(");
-    let name = struct[0];
-    if (splitExpression !== null) {
-      const argsVault = new Array();
-      const splitArguments = splitExpression[1].split(",");
-      for (let i2 = 0; i2 < splitArguments.length; i2++) {
-        argsVault.push(resolveExpression(object, splitArguments[i2].trim()));
-      }
-      if (element2 !== null) {
-        argsVault.push(new PluncElement(element2));
-      }
-      if (!(scope2[name] instanceof Function)) {
-        return "";
-      }
-      return scope2[name](...argsVault);
-    }
-    if (element2 !== null) {
-      const argsVault = new Array();
-      argsVault.push(new PluncElement(element2));
-      return scope2[name](...argsVault);
-    }
-    if (!(scope2[name] instanceof Function)) {
-      return "";
-    }
-    return scope2[name]();
-  }
-  function getParentObjectExp(expression2) {
-    let pieces = expression2.split(".");
-    if (pieces.length < 2) return "$scope";
-    pieces.pop();
-    return pieces.join(".");
-  }
-  function getParentObjAsObject(base, expression2) {
-    const parentObjExp = getParentObjectExp(expression2);
-    return resolveExpression(base, parentObjExp);
-  }
-  function getChildObjectExp(expression2) {
-    let pieces = expression2.split(".");
-    return pieces[pieces.length - 1];
-  }
-  function areTwoExpressionsTheSame(scope2, expression2, comparator) {
-    const [left, right2] = expression2.split(comparator).map((arm) => {
-      return resolveExpression(scope2, arm.trim());
-    });
-    return left === right2;
-  }
-  function areTwoExpressionsNotTheSame(scope2, expression2, comparator) {
-    const [left, right2] = expression2.split(comparator).map((arm) => {
-      return resolveExpression(scope2, arm.trim());
-    });
-    return left !== right2;
-  }
-  function isGreaterThanTheOther(scope2, expression2, comparator) {
-    const [left, right2] = expression2.split(comparator).map((arm) => {
-      return resolveExpression(scope2, arm.trim());
-    });
-    return left > right2;
-  }
-  function isGreaterThanOrEqualToTheOther(scope2, expression2, comparator) {
-    const [left, right2] = expression2.split(comparator).map((arm) => {
-      return resolveExpression(scope2, arm.trim());
-    });
-    return left >= right2;
-  }
-  function isLessThanTheOther(scope2, expression2, comparator) {
-    const [left, right2] = expression2.split(comparator).map((arm) => {
-      return resolveExpression(scope2, arm.trim());
-    });
-    return left < right2;
-  }
-  function isLessThanOrEqualToTheOther(scope2, expression2, comparator) {
-    const [left, right2] = expression2.split(comparator).map((arm) => {
-      return resolveExpression(scope2, arm.trim());
-    });
-    return left <= right2;
-  }
-
   // out/directives/events.js
   function bindEventListenerToElement(
-    dataCtx,
+    dataCtx2,
     bindToElement,
     fnExpression,
     eventType,
   ) {
-    if (getResolveType(fnExpression) !== "function") return;
+    if (getExpressionResolveType(fnExpression) !== "function") return;
     bindToElement.addEventListener(eventType, () => {
-      resolveExpression(dataCtx, fnExpression, bindToElement);
+      const pluncElement = new PluncElement(bindToElement);
+      resolvePluncExpression(dataCtx2, fnExpression, pluncElement);
     });
   }
   function composeEventDirectiveProcessor(appCtx) {
-    return function processEventDirectives(elementCtx, dataCtx) {
+    return function processEventDirectives(elementCtx, dataCtx2) {
       const events = [
-        { type: "click", attr: CLICK_EVENT_ATTR },
-        { type: "change", attr: CHANGE_EVENT_ATTR },
-        { type: "keyup", attr: TOUCH_EVENT_ATTR },
+        { type: "click", attr: CLICK_EVENT_DIRECTIVE },
+        { type: "change", attr: CHANGE_EVENT_DIRECTIVE },
+        { type: "keyup", attr: TOUCH_EVENT_DIRECTIVE },
       ];
       events.forEach((event) => {
         const elementsToProcess = appCtx.__querySelectAllByPluncAttribute(
@@ -1057,7 +920,7 @@
           event.attr,
         );
         elementsToProcess.forEach((element2) => {
-          if (appCtx.__isElementLocked(element2)) {
+          if (appCtx.__isElementLockedToEvent(element2, event.type)) {
             return;
           }
           const fnExpression = appCtx.__pluncAttributeValueGetter(
@@ -1068,12 +931,12 @@
             return;
           }
           bindEventListenerToElement(
-            dataCtx,
+            dataCtx2,
             element2,
             fnExpression,
             event.type,
           );
-          appCtx.__lockElement(element2);
+          appCtx.__lockElementToEvent(element2, event.type);
         });
       });
     };
@@ -1110,8 +973,8 @@
       throw new Error(message);
     }
   }
-  var assignModelValue = (dataCtx, expression2, value) => {
-    const parentObj = getParentObjAsObject(dataCtx, expression2);
+  var assignModelValue = (dataCtx2, expression2, value) => {
+    const parentObj = getParentObjAsObject(dataCtx2, expression2);
     const childObjExpression = getChildObjectExp(expression2);
     if (void 0 !== parentObj) parentObj[childObjExpression] = value;
   };
@@ -1149,7 +1012,7 @@
   }
   function handleRadioAndCheckboxModel(
     maybeRadioOrCheckboxElement,
-    dataCtx,
+    dataCtx2,
     expression2,
     expressionValue,
   ) {
@@ -1157,9 +1020,10 @@
     if (elementType !== "radio" && elementType !== "checkbox") {
       return;
     }
+    console.log({ dataCtx2, expression2, expressionValue });
     const radioOrCheckboxElement = maybeRadioOrCheckboxElement;
     if (expressionValue === void 0) {
-      assignModelValue(dataCtx, expression2, false);
+      assignModelValue(dataCtx2, expression2, false);
       setModelState(radioOrCheckboxElement, false);
     } else if (typeof expressionValue === "boolean") {
       setModelState(radioOrCheckboxElement, expressionValue);
@@ -1171,7 +1035,7 @@
   }
   function handleTextInputButNotTextareaModel(
     maybeInputElement,
-    dataCtx,
+    dataCtx2,
     expression2,
     expressionValue,
   ) {
@@ -1186,7 +1050,7 @@
     ) {
       const inputElement = maybeInputElement;
       if (expressionValue === void 0) {
-        assignModelValue(dataCtx, expression2, inputElement.value);
+        assignModelValue(dataCtx2, expression2, inputElement.value);
       } else {
         inputElement.value = castAnyValueToString(expressionValue);
       }
@@ -1194,7 +1058,7 @@
   }
   function handleNumberInputModel(
     maybeInputNumberElement,
-    dataCtx,
+    dataCtx2,
     expression2,
     expressionValue,
   ) {
@@ -1202,7 +1066,7 @@
     if (elementType === "number") {
       const inputElement = maybeInputNumberElement;
       if (expressionValue === void 0) {
-        assignModelValue(dataCtx, expression2, 0);
+        assignModelValue(dataCtx2, expression2, 0);
         inputElement.value = "0";
       } else {
         inputElement.value = castAnyValueToString(expressionValue);
@@ -1211,17 +1075,17 @@
   }
   function composeModelHandlerExecutor(
     targetELement,
-    dataCtx,
+    dataCtx2,
     expression2,
     expressionValue,
   ) {
     return function executeHandler(handler) {
-      handler(targetELement, dataCtx, expression2, expressionValue);
+      handler(targetELement, dataCtx2, expression2, expressionValue);
     };
   }
   function handleDateInputModel(
     maybeDateInputElement,
-    dataCtx,
+    dataCtx2,
     expression2,
     expressionValue,
   ) {
@@ -1230,7 +1094,7 @@
       const dateInputElement = maybeDateInputElement;
       if (expressionValue === void 0) {
         const currentDate = getCurrentDate();
-        assignModelValue(dataCtx, expression2, currentDate);
+        assignModelValue(dataCtx2, expression2, currentDate);
         dateInputElement.value = currentDate;
       } else {
         const stringifiedValue = castAnyValueToString(expressionValue);
@@ -1241,7 +1105,7 @@
   }
   function handleTimeInputModel(
     maybeTimeInputElement,
-    dataCtx,
+    dataCtx2,
     expression2,
     expressionValue,
   ) {
@@ -1250,7 +1114,7 @@
       const timeInputElement = maybeTimeInputElement;
       if (expressionValue === void 0) {
         const currentTime = getCurrentTime();
-        assignModelValue(dataCtx, expression2, currentTime);
+        assignModelValue(dataCtx2, expression2, currentTime);
         timeInputElement.value = currentTime;
       } else {
         const stringifiedValue = castAnyValueToString(expressionValue);
@@ -1260,28 +1124,31 @@
     }
   }
   function composeModelDirectiveProcessor(appCtx) {
-    return function processModelDirective(elementCtx, dataCtx) {
+    return function processModelDirective(elementCtx, dataCtx2) {
       const elementsToProcess = appCtx.__querySelectAllByPluncAttribute(
         elementCtx,
-        MODEL_ELEMENT_ATTR,
+        MODEL_ELEMENT_DIRECTIVE,
       );
       elementsToProcess.forEach((element2) => {
         const modelExpression = appCtx.__pluncAttributeValueGetter(
           element2,
-          MODEL_ELEMENT_ATTR,
+          MODEL_ELEMENT_DIRECTIVE,
         );
         if (modelExpression === null || modelExpression.trim() === "") {
           return;
         }
+        if (appCtx.__isElementLocked(element2)) {
+          return;
+        }
         let evaluationResult = appCtx.__resolveExpression(
-          dataCtx,
+          dataCtx2,
           modelExpression,
         );
         if (element2.tagName === "INPUT" || element2.tagName === "SELECT") {
           if (element2 instanceof HTMLInputElement) {
             const execute = composeModelHandlerExecutor(
               element2,
-              dataCtx,
+              dataCtx2,
               modelExpression,
               evaluationResult,
             );
@@ -1293,7 +1160,7 @@
           }
           if (element2 instanceof HTMLSelectElement) {
             evaluationResult === void 0
-              ? assignModelValue(dataCtx, modelExpression, element2.value)
+              ? assignModelValue(dataCtx2, modelExpression, element2.value)
               : (element2.value = castAnyValueToString(evaluationResult));
           }
           element2.addEventListener("change", (event) => {
@@ -1302,13 +1169,13 @@
               const targetType = target.type.toLowerCase();
               if (targetType === "radio" || targetType === "checkbox") {
                 const isChecked = target.checked;
-                assignModelValue(dataCtx, modelExpression, isChecked);
+                assignModelValue(dataCtx2, modelExpression, isChecked);
                 return;
               }
-              assignModelValue(dataCtx, modelExpression, target.value);
+              assignModelValue(dataCtx2, modelExpression, target.value);
             }
             if (target instanceof HTMLSelectElement) {
-              assignModelValue(dataCtx, modelExpression, target.value);
+              assignModelValue(dataCtx2, modelExpression, target.value);
             }
           });
         } else if (
@@ -1316,22 +1183,23 @@
           element2 instanceof HTMLTextAreaElement
         ) {
           evaluationResult === void 0
-            ? assignModelValue(dataCtx, modelExpression, element2.value)
+            ? assignModelValue(dataCtx2, modelExpression, element2.value)
             : (element2.value = castAnyValueToString(evaluationResult));
           element2.addEventListener("change", (event) => {
             const target = event.target;
             if (!(target instanceof HTMLTextAreaElement)) return;
             const value = target.value;
-            assignModelValue(dataCtx, modelExpression, value);
+            assignModelValue(dataCtx2, modelExpression, value);
           });
         }
+        appCtx.__lockElement(element2);
       });
     };
   }
 
   // out/directives/placeholders.js
   function composePlaceholderResolver(appCtx) {
-    return function resolvePlaceholders(elementCtx, dataCtx) {
+    return function resolvePlaceholders(elementCtx, dataCtx2) {
       const regEx = new RegExp("(?<=\\{{).+?(?=\\}})", "g");
       const htmlContent = elementCtx.innerHTML;
       const matchedPlaceholders = htmlContent.match(regEx);
@@ -1340,7 +1208,10 @@
       }
       matchedPlaceholders.forEach((placeholder) => {
         const expression2 = placeholder.trim();
-        let evaluationResult = appCtx.__resolveExpression(dataCtx, expression2);
+        let evaluationResult = appCtx.__resolveExpression(
+          dataCtx2,
+          expression2,
+        );
         if (evaluationResult === null || evaluationResult === void 0) {
           evaluationResult = "";
         }
@@ -1376,13 +1247,13 @@
   }
   function composeRepeatDirectiveProcessor(appCtx) {
     let processDirectivesOnRepeatedElementFn = () => {};
-    function processRepeatDirective(repeatableElementCtx, dataCtx) {
-      const scope2 = Object.assign({}, dataCtx);
+    function processRepeatDirective(repeatableElementCtx, dataCtx2) {
+      const scope = Object.assign({}, dataCtx2);
       const template = repeatableElementCtx.innerHTML;
       repeatableElementCtx.replaceChildren();
       let repeatExpression = appCtx.__pluncAttributeValueGetter(
         repeatableElementCtx,
-        REPEAT_ELEMENT_ATTR,
+        REPEAT_ELEMENT_DIRECTIVE,
       );
       if (repeatExpression === null || repeatExpression.trim() === "") {
         return;
@@ -1390,53 +1261,57 @@
       let [dataSourceExpr, itemAlias] =
         dissectRepeatExpression(repeatExpression);
       if (dataSourceExpr === REPEAT_REFERENCE_TOKEN) {
-        const repetitions = resolveExpression(scope2, itemAlias);
+        const repetitions = appCtx.__resolveExpression(scope, itemAlias);
         let times = countRepeatable(repetitions);
-        scope2["$$index"] = {};
+        scope["$$index"] = {};
         let k = 0;
-        while (k < times) scope2["$$index"]["props" + k++] = new Object();
+        while (k < times) scope["$$index"]["props" + k++] = new Object();
       }
-      const repeatableObject = resolveExpression(scope2, dataSourceExpr);
+      const repeatableObject = appCtx.__resolveExpression(
+        scope,
+        dataSourceExpr,
+      );
       if (!isIterableWithEntries(repeatableObject)) {
         return;
       }
       let indexNumber = 0;
       for (const [key, value] of Object.entries(repeatableObject)) {
         const repeatDataCtx = {
-          $parent: dataCtx,
+          $parent: dataCtx2,
           $index: indexNumber,
           [itemAlias]: value,
         };
-        const repeatedElementCtx =
-          document.implementation.createHTMLDocument().body;
-        repeatedElementCtx.innerHTML = template;
+        const repeatedElementCtx = appCtx.__createStagingElement(template);
         processDirectivesOnRepeatedElementFn(repeatedElementCtx, repeatDataCtx);
-        appCtx.__reconcileChildren(repeatedElementCtx, repeatableElementCtx);
+        appCtx.__commitStagingElementTo(
+          repeatedElementCtx,
+          repeatableElementCtx,
+        );
         indexNumber++;
       }
     }
     return function processRepeatDirectives(
       elementCtx,
-      dataCtx,
+      dataCtx2,
       processDirectivesOnRepeatedElement,
     ) {
       const repeatElements = appCtx.__querySelectAllByPluncAttribute(
         elementCtx,
-        REPEAT_ELEMENT_ATTR,
+        REPEAT_ELEMENT_DIRECTIVE,
       );
       processDirectivesOnRepeatedElementFn = processDirectivesOnRepeatedElement;
       for (const repeatElement of repeatElements) {
-        processRepeatDirective(repeatElement, dataCtx);
+        processRepeatDirective(repeatElement, dataCtx2);
       }
     };
   }
 
   // out/directives/style.js
   function composeStyleDirectiveProcessor(appCtx) {
-    return function processStyleDirective(elementCtx, dataCtx) {
+    return function processStyleDirective(elementCtx, dataCtx2) {
       const elementsToProcess = appCtx.__querySelectAllByPluncAttribute(
         elementCtx,
-        STYLE_ELEMENT_ATTR,
+        STYLE_ELEMENT_DIRECTIVE,
       );
       elementsToProcess.forEach((element2) => {
         if (appCtx.__isElementLocked(element2)) {
@@ -1444,13 +1319,13 @@
         }
         const styleExpression = appCtx.__pluncAttributeValueGetter(
           element2,
-          STYLE_ELEMENT_ATTR,
+          STYLE_ELEMENT_DIRECTIVE,
         );
         if (styleExpression === null || styleExpression.trim() === "") {
           return;
         }
         const evaluatedResult = appCtx.__resolveExpression(
-          dataCtx,
+          dataCtx2,
           styleExpression,
         );
         if (
@@ -1481,18 +1356,18 @@
     const processStyles = composeStyleDirectiveProcessor(appCtx);
     function processDirectives(
       targetElement,
-      dataCtx,
+      dataCtx2,
       skipEventProcessing = true,
     ) {
-      processRepeat(targetElement, dataCtx, processDirectives);
-      processConditionals(targetElement, dataCtx);
-      resolvePlaceholders(targetElement, dataCtx);
-      processCheck(targetElement, dataCtx);
-      processStyles(targetElement, dataCtx);
-      processModels(targetElement, dataCtx);
-      processDisable(targetElement, dataCtx);
+      processRepeat(targetElement, dataCtx2, processDirectives);
+      processConditionals(targetElement, dataCtx2);
+      resolvePlaceholders(targetElement, dataCtx2);
+      processCheck(targetElement, dataCtx2);
+      processStyles(targetElement, dataCtx2);
+      processModels(targetElement, dataCtx2);
+      processDisable(targetElement, dataCtx2);
       if (skipEventProcessing === false) {
-        processEvents(targetElement, dataCtx);
+        processEvents(targetElement, dataCtx2);
       }
     }
     return processDirectives;
@@ -1620,6 +1495,59 @@
   };
   bindReady();
 
+  // out/services/elementService.js
+  function selectElement(context, selector) {
+    return context.querySelector(selector);
+  }
+  function selectAllElements(context, selector) {
+    return Array.from(context.querySelectorAll(selector));
+  }
+  function composeElementSelectorsWithPluncAttribute(
+    selectAllElementFn,
+    formatPluncAttributeFn,
+  ) {
+    return function selectAllElementsWithPluncAttribute(
+      context,
+      pluncAttributeKey,
+      pluncAttributeValue,
+    ) {
+      const attributeKey = formatPluncAttributeFn(pluncAttributeKey);
+      const valuePart = pluncAttributeValue ? `="${pluncAttributeValue}"` : "";
+      const selector = `[${attributeKey}${valuePart}]`;
+      return selectAllElementFn(context, selector);
+    };
+  }
+  function composePluncAttributeValueGetter(formatPluncAttributeFn) {
+    return function getPluncAttributeValue(element2, key) {
+      const attributeKey = formatPluncAttributeFn(key);
+      return element2.getAttribute(attributeKey);
+    };
+  }
+  function composePluncAttributeValueSetter(formatPluncAttributeFn) {
+    return function setPluncAttributeValue(element2, key, value) {
+      const attributeKey = formatPluncAttributeFn(key);
+      element2.setAttribute(attributeKey, value);
+    };
+  }
+  function composeChildComponentCleaner(selectElementByComponentId) {
+    return function cleanChildComponent(component, childIds) {
+      for (let i2 = 0; i2 < childIds.length; i2++) {
+        const childId = childIds[i2];
+        const child = selectElementByComponentId(component, childId);
+        if (child !== null) child.innerHTML = "";
+      }
+    };
+  }
+  function selectLiveAppRootElement(appName) {
+    const appRootAttributeKey = `${GLOBAL_DIRECTIVE_FOR_APP_NAME}`;
+    const selector = `[${appRootAttributeKey}="${appName}"]`;
+    const element2 = document.querySelector(selector);
+    if (!element2) {
+      throw new Error(`Cannot find the app root element for app: ${appName}`);
+    }
+    return element2;
+  }
+
   // out/services/handlerBinder.js
   function composeComponentBinder(appContext) {
     return function bindComponentToHandler(name, handler) {
@@ -1646,7 +1574,7 @@
   function composeAppAPI(appCtx) {
     return {
       ready: (listener) => {
-        appCtx.__getInstance().onReady(listener);
+        appCtx.__getAppRepresentationInstance().onReady(listener);
       },
     };
   }
@@ -1654,7 +1582,7 @@
   // out/apis/$block.js
   function composeBlockAPI(appCtx, componentObject) {
     return function $block(name, callback) {
-      if (!appCtx.__getInstance().isReady()) {
+      if (!appCtx.__getAppRepresentationInstance().isReady()) {
         throw new Error(`cannot use $block outside $app.ready`);
       }
       const liveComponentElement = appCtx.__querySelectComponentById(
@@ -1688,9 +1616,9 @@
     return function $parent() {
       const parentId = appCtx.__whoIsTheParent(componentObject.id);
       if (parentId === null) return null;
-      const parentComponentObject = appCtx.__getFromRegistryById(parentId);
+      const parentComponentObject =
+        appCtx.__getComponentFromRegistryById(parentId);
       if (!parentComponentObject) return null;
-      if (!isComponentObject(parentComponentObject)) return null;
       const wrapper = {};
       wrapper[parentId] = parentComponentObject;
       return appCtx.__createComponentProxy(wrapper);
@@ -1701,7 +1629,7 @@
   function composePatchAPI(appCtx, componentObject) {
     return function $patch(blockName = null) {
       return __async(this, null, function* () {
-        if (!appCtx.__getInstance().isReady()) {
+        if (!appCtx.__getAppRepresentationInstance().isReady()) {
           throw new Error(`cannot use $patch outside $app.ready`);
         }
         const liveComponentElement = appCtx.__querySelectComponentById(
@@ -1726,7 +1654,10 @@
           if (elementBindTo === null) continue;
           let elementBindFrom = appCtx.__createStagingElement();
           if (targetType === "COMPONENT") {
-            elementBindFrom.setInnerHtml(componentObject.template);
+            appCtx.__setStagingElementInnerHtml(
+              elementBindFrom,
+              componentObject.getTemplate(),
+            );
           } else {
             if (blockName === null) continue;
             const blockTemplate = getBlockTemplate(
@@ -1734,16 +1665,12 @@
               componentObject,
               blockName,
             );
-            elementBindFrom.setInnerHtml(blockTemplate);
+            appCtx.__setStagingElementInnerHtml(elementBindFrom, blockTemplate);
           }
           const processDirectives = composeDirectivesProcessor(appCtx);
-          processDirectives(
-            elementBindFrom.getElement(),
-            componentObject.scope,
-            false,
-          );
+          processDirectives(elementBindFrom, componentObject.scope, false);
           elementBindTo.innerHTML = "";
-          elementBindFrom.commitTo(elementBindTo);
+          appCtx.__commitStagingElementTo(elementBindFrom, elementBindTo);
         }
       });
     };
@@ -1772,16 +1699,17 @@
   }
   function getBlockTemplate(appCtx, componentObject, blockName) {
     const stagingElement = appCtx.__createStagingElement(
-      componentObject.template,
+      componentObject.getTemplate(),
     );
-    const blockDirective =
-      appCtx.__pluncAttributeKeyFormatter(BLOCK_ELEMENT_ATTR);
+    const blockDirective = appCtx.__pluncAttributeKeyFormatter(
+      BLOCK_ELEMENT_DIRECTIVE,
+    );
     const referenceDirective = appCtx.__pluncAttributeKeyFormatter(
-      ELEMENT_REFERENCE_ATTR,
+      COMPONENT_REFERENCE_DIRECTIVE,
     );
     const specificBlockSelector = `[${blockDirective}="${blockName}"][${referenceDirective}="${componentObject.id}"]`;
     const blockElement = appCtx.__querySelectAllElements(
-      stagingElement.getElement(),
+      stagingElement,
       specificBlockSelector,
     );
     if (blockElement.length === 0) {
@@ -1800,7 +1728,7 @@
         name: componentObject.name,
         alias: componentObject.alias,
         element: () => {
-          if (!appCtx.__getInstance().isReady()) {
+          if (!appCtx.__getAppRepresentationInstance().isReady()) {
             throw new Error(
               `Cannot invoke component.get().element() outside $app.ready`,
             );
@@ -1966,8 +1894,8 @@
     const parentNames = /* @__PURE__ */ new Set();
     const parentId = appCtx.__whoIsTheParent(componentId);
     if (parentId !== null) {
-      const parent = appCtx.__getFromRegistryById(parentId);
-      if (parent !== null && isComponentObject(parent)) {
+      const parent = appCtx.__getComponentFromRegistryById(parentId);
+      if (parent !== null) {
         if (options.tryAlias) {
           if (parent.alias !== null) {
             parentNames.add(parent.alias);
@@ -2046,8 +1974,8 @@
     const childrenIds = appCtx.__whoAreTheChildren(parent.id);
     const matchedChildren = [];
     childrenIds.forEach((childId) => {
-      const child = appCtx.__getFromRegistryById(childId);
-      if (child !== null && isComponentObject(child)) {
+      const child = appCtx.__getComponentFromRegistryById(childId);
+      if (child !== null) {
         if (options.matchUsingAlias && child.alias === name) {
           matchedChildren.push(child);
           return;
@@ -2062,12 +1990,12 @@
   }
   function invokeComponentHandler(
     name,
-    componentObject,
+    ComponentInternalRepresentation,
     appCtx,
     listDependenciesFn,
     resolveDependenciesFn,
   ) {
-    const proxy = componentObject.proxy;
+    const proxy = ComponentInternalRepresentation.getProxy();
     if (proxy !== null) {
       return proxy;
     }
@@ -2079,10 +2007,10 @@
     const injectables = resolveDependenciesFn({
       dependencies,
       type: "component",
-      component: componentObject,
+      component: ComponentInternalRepresentation,
     });
     const exposedProxy = handler(...injectables);
-    componentObject.proxy = exposedProxy;
+    ComponentInternalRepresentation.setProxy(exposedProxy);
     return exposedProxy;
   }
   function invokeFactoryHandler(
@@ -2112,13 +2040,8 @@
     listDependenciesFn,
     resolveDependenciesFn,
   ) {
-    const serviceOrComponentObject = appCtx.__getFromRegistryById(name);
-    if (serviceOrComponentObject !== null) {
-      if (isComponentObject(serviceOrComponentObject)) {
-        throw new Error(`Service ${name} is also a component`);
-      }
-      return serviceOrComponentObject;
-    }
+    const serviceInternalRepresentation =
+      appCtx.__getServiceFromRegistryById(name);
     const handler = appCtx.__getServiceHandler(name);
     if (handler === null) {
       throw new Error(`Missing service handler ${name}`);
@@ -2128,14 +2051,12 @@
       dependencies,
       type: "service",
     });
-    const serviceObject = handler(...injectables);
-    if (serviceObject === void 0 || serviceObject === null) {
-      throw new Error(
-        `Service ${name} must not return ${typeof serviceObject}`,
-      );
+    let serviceExternalApi = handler(...injectables);
+    if (serviceExternalApi === void 0 || serviceExternalApi === null) {
+      serviceExternalApi = {};
     }
-    appCtx.__addRecordToRegistry(name, serviceObject);
-    return serviceObject;
+    appCtx.__addServiceToRegistry(name, serviceExternalApi);
+    return serviceExternalApi;
   }
   function invokeHelperHandler(
     name,
@@ -2163,24 +2084,193 @@
     return helper;
   }
 
+  // out/errors/pluncError.js
+  var PluncError = class extends Error {
+    constructor(message) {
+      const processedMessage = `Plunc: An error has occured! Please see https://kenjiefx.github.io/plunc/errors/${message}.html for more details.`;
+      super(processedMessage);
+      Object.setPrototypeOf(this, Error.prototype);
+    }
+  };
+
+  // out/types.js
+  var LibraryBrand = Symbol("LibraryBrand");
+  var ComponentFamilyTreeBrand = Symbol("ComponentFamilyTreeBrand");
+  var RegistryBrand = Symbol("RegistryBrand");
+
+  // out/services/libraryService.js
+  function createNewHandlerLibrary() {
+    const library = {
+      data: {
+        component: /* @__PURE__ */ new Map(),
+        service: /* @__PURE__ */ new Map(),
+        factory: /* @__PURE__ */ new Map(),
+        helper: /* @__PURE__ */ new Map(),
+      },
+      [LibraryBrand]: true,
+    };
+    return library;
+  }
+  function getInternalDataFromLibrary(library) {
+    if ("data" in library) {
+      return library;
+    }
+    throw new PluncError("ERR4");
+  }
+  function addHandlerToLibrary(library, name, type, handler) {
+    const internalData = getInternalDataFromLibrary(library);
+    switch (type) {
+      case "component":
+        internalData.data.component.set(name, handler);
+        break;
+      case "service":
+        internalData.data.service.set(name, handler);
+        break;
+      case "factory":
+        internalData.data.factory.set(name, handler);
+        break;
+      case "helper":
+        internalData.data.helper.set(name, handler);
+        break;
+    }
+  }
+  function getComponentHandlerFromLibrary(library, name) {
+    var _a;
+    const internalData = getInternalDataFromLibrary(library);
+    return (_a = internalData.data.component.get(name)) !== null &&
+      _a !== void 0
+      ? _a
+      : null;
+  }
+  function getServiceHandlerFromLibrary(library, name) {
+    var _a;
+    const internalData = getInternalDataFromLibrary(library);
+    return (_a = internalData.data.service.get(name)) !== null && _a !== void 0
+      ? _a
+      : null;
+  }
+  function getFactoryHandlerFromLibrary(library, name) {
+    var _a;
+    const internalData = getInternalDataFromLibrary(library);
+    return (_a = internalData.data.factory.get(name)) !== null && _a !== void 0
+      ? _a
+      : null;
+  }
+  function getHelperHandlerFromLibrary(library, name) {
+    var _a;
+    const internalData = getInternalDataFromLibrary(library);
+    return (_a = internalData.data.helper.get(name)) !== null && _a !== void 0
+      ? _a
+      : null;
+  }
+
+  // out/services/lineageService.js
+  function getInternalComponentFamilyTree(tree) {
+    if ("data" in tree) {
+      return tree;
+    }
+    throw new PluncError("ERR5");
+  }
+  function createComponentLineage() {
+    const genealogy = {
+      data: {},
+      [ComponentFamilyTreeBrand]: true,
+    };
+    return genealogy;
+  }
+  function addRecordToComponentLineage(tree, parentId, childId) {
+    const internalTree = getInternalComponentFamilyTree(tree);
+    if (internalTree.data[parentId] === void 0) {
+      internalTree.data[parentId] = {
+        parent: null,
+        children: [],
+      };
+    }
+    internalTree.data[parentId].children.push(childId);
+    if (internalTree.data[childId] === void 0) {
+      internalTree.data[childId] = {
+        parent: parentId,
+        children: [],
+      };
+    }
+  }
+  function lookupComponentLineage(tree, childId) {
+    const internalTree = getInternalComponentFamilyTree(tree);
+    if (internalTree.data[childId] === void 0) return [];
+    const parents = [];
+    let parent = internalTree.data[childId].parent;
+    while (parent !== null) {
+      parents.push(parent);
+      parent = internalTree.data[parent].parent;
+    }
+    return parents;
+  }
+  function whoAreTheChildrenOfComponent(tree, parentId) {
+    const internalTree = getInternalComponentFamilyTree(tree);
+    if (internalTree.data[parentId] === void 0) return [];
+    return internalTree.data[parentId].children;
+  }
+  function whoIsTheParentOfComponent(tree, childId) {
+    const internalTree = getInternalComponentFamilyTree(tree);
+    if (internalTree.data[childId] === void 0) return null;
+    return internalTree.data[childId].parent;
+  }
+  function whoAreTheSiblingsOfComponent(tree, componentId) {
+    const internalTree = getInternalComponentFamilyTree(tree);
+    if (internalTree.data[componentId] === void 0) return [];
+    const parentId = internalTree.data[componentId].parent;
+    if (parentId === null) return [];
+    const siblings = internalTree.data[parentId].children.filter(
+      (childId) => childId !== componentId,
+    );
+    return siblings;
+  }
+
   // out/services/lockService.js
   function composeElementLocker(attributeKeyFormatter) {
     return function lockElement(element2) {
-      const attributeKey = attributeKeyFormatter(LOCK_ID_ATTR_KEY);
-      element2.setAttribute(attributeKey, LOCK_ID_ATTR_VALUE);
+      const attributeKey = attributeKeyFormatter(GLOBAL_LOCK_ID_DIRECTIVE);
+      element2.setAttribute(attributeKey, GLOBAL_LOCK_ID_DIRECTIVE_VALUE);
     };
   }
   function composeIsElementLockedChecker(attributeKeyFormatter) {
     return function isElementLocked(element2) {
-      const attributeKey = attributeKeyFormatter(LOCK_ID_ATTR_KEY);
+      const attributeKey = attributeKeyFormatter(GLOBAL_LOCK_ID_DIRECTIVE);
       return element2.getAttribute(attributeKey) !== null;
+    };
+  }
+  function composeIsEventLockChecker(attributeKeyFormatter) {
+    return function isElementLockedToEvent(element2, eventName) {
+      const attribute = attributeKeyFormatter(GLOBAL_EVENT_LOCK_DIRECTIVE);
+      const existing = element2.getAttribute(attribute);
+      if (existing === null) return false;
+      const events = existing.split(",");
+      return events.includes(eventName);
+    };
+  }
+  function composeEventLocker(attributeKeyFormatter) {
+    return function lockElementToEvent(element2, eventName) {
+      const attributeKey = attributeKeyFormatter(GLOBAL_EVENT_LOCK_DIRECTIVE);
+      const existing = element2.getAttribute(attributeKey);
+      if (existing === null) {
+        element2.setAttribute(attributeKey, eventName);
+        return;
+      }
+      let events = existing.split(",");
+      for (let i2 = 0; i2 < events.length; i2++) {
+        const event = events[i2];
+        if (event !== eventName) {
+          events.push(eventName);
+        }
+      }
+      element2.setAttribute(attributeKey, events.join(","));
     };
   }
 
   // out/services/namedElements.js
   function composeReferenceAttacher(appCtx, elementsSelector) {
     return function attachReferenceToNamedElements(referenceId, component) {
-      [BLOCK_ELEMENT_ATTR].forEach((attribute) => {
+      [BLOCK_ELEMENT_DIRECTIVE].forEach((attribute) => {
         const namedElementAttribute =
           appCtx.__pluncAttributeKeyFormatter(attribute);
         const attributableElements = elementsSelector(
@@ -2190,12 +2280,118 @@
         attributableElements.forEach((element2) => {
           appCtx.__pluncAttributeValueSetter(
             element2,
-            ELEMENT_REFERENCE_ATTR,
+            COMPONENT_REFERENCE_DIRECTIVE,
             referenceId,
           );
         });
       });
     };
+  }
+
+  // out/services/pluncAppService.js
+  function createPluncAppInternalRepresentation(
+    id,
+    name,
+    config,
+    library,
+    registry,
+  ) {
+    const onReadyListeners = [];
+    let ready = false;
+    function emitReady() {
+      ready = true;
+      for (const listener of onReadyListeners) {
+        listener();
+      }
+    }
+    function isReady2() {
+      return ready;
+    }
+    function onReady(listener) {
+      onReadyListeners.push(listener);
+    }
+    function getReadyListeners() {
+      return onReadyListeners;
+    }
+    return {
+      config,
+      library,
+      registry,
+      name,
+      id,
+      getReadyListeners,
+      emitReady,
+      isReady: isReady2,
+      onReady,
+    };
+  }
+
+  // out/services/registryService.js
+  function createNewComponentAndServiceRegistry() {
+    const registry = {
+      data: {
+        components: /* @__PURE__ */ new Map(),
+        services: /* @__PURE__ */ new Map(),
+      },
+      [RegistryBrand]: true,
+    };
+    return registry;
+  }
+  function getInternalRegistryData(registry) {
+    if ("data" in registry) {
+      return registry;
+    }
+    throw new PluncError("ERR6");
+  }
+  function addComponentToRegistry(registry, id, component) {
+    const internalRegistry = getInternalRegistryData(registry);
+    internalRegistry.data.components.set(id, component);
+  }
+  function getComponentFromRegistryById(registry, id) {
+    var _a;
+    const internalRegistry = getInternalRegistryData(registry);
+    return (_a = internalRegistry.data.components.get(id)) !== null &&
+      _a !== void 0
+      ? _a
+      : null;
+  }
+  function getComponentsFromRegistryByIds(registry, ids) {
+    const internalRegistry = getInternalRegistryData(registry);
+    const components = [];
+    ids.forEach((id) => {
+      const component = internalRegistry.data.components.get(id);
+      if (component) {
+        components.push(component);
+      }
+    });
+    return components;
+  }
+  function getAllComponentsFromRegistry(registry) {
+    const internalRegistry = getInternalRegistryData(registry);
+    return Array.from(internalRegistry.data.components.values());
+  }
+  function addServiceToRegistry(registry, name, service) {
+    const internalRegistry = getInternalRegistryData(registry);
+    internalRegistry.data.services.set(name, service);
+  }
+  function getServiceFromRegistryById(registry, name) {
+    var _a;
+    const internalRegistry = getInternalRegistryData(registry);
+    return (_a = internalRegistry.data.services.get(name)) !== null &&
+      _a !== void 0
+      ? _a
+      : null;
+  }
+  function getServicesFromRegistryByIds(registry, ids) {
+    const internalRegistry = getInternalRegistryData(registry);
+    const services = [];
+    ids.forEach((id) => {
+      const service = internalRegistry.data.services.get(id);
+      if (service) {
+        services.push(service);
+      }
+    });
+    return services;
   }
 
   // out/services/scopeReconciler.js
@@ -2217,28 +2413,64 @@
         const tempChildEl = document.implementation.createHTMLDocument().body;
         const actualChildEl = findByComponentId(targetScope, childId);
         if (actualChildEl !== null) {
-          reconcileChildren(actualChildEl, tempChildEl);
+          reconcileChildrenFn(actualChildEl, tempChildEl);
           TChildRegistry[childId] = tempChildEl;
         }
       }
       targetScope.innerHTML = "";
-      reconcileChildren(sourceScope, targetScope);
+      reconcileChildrenFn(sourceScope, targetScope);
       for (const childId in TChildRegistry) {
         const actualChildEl = findByComponentId(targetScope, childId);
         if (actualChildEl === null) continue;
         const tempChildEl = TChildRegistry[childId];
-        reconcileChildren(tempChildEl, actualChildEl);
+        reconcileChildrenFn(tempChildEl, actualChildEl);
       }
     };
   }
 
+  // out/services/stagingElement.js
+  function createStagingElement(innerHtml) {
+    const element2 = document.implementation.createHTMLDocument().body;
+    Object.defineProperty(element2, "$plStgCS", {
+      value: false,
+      writable: true,
+      enumerable: false,
+      configurable: false,
+    });
+    if (innerHtml) {
+      element2.innerHTML = innerHtml;
+    }
+    return element2;
+  }
+  function setStagingElementInnerHtml(stagingElement, html) {
+    if (stagingElement.$plStgCS) {
+      throw new PluncError("ERR1");
+    }
+    stagingElement.innerHTML = html;
+  }
+  function getStagingElementInnerHtml(stagingElement) {
+    if (stagingElement.$plStgCS) {
+      throw new PluncError("ERR2");
+    }
+    return stagingElement.innerHTML;
+  }
+  function commitStagingElementTo(stagingElement, targetElement) {
+    if (stagingElement.$plStgCS) {
+      throw new PluncError("ERR3");
+    }
+    while (stagingElement.firstChild) {
+      targetElement.appendChild(stagingElement.firstChild);
+    }
+    stagingElement.$plStgCS = true;
+  }
+
   // out/services/templateService.js
-  function collectTemplateElements(contextElement) {
+  function collectTemplateElementsInnerHtml(contextElement) {
     const templatesMap = /* @__PURE__ */ new Map();
     const templateElements = Array.from(
       contextElement.querySelectorAll("template"),
     );
-    const pluncAttr = `plunc-${GLOBAL_ATTR_FOR_TEMPLATE_NAME}`;
+    const pluncAttr = `${GLOBAL_DIRECTIVE_FOR_TEMPLATE_NAME}`;
     for (const templElement of templateElements) {
       const name = templElement.getAttribute(pluncAttr);
       if (name) {
@@ -2250,139 +2482,150 @@
 
   // out/bootstrap.js
   var contexts = [];
-  var bindContext = makePluncAppContextBinder(
-    resolveConfiguration,
-    createPluncApp,
-    addToLibrary,
+  var createContainer = composePluncAppContainerFactory(
+    createPluncAppInternalRepresentation,
+    createNewComponentAndServiceRegistry,
+    addComponentToRegistry,
+    getComponentFromRegistryById,
+    getComponentsFromRegistryByIds,
+    getAllComponentsFromRegistry,
+    addServiceToRegistry,
+    getServiceFromRegistryById,
+    getServicesFromRegistryByIds,
+    createNewHandlerLibrary,
+    addHandlerToLibrary,
     getServiceHandlerFromLibrary,
     getComponentHandlerFromLibrary,
     getFactoryHandlerFromLibrary,
     getHelperHandlerFromLibrary,
-    addToRegistry,
-    getFromRegistryByIds,
-    getFromRegistryById,
-    getAllFromRegistry,
-    addRecordToLineage,
-    lookupLineage,
-    whoAreTheChildren,
-    whoIsTheParent,
-    whoAreTheSiblings,
+    createComponentLineage,
+    addRecordToComponentLineage,
+    lookupComponentLineage,
+    whoAreTheChildrenOfComponent,
+    whoIsTheParentOfComponent,
+    whoAreTheSiblingsOfComponent,
+    composePluncAttributeKeyFormatter,
+    composePluncAttributeValueGetter,
+    composePluncAttributeValueSetter,
     parseAliasNotation,
+    composeComponentIdGenerator,
     selectElement,
     selectAllElements,
-    composeBlockElementSelector,
     composeComponentSelectorById,
-    composeComponentProxyFactory,
-    createComponentFactory,
-    createScope,
+    composeElementSelectorsWithPluncAttribute,
     composeElementLocker,
     composeIsElementLockedChecker,
+    composeIsEventLockChecker,
+    composeEventLocker,
     disposeElement,
-    resolveExpression,
-    reconcileChildren,
-    cleanChildComponents,
-    makeStagingElement,
+    composeChildComponentCleaner,
+    composeBlockElementSelector,
+    createComponentInternalRepresentationFactory,
+    composeComponentProxyFactory,
+    resolvePluncExpression,
+    createStagingElement,
+    setStagingElementInnerHtml,
+    getStagingElementInnerHtml,
+    commitStagingElementTo,
   );
   var plunc = (window["plunc"] = {
     create: (applicationName, configuration = null) => {
       const instanceId = contexts.length + 1;
-      const appContext = bindContext(
+      const appContainer = createContainer(
         instanceId,
         applicationName,
         configuration,
       );
-      contexts.push(appContext);
+      contexts.push(appContainer);
       return {
-        component: composeComponentBinder(appContext),
-        service: composeServiceBinder(appContext),
-        factory: composeFactoryBinder(appContext),
-        helper: composeHelperBinder(appContext),
+        component: composeComponentBinder(appContainer),
+        service: composeServiceBinder(appContainer),
+        factory: composeFactoryBinder(appContainer),
+        helper: composeHelperBinder(appContainer),
       };
     },
   });
-  function shouldInit(appContext) {
+  function shouldInit(appContainer) {
     return __async(this, null, function* () {
-      return appContext.__getInstance().config.startFn();
+      return appContainer.__getAppRepresentationInstance().config.startFn();
     });
-  }
-  function createStagingAppElement(appCtx, templatesMap) {
-    const appName = appCtx.__getInstance().name;
-    const template = templatesMap.get(appCtx.__getInstance().name);
-    if (template === void 0) {
-      throw new Error(`Missing app template for: ${appName}`);
-    }
-    return makeStagingElement(template);
   }
   function bootstrap(contexts2) {
     return __async(this, null, function* () {
       if (contexts2.length === 0) return;
-      const [appContext, ...rest] = contexts2;
-      if (!(yield shouldInit(appContext))) return;
-      const templatesMap = collectTemplateElements(document.body);
-      const appStagingElement = createStagingAppElement(
-        appContext,
-        templatesMap,
+      const [appContainer, ...rest] = contexts2;
+      if (!(yield shouldInit(appContainer))) return;
+      const templatesMap = collectTemplateElementsInnerHtml(document.body);
+      const appStagingElement = createStagingElement(
+        templatesMap.get(appContainer.__getAppRepresentationInstance().name),
       );
       const componentIdGenerator = composeComponentIdGenerator(
-        appContext.__getInstance(),
+        appContainer.__getAppRepresentationInstance(),
       );
       const referenceAttacher = composeReferenceAttacher(
-        appContext,
+        appContainer,
         selectAllElements,
       );
       const renderComponents = composeComponentRenderer(
-        appContext,
+        appContainer,
         templatesMap,
         selectAllElements,
         componentIdGenerator,
         referenceAttacher,
       );
-      renderComponents(appStagingElement.getElement(), "");
-      const allComponentObjects = appContext.__getAllFromRegistry();
-      for (const componentId in allComponentObjects) {
-        const componentObject = allComponentObjects[componentId];
-        if (!isComponentObject(componentObject)) continue;
+      renderComponents(appStagingElement, "");
+      const allComponentInternalRepresentation =
+        appContainer.__getAllComponentsFromRegistry();
+      for (const componentId in allComponentInternalRepresentation) {
+        const componentInternalRepresentation =
+          allComponentInternalRepresentation[componentId];
         const dependencyResolver = composeDependencyResolver(
-          appContext,
+          appContainer,
           listDependencies,
         );
         invokeComponentHandler(
-          componentObject.name,
-          componentObject,
-          appContext,
+          componentInternalRepresentation.name,
+          componentInternalRepresentation,
+          appContainer,
           listDependencies,
           dependencyResolver,
         );
       }
-      for (const componentId in allComponentObjects) {
-        const componentObject = allComponentObjects[componentId];
-        if (!isComponentObject(componentObject)) continue;
-        const targetComponentElement = appContext.__querySelectComponentById(
-          appStagingElement.getElement(),
-          componentObject.id,
+      for (const componentId in allComponentInternalRepresentation) {
+        const componentInternalRepresentation =
+          allComponentInternalRepresentation[componentId];
+        const targetComponentElement = appContainer.__querySelectComponentById(
+          appStagingElement,
+          componentInternalRepresentation.id,
         );
         if (targetComponentElement === null) continue;
         const tempElement = document.implementation.createHTMLDocument().body;
         tempElement.innerHTML = targetComponentElement.innerHTML;
-        const idsOfChildren = appContext.__whoAreTheChildren(
-          componentObject.id,
+        const idsOfChildren = appContainer.__whoAreTheChildren(
+          componentInternalRepresentation.id,
         );
-        appContext.__clearChildComponents(tempElement, idsOfChildren);
-        const processDirectives = composeDirectivesProcessor(appContext);
-        processDirectives(tempElement, componentObject.scope, false);
+        appContainer.__clearChildComponents(tempElement, idsOfChildren);
+        const processDirectives = composeDirectivesProcessor(appContainer);
+        processDirectives(
+          tempElement,
+          componentInternalRepresentation.scope,
+          false,
+        );
         const reconcileComponent = composeComponentReconciler(
           reconcileChildren,
-          appContext.__querySelectComponentById,
+          appContainer.__querySelectComponentById,
         );
         reconcileComponent(tempElement, targetComponentElement, idsOfChildren);
       }
       const appElement = selectLiveAppRootElement(
-        appContext.__getInstance().name,
+        appContainer.__getAppRepresentationInstance().name,
       );
       appElement.replaceChildren();
-      appStagingElement.commitTo(appElement);
-      appContext.__getInstance().toReady();
-      const readyListeners = appContext.__getInstance().onReadyLtns;
+      appContainer.__commitStagingElementTo(appStagingElement, appElement);
+      appContainer.__getAppRepresentationInstance().emitReady();
+      const readyListeners = appContainer
+        .__getAppRepresentationInstance()
+        .getReadyListeners();
       for (let i2 = 0; i2 < readyListeners.length; i2++) {
         const listener = readyListeners[i2];
         listener();
@@ -2392,3 +2635,4 @@
   }
   DOMHelper.ready(bootstrap.bind(null, contexts));
 })();
+//# sourceMappingURL=plunc.js.map

@@ -1,3 +1,4 @@
+import { PluncAppContainer } from "../container";
 import { composeCheckDirectiveProcessor } from "../directives/check";
 import { composeConditionalDirectivesProcessor } from "../directives/conditionals";
 import { composeDisableDirectiveProcessor } from "../directives/disable";
@@ -6,8 +7,6 @@ import { composeModelDirectiveProcessor } from "../directives/model";
 import { composePlaceholderResolver } from "../directives/placeholders";
 import { composeRepeatDirectiveProcessor } from "../directives/repeat";
 import { composeStyleDirectiveProcessor } from "../directives/style";
-import { ComponentObject } from "../entities/component";
-import { PluncAppContext } from "./contextBinder";
 
 export type DirectivesProcessor = (
   targetElement: HTMLElement,
@@ -15,7 +14,7 @@ export type DirectivesProcessor = (
   skipEventProcessing?: boolean,
 ) => void;
 
-export function composeDirectivesProcessor(appCtx: PluncAppContext) {
+export function composeDirectivesProcessor(appCtx: PluncAppContainer) {
   const processRepeat = composeRepeatDirectiveProcessor(appCtx);
   const processCheck = composeCheckDirectiveProcessor(appCtx);
   const processConditionals = composeConditionalDirectivesProcessor(appCtx);

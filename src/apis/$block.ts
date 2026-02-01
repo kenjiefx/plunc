@@ -1,18 +1,19 @@
-import { ComponentObject } from "../entities/component";
-import { PluncElement } from "../entities/element";
-import { BlockSelectorCreator } from "../services/blockService";
-import { ComponentSelectorById } from "../services/componentService";
-import { PluncAppContext } from "../services/contextBinder";
-import { selectAllElements } from "../services/elementService";
-import { BlockCallback } from "../types";
+import { PluncAppContainer } from "../container";
+import {
+  MissingLiveComponentElementError,
+  PluncError,
+  UsingBlockAPIOutsideAppReadyError,
+} from "../errors/pluncError";
+import { PluncElement } from "../services/pluncElement";
+import { BlockCallback, ComponentInternalRepresentation } from "../types";
 
 export function composeBlockAPI(
-  appCtx: PluncAppContext,
-  componentObject: ComponentObject,
+  appCtx: PluncAppContainer,
+  componentObject: ComponentInternalRepresentation,
 ) {
   return function $block(name: string, callback: BlockCallback<HTMLElement>) {
-    if (!appCtx.__getInstance().isReady()) {
-      throw new Error(`cannot use $block outside $app.ready`);
+    if (!appCtx.__getAppRepresentationInstance().isReady()) {
+      throw new PluncError<UsingBlockAPIOutsideAppReadyError>("ERR8");
     }
     // At this point, the ComponentObject is guaranteed to be fully initialized,
     // and the elements are rendered in the live DOM.
@@ -23,9 +24,7 @@ export function composeBlockAPI(
       componentObject.id,
     );
     if (!liveComponentElement) {
-      throw new Error(
-        `Cannot find the live component element for component id: ${componentObject.id}`,
-      );
+      throw new PluncError<MissingLiveComponentElementError>("ERR9");
     }
     const selectAllBlockElements = appCtx.__createBlockSelector(
       name,

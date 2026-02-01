@@ -1,5 +1,5 @@
+import { ElementSelectorByComponentId } from "../contracts/elements";
 import { ComponentId } from "../types";
-import { ElementSelectorByComponentId } from "./elementService";
 
 /**
  * Replaces the children of a target element with the children
@@ -53,36 +53,18 @@ export function composeComponentReconciler(
     targetScope: HTMLElement,
     childComponentIds: ComponentId[],
   ) {
-    // Preserve references to important children
-    // const preservedChildren = indexChildrenByComponentId(
-    //   targetScope,
-    //   childComponentIds,
-    //   findByComponentId,
-    // );
-
-    // // Reconcile top-level structure
-    // reconcileChildrenFn(sourceScope, targetScope);
-
-    // // Reconcile preserved child subtrees
-    // for (const [id, preservedChild] of preservedChildren) {
-    //   const newChildLocation = findByComponentId(targetScope, id);
-
-    //   if (newChildLocation && newChildLocation !== preservedChild) {
-    //     newChildLocation.replaceWith(preservedChild);
-    //   }
-    // }
     const TChildRegistry: { [key: ComponentId]: HTMLElement } = {};
     for (let i = 0; i < childComponentIds.length; i++) {
       const childId = childComponentIds[i];
       const tempChildEl = document.implementation.createHTMLDocument().body;
       const actualChildEl = findByComponentId(targetScope, childId);
       if (actualChildEl !== null) {
-        reconcileChildren(actualChildEl, tempChildEl);
+        reconcileChildrenFn(actualChildEl, tempChildEl);
         TChildRegistry[childId] = tempChildEl;
       }
     }
     targetScope.innerHTML = "";
-    reconcileChildren(sourceScope, targetScope);
+    reconcileChildrenFn(sourceScope, targetScope);
     for (const childId in TChildRegistry) {
       const actualChildEl = findByComponentId(
         targetScope,
@@ -90,7 +72,7 @@ export function composeComponentReconciler(
       );
       if (actualChildEl === null) continue;
       const tempChildEl = TChildRegistry[childId as ComponentId] as HTMLElement;
-      reconcileChildren(tempChildEl, actualChildEl);
+      reconcileChildrenFn(tempChildEl, actualChildEl);
     }
   };
 }

@@ -1,6 +1,6 @@
-import { PluncAppContext } from "../services/contextBinder";
+import { PluncAppContainer } from "../container";
 
-export function composePlaceholderResolver(appCtx: PluncAppContext) {
+export function composePlaceholderResolver(appCtx: PluncAppContainer) {
   return function resolvePlaceholders(
     elementCtx: HTMLElement,
     dataCtx: Readonly<{ [key: string]: unknown }>,

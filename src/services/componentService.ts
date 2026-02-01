@@ -1,37 +1,87 @@
+import { PluncAppContainer } from "../container";
+import { PluncAttributeKeyFormatter } from "../contracts/attributes";
 import {
   ComponentIdGenerator,
-  ComponentObject,
-  createComponentFactory,
-  isComponentObject,
-} from "../entities/component";
-import { createScope } from "../entities/scope";
-import { TemplatesMap } from "../entities/templates";
-import { ComponentId } from "../types";
-import { PluncAppContext } from "./contextBinder";
+  ComponentReferenceAttacher,
+} from "../contracts/components";
 import {
   ElementSelector,
   ElementsSelector,
-  StagingElementCreator,
-} from "./elementService";
-import { ReferenceAttacher } from "./namedElements";
+  StagingElementFactory,
+} from "../contracts/elements";
 import {
-  BLOCK_ELEMENT_ATTR,
-  COMPONENT_ELEMENT_ATTR,
-  COMPONENT_ID_ATTR,
-  ELEMENT_REFERENCE_ATTR,
-  PluncAttributeKeyFormatter,
+  ComponentExposedAPIProxy,
+  ComponentId,
+  ComponentInternalRepresentation,
+  PluncAppInternalRepresentation,
+  TemplatesMap,
+} from "../types";
+import { AliasNotationParser } from "./aliasNotation";
+import {
+  COMPONENT_ELEMENT_DIRECTIVE,
+  COMPONENT_ID_DIRECTIVE,
 } from "./pluncAttribute";
 
+export function createComponentInternalRepresentationFactory(
+  aliasParser: AliasNotationParser,
+) {
+  return function createComponentInternalRepresentation(
+    id: ComponentId,
+    nameThatMayHaveAlias: string,
+  ): ComponentInternalRepresentation {
+    const { name, alias } = aliasParser(nameThatMayHaveAlias);
+    let proxy: ComponentExposedAPIProxy | null = null;
+    let template: string = `<!-- Component ${id} Template -->`;
+    const scope: { [key: string]: any } = {};
+    function setProxy(p: ComponentExposedAPIProxy): void {
+      proxy = p;
+    }
+    function getProxy(): ComponentExposedAPIProxy | null {
+      return proxy;
+    }
+    function setTemplate(t: string): void {
+      template = t;
+    }
+    function getTemplate(): string {
+      return template;
+    }
+    return {
+      id,
+      name,
+      alias,
+      scope,
+      setProxy,
+      getProxy,
+      setTemplate,
+      getTemplate,
+    };
+  };
+}
+
+export function composeComponentIdGenerator(
+  pluncApp: PluncAppInternalRepresentation,
+) {
+  return function generateComponentId(
+    childIteration: number,
+    parentComponentId: ComponentId,
+  ): ComponentId {
+    if (parentComponentId !== "") {
+      return `${parentComponentId}.${childIteration.toString()}` as ComponentId;
+    }
+    return `${pluncApp.id.toString()}.${childIteration.toString()}` as ComponentId;
+  };
+}
+
 export type RenderContext = {
-  createStagingElementFn: StagingElementCreator;
+  createStagingElementFn: StagingElementFactory;
 };
 
 export function composeComponentRenderer(
-  appCtx: PluncAppContext,
+  appCtx: PluncAppContainer,
   templatesMap: TemplatesMap,
   elementsSelector: ElementsSelector,
   generateComponentId: ComponentIdGenerator,
-  attachReferenceToNamedElementsFn: ReferenceAttacher,
+  attachReferenceToNamedElementsFn: ComponentReferenceAttacher,
 ) {
   function renderComponent(
     componentWrapperElement: HTMLElement,
@@ -43,7 +93,7 @@ export function composeComponentRenderer(
     // Set the component ID attribute on the component wrapper element
     appCtx.__pluncAttributeValueSetter(
       componentWrapperElement,
-      COMPONENT_ID_ATTR,
+      COMPONENT_ID_DIRECTIVE,
       componentId,
     );
 
@@ -52,18 +102,22 @@ export function composeComponentRenderer(
 
     // Create or get the component object
     const componentAlias = getComponentAlias(appCtx, componentWrapperElement);
-    const componentObject = createOrGetComponentObject(
-      componentId,
-      componentName,
-      componentAlias,
-      appCtx,
-    );
+    const componentInternalRepresentation =
+      createOrGetComponentInternalRepresentation(
+        componentId,
+        componentName,
+        componentAlias,
+        appCtx,
+      );
 
     // Check for circular dependencies
-    assertNoCircularDependency(appCtx, componentObject);
+    assertNoCircularDependency(appCtx, componentInternalRepresentation);
 
     // Add the component object to the registry
-    appCtx.__addRecordToRegistry(componentId, componentObject);
+    appCtx.__addComponentToRegistry(
+      componentId,
+      componentInternalRepresentation,
+    );
 
     const componentTemplate = templatesMap.get(componentName);
     if (componentTemplate === undefined) {
@@ -72,7 +126,9 @@ export function composeComponentRenderer(
     componentWrapperElement.innerHTML = componentTemplate;
     attachReferenceToNamedElementsFn(componentId, componentWrapperElement);
     renderComponentsOfParent(componentWrapperElement, componentId);
-    componentObject.template = componentWrapperElement.innerHTML;
+    componentInternalRepresentation.setTemplate(
+      componentWrapperElement.innerHTML,
+    );
   }
 
   function renderComponentsOfParent(
@@ -112,19 +168,14 @@ export function composeComponentRenderer(
  */
 function selectAllComponentElementsInTarget(
   target: HTMLElement,
-  appCtx: PluncAppContext,
+  appCtx: PluncAppContainer,
   elementsSelector: ElementsSelector,
 ) {
   const componentAttributeKey = appCtx.__pluncAttributeKeyFormatter(
-    COMPONENT_ELEMENT_ATTR,
+    COMPONENT_ELEMENT_DIRECTIVE,
   );
   return elementsSelector(target, `[${componentAttributeKey}]`);
 }
-
-export type ComponentSelectorById = (
-  selectContext: HTMLElement,
-  componentId: ComponentId,
-) => HTMLElement | null;
 
 export function composeComponentSelectorById(
   pluncAttributeKeyFormatter: PluncAttributeKeyFormatter,
@@ -134,7 +185,7 @@ export function composeComponentSelectorById(
     selectContext: HTMLElement,
     componentId: ComponentId,
   ) {
-    const attributeKey = pluncAttributeKeyFormatter(COMPONENT_ID_ATTR);
+    const attributeKey = pluncAttributeKeyFormatter(COMPONENT_ID_DIRECTIVE);
     const selector = `[${attributeKey}="${componentId}"]`;
     return elementSelector(selectContext, selector);
   };
@@ -147,7 +198,7 @@ export function composeComponentSelectorById(
  * @returns
  */
 function getComponentName(
-  appCtx: PluncAppContext,
+  appCtx: PluncAppContainer,
   componentElement: HTMLElement,
 ) {
   const componentNameThatMayHaveAlias = getComponentNameThatMayHaveAlias(
@@ -158,7 +209,7 @@ function getComponentName(
 }
 
 function getComponentAlias(
-  appCtx: PluncAppContext,
+  appCtx: PluncAppContainer,
   componentElement: HTMLElement,
 ) {
   const componentNameThatMayHaveAlias = getComponentNameThatMayHaveAlias(
@@ -169,28 +220,30 @@ function getComponentAlias(
 }
 
 function getComponentNameThatMayHaveAlias(
-  appCtx: PluncAppContext,
+  appCtx: PluncAppContainer,
   componentElement: HTMLElement,
 ) {
   const componentNameThatMayHaveAlias = appCtx.__pluncAttributeValueGetter(
     componentElement,
-    COMPONENT_ELEMENT_ATTR,
+    COMPONENT_ELEMENT_DIRECTIVE,
   );
   if (!componentNameThatMayHaveAlias) {
     throw new Error(
-      `Component element is missing the ${COMPONENT_ELEMENT_ATTR} attribute.`,
+      `Component element is missing the ${COMPONENT_ELEMENT_DIRECTIVE} attribute.`,
     );
   }
   return componentNameThatMayHaveAlias;
 }
 
 export function assertNoCircularDependency(
-  appCtx: PluncAppContext,
-  component: ComponentObject,
+  appCtx: PluncAppContainer,
+  componentInternalRepresentation: ComponentInternalRepresentation,
 ) {
-  const name = component.name;
-  const idsOfParents = appCtx.__lookupLineage(component.id);
-  const parentNames = appCtx.__getFromRegistryByIds(idsOfParents);
+  const name = componentInternalRepresentation.name;
+  const idsOfParents = appCtx.__lookupLineage(
+    componentInternalRepresentation.id,
+  );
+  const parentNames = appCtx.__getComponentsFromRegistryByIds(idsOfParents);
   parentNames.forEach((parent) => {
     if (parent && "name" in parent && parent.name === name) {
       throw new Error(`Circular dependency detected for component: ${name}`);
@@ -198,17 +251,17 @@ export function assertNoCircularDependency(
   });
 }
 
-export function createOrGetComponentObject(
+export function createOrGetComponentInternalRepresentation(
   componentId: ComponentId,
   name: string,
   alias: string | null,
-  appCtx: PluncAppContext,
-): ComponentObject {
-  const existingComponent = appCtx.__getFromRegistryById(componentId);
-  if (existingComponent && isComponentObject(existingComponent)) {
+  appCtx: PluncAppContainer,
+): ComponentInternalRepresentation {
+  const existingComponent = appCtx.__getComponentFromRegistryById(componentId);
+  if (existingComponent !== null) {
     return existingComponent;
   }
-  return appCtx.__createComponentObject(
+  return appCtx.__createComponentInternalRepresentation(
     componentId,
     alias ? `${name}:${alias}` : name,
   );

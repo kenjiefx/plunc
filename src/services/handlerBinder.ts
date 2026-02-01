@@ -1,11 +1,11 @@
+import { PluncAppContainer } from "../container";
 import { HandlerFunction } from "../types";
-import { PluncAppContext } from "./contextBinder";
 
 /**
  * Creates a component binder function that binds name to handler in the given app context
  * @param appContext
  */
-export function composeComponentBinder(appContext: PluncAppContext) {
+export function composeComponentBinder(appContext: PluncAppContainer) {
   return function bindComponentToHandler<TComponent>(
     name: string,
     handler: HandlerFunction<unknown[], TComponent>,
@@ -18,7 +18,7 @@ export function composeComponentBinder(appContext: PluncAppContext) {
  * Creates a service binder function that binds name to handler in the given app context
  * @param appContext
  */
-export function composeServiceBinder(appContext: PluncAppContext) {
+export function composeServiceBinder(appContext: PluncAppContainer) {
   return function bindServiceToHandler<TService>(
     name: string,
     handler: HandlerFunction<unknown[], TService>,
@@ -31,7 +31,7 @@ export function composeServiceBinder(appContext: PluncAppContext) {
  * Creates a factory binder function that binds name to handler in the given app context
  * @param appContext
  */
-export function composeFactoryBinder(appContext: PluncAppContext) {
+export function composeFactoryBinder(appContext: PluncAppContainer) {
   return function bindFactoryToHandler<TFactory>(
     name: string,
     handler: HandlerFunction<unknown[], TFactory>,
@@ -44,7 +44,7 @@ export function composeFactoryBinder(appContext: PluncAppContext) {
  * Creates a helper binder function that binds name to handler in the given app context
  * @param appContext
  */
-export function composeHelperBinder(appContext: PluncAppContext) {
+export function composeHelperBinder(appContext: PluncAppContainer) {
   return function bindHelperToHandler<THelper>(
     name: string,
     handler: HandlerFunction<unknown[], THelper>,

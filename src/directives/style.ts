@@ -1,7 +1,7 @@
-import { PluncAppContext } from "../services/contextBinder";
-import { STYLE_ELEMENT_ATTR } from "../services/pluncAttribute";
+import { PluncAppContainer } from "../container";
+import { STYLE_ELEMENT_DIRECTIVE } from "../services/pluncAttribute";
 
-export function composeStyleDirectiveProcessor(appCtx: PluncAppContext) {
+export function composeStyleDirectiveProcessor(appCtx: PluncAppContainer) {
   /**
    * Collects all elements with the `plunc-style` directive and evaluates the
    * expression provided as the attribute's value. The resulting string is
@@ -21,7 +21,7 @@ export function composeStyleDirectiveProcessor(appCtx: PluncAppContext) {
   ) {
     const elementsToProcess = appCtx.__querySelectAllByPluncAttribute(
       elementCtx,
-      STYLE_ELEMENT_ATTR,
+      STYLE_ELEMENT_DIRECTIVE,
     );
     elementsToProcess.forEach((element) => {
       if (appCtx.__isElementLocked(element)) {
@@ -29,7 +29,7 @@ export function composeStyleDirectiveProcessor(appCtx: PluncAppContext) {
       }
       const styleExpression = appCtx.__pluncAttributeValueGetter(
         element,
-        STYLE_ELEMENT_ATTR,
+        STYLE_ELEMENT_DIRECTIVE,
       );
       if (styleExpression === null || styleExpression.trim() === "") {
         return;

@@ -3,23 +3,20 @@ import { composeBlockAPI } from "../apis/$block";
 import { composeParentAPI } from "../apis/$parent";
 import { composePatchAPI } from "../apis/$patch";
 import { composeComponentAPI } from "../apis/$this";
+import { PluncAppContainer } from "../container";
+import { ComponentProxyWrapper } from "../contracts/components";
 import {
-  ComponentExposureProxy,
-  ComponentObject,
-  isComponentObject,
-} from "../entities/component";
-import { ServiceObject } from "../entities/service";
-import {
+  ComponentExposedAPIProxy,
   ComponentId,
+  ComponentInternalRepresentation,
   ComponentScope,
   FactoryHandlerFunction,
   HandlerFunction,
   HelperHandlerFunction,
   ResolvedHandlers,
+  ServiceExternalAPI,
+  ServiceName,
 } from "../types";
-import { ComponentProxyWrapper } from "./componentProxy";
-import { ComponentSelectorById } from "./componentService";
-import { PluncAppContext } from "./contextBinder";
 import {
   APP_ARGUMENT_KEY,
   BLOCK_ARGUMENT_KEY,
@@ -61,7 +58,7 @@ export type DependencyResolverParam =
   | {
       dependencies: Array<string>;
       type: "component";
-      component: ComponentObject;
+      component: ComponentInternalRepresentation;
     }
   | {
       dependencies: Array<string>;
@@ -74,11 +71,11 @@ export type DependencyResolverParam =
   | {
       dependencies: Array<string>;
       type: "helper";
-      component: ComponentObject;
+      component: ComponentInternalRepresentation;
     };
 
 export function composeDependencyResolver(
-  appCtx: PluncAppContext,
+  appCtx: PluncAppContainer,
   listDependenciesFn: typeof listDependencies,
 ) {
   return function resolveDependency(
@@ -96,7 +93,7 @@ export function composeDependencyResolver(
       }
       if (isServiceDependency(appCtx, dependencyKey)) {
         const serviceObject = invokeServiceHandler(
-          dependencyKey,
+          dependencyKey as ServiceName,
           appCtx,
           listDependenciesFn,
           resolveDependency,
@@ -160,17 +157,23 @@ function isAPIDependency(value: string): boolean {
   return value.startsWith("$");
 }
 
-function isServiceDependency(appCtx: PluncAppContext, value: string): boolean {
+function isServiceDependency(
+  appCtx: PluncAppContainer,
+  value: string,
+): boolean {
   const service = appCtx.__getServiceHandler(value);
   return service !== null;
 }
 
-function isFactoryDependency(appCtx: PluncAppContext, value: string): boolean {
+function isFactoryDependency(
+  appCtx: PluncAppContainer,
+  value: string,
+): boolean {
   const factory = appCtx.__getFactoryHandler(value);
   return factory !== null;
 }
 
-function isHelperDependency(appCtx: PluncAppContext, value: string): boolean {
+function isHelperDependency(appCtx: PluncAppContainer, value: string): boolean {
   const helper = appCtx.__getHelperHandler(value);
   return helper !== null;
 }
@@ -187,7 +190,7 @@ export function resolveScopeParam(
 export function resolveAPIDependency(
   dependencyKey: string,
   param: DependencyResolverParam,
-  appCtx: PluncAppContext,
+  appCtx: PluncAppContainer,
 ) {
   if (param.type === "service" || param.type === "factory") {
     return {};
@@ -234,9 +237,9 @@ export function resolveAPIDependency(
  *               the acyclic dependency rule.
  */
 export function assertIsNotDependeningOnItsParents(
-  component: ComponentObject,
+  component: ComponentInternalRepresentation,
   dependencyKey: string,
-  appCtx: PluncAppContext,
+  appCtx: PluncAppContainer,
   options: { tryAlias: boolean },
 ) {
   const parentNames = recursivelyGetParentNames(appCtx, component.id, options);
@@ -249,15 +252,15 @@ export function assertIsNotDependeningOnItsParents(
 }
 
 function recursivelyGetParentNames(
-  appCtx: PluncAppContext,
+  appCtx: PluncAppContainer,
   componentId: ComponentId,
   options: { tryAlias: boolean },
 ): Set<string> {
   const parentNames = new Set<string>();
   const parentId = appCtx.__whoIsTheParent(componentId);
   if (parentId !== null) {
-    const parent = appCtx.__getFromRegistryById(parentId);
-    if (parent !== null && isComponentObject(parent)) {
+    const parent = appCtx.__getComponentFromRegistryById(parentId);
+    if (parent !== null) {
       if (options.tryAlias) {
         if (parent.alias !== null) {
           parentNames.add(parent.alias);
@@ -274,8 +277,8 @@ function recursivelyGetParentNames(
 
 export function resolveComponentDependencyWithNameOrAlias(
   dependencyKey: string,
-  component: ComponentObject,
-  appCtx: PluncAppContext,
+  component: ComponentInternalRepresentation,
+  appCtx: PluncAppContainer,
 ) {
   function execute({ withAlias }: { withAlias: boolean }) {
     // Before we resolve any component dependency, we need to make sure
@@ -302,10 +305,10 @@ export function resolveComponentDependencyWithNameOrAlias(
 
 export function resolveComponentDependency(
   dependencyKey: string,
-  component: ComponentObject,
-  appCtx: PluncAppContext,
+  component: ComponentInternalRepresentation,
+  appCtx: PluncAppContainer,
   options: { matchUsingAlias: boolean },
-): Record<ComponentId, ComponentObject> | null {
+): Record<ComponentId, ComponentInternalRepresentation> | null {
   if (component.name === dependencyKey) {
     throw new Error(
       `Circular dependency detected: ` +
@@ -337,16 +340,16 @@ export function resolveComponentDependency(
 }
 
 function matchChildComponentsByName(
-  parent: ComponentObject,
+  parent: ComponentInternalRepresentation,
   name: string,
-  appCtx: PluncAppContext,
+  appCtx: PluncAppContainer,
   options: { matchUsingAlias: boolean },
-): Array<ComponentObject> {
+): Array<ComponentInternalRepresentation> {
   const childrenIds = appCtx.__whoAreTheChildren(parent.id);
-  const matchedChildren: Array<ComponentObject> = [];
+  const matchedChildren: Array<ComponentInternalRepresentation> = [];
   childrenIds.forEach((childId) => {
-    const child = appCtx.__getFromRegistryById(childId);
-    if (child !== null && isComponentObject(child)) {
+    const child = appCtx.__getComponentFromRegistryById(childId);
+    if (child !== null) {
       if (options.matchUsingAlias && child.alias === name) {
         matchedChildren.push(child);
         return;
@@ -362,12 +365,13 @@ function matchChildComponentsByName(
 
 export function invokeComponentHandler(
   name: string,
-  componentObject: ComponentObject,
-  appCtx: PluncAppContext,
+  ComponentInternalRepresentation: ComponentInternalRepresentation,
+  appCtx: PluncAppContainer,
   listDependenciesFn: typeof listDependencies,
   resolveDependenciesFn: ReturnType<typeof composeDependencyResolver>,
-): ComponentExposureProxy {
-  const proxy: ComponentExposureProxy | null = componentObject.proxy;
+): ComponentExposedAPIProxy {
+  const proxy: ComponentExposedAPIProxy | null =
+    ComponentInternalRepresentation.getProxy();
   if (proxy !== null) {
     // To avoid re-invoking the component handler if the proxy already exists
     // (i.e., the component has already been initialized) we'll return the existing proxy
@@ -381,16 +385,16 @@ export function invokeComponentHandler(
   const injectables = resolveDependenciesFn({
     dependencies: dependencies,
     type: "component",
-    component: componentObject,
+    component: ComponentInternalRepresentation,
   });
-  const exposedProxy = handler(...injectables) as ComponentExposureProxy;
-  componentObject.proxy = exposedProxy;
+  const exposedProxy = handler(...injectables) as ComponentExposedAPIProxy;
+  ComponentInternalRepresentation.setProxy(exposedProxy);
   return exposedProxy;
 }
 
 export function invokeFactoryHandler(
   name: string,
-  appCtx: PluncAppContext,
+  appCtx: PluncAppContainer,
   listDependenciesFn: typeof listDependencies,
   resolveDependenciesFn: ReturnType<typeof composeDependencyResolver>,
 ): new (...args: any[]) => any {
@@ -411,21 +415,14 @@ export function invokeFactoryHandler(
 }
 
 export function invokeServiceHandler(
-  name: string,
-  appCtx: PluncAppContext,
+  name: ServiceName,
+  appCtx: PluncAppContainer,
   listDependenciesFn: typeof listDependencies,
   resolveDependenciesFn: ReturnType<typeof composeDependencyResolver>,
-): ServiceObject {
-  const serviceOrComponentObject = appCtx.__getFromRegistryById(name);
+): ServiceExternalAPI {
+  const serviceInternalRepresentation =
+    appCtx.__getServiceFromRegistryById(name);
 
-  // Services operate as singletons, so if it exists in the registry
-  // it returns the same instance
-  if (serviceOrComponentObject !== null) {
-    if (isComponentObject(serviceOrComponentObject)) {
-      throw new Error(`Service ${name} is also a component`);
-    }
-    return serviceOrComponentObject;
-  }
   const handler = appCtx.__getServiceHandler(name);
   if (handler === null) {
     throw new Error(`Missing service handler ${name}`);
@@ -435,20 +432,27 @@ export function invokeServiceHandler(
     dependencies: dependencies,
     type: "service",
   });
-  const serviceObject = handler(...injectables) as ServiceObject;
-  if (serviceObject === undefined || serviceObject === null) {
-    throw new Error(`Service ${name} must not return ${typeof serviceObject}`);
+  let serviceExternalApi = handler(...injectables) as ServiceExternalAPI;
+  if (serviceExternalApi === undefined || serviceExternalApi === null) {
+    // We should not throw an error if the service handler
+    // does not return anything. Instead, we just create
+    // an empty service external API object. This is prevent
+    // executing the same service handler multiple times.
+    // Why it executes multiple times? Because each time
+    // a component depends on the service, the handler
+    // is invoked again if we do not store the result.
+    serviceExternalApi = {} as ServiceExternalAPI;
   }
-  appCtx.__addRecordToRegistry(name, serviceObject);
-  return serviceObject;
+  appCtx.__addServiceToRegistry(name, serviceExternalApi);
+  return serviceExternalApi;
 }
 
 export function invokeHelperHandler(
   name: string,
-  appCtx: PluncAppContext,
+  appCtx: PluncAppContainer,
   listDependenciesFn: typeof listDependencies,
   resolveDependenciesFn: ReturnType<typeof composeDependencyResolver>,
-  component: ComponentObject,
+  component: ComponentInternalRepresentation,
 ): Record<string, any> {
   let handler = appCtx.__getHelperHandler(name);
   if (handler === null) {

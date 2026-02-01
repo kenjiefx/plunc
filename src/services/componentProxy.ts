@@ -1,31 +1,22 @@
-import { ComponentObject } from "../entities/component";
-import { ComponentId } from "../types";
-
-/**
- * Composes a proxy for accessing component's exposed members.
- * Why a proxy? To provide a dynamic access to the component's exposed members,
- * allowing for lazy evaluation and error handling when accessing undefined members.
- * @param wrapper
- * @returns
- */
-export type ComponentProxyFactory = (wrapper: {
-  [id in ComponentId]: ComponentObject;
-}) => { [id in ComponentId]: ComponentObject };
-
-export type ComponentProxyWrapper = {
-  [id in ComponentId]: ComponentObject;
-};
+import {
+  ComponentProxyFactory,
+  ComponentProxyWrapper,
+} from "../contracts/components";
+import { ComponentId, ComponentInternalRepresentation } from "../types";
 
 export function composeComponentProxyFactory(): ComponentProxyFactory {
   return function newComponentProxy(wrapper: ComponentProxyWrapper) {
-    const handler: ProxyHandler<Record<ComponentId, ComponentObject>> = {
+    const handler: ProxyHandler<
+      Record<ComponentId, ComponentInternalRepresentation>
+    > = {
       get: function get(
-        target: { [id: ComponentId]: ComponentObject },
+        target: { [id: ComponentId]: ComponentInternalRepresentation },
         name: string,
       ) {
         for (const id in target) {
-          const component: ComponentObject = target[id as ComponentId];
-          const exposed = component.proxy;
+          const component: ComponentInternalRepresentation =
+            target[id as ComponentId];
+          const exposed = component.getProxy();
           if (exposed === null) {
             const name = component.name;
             throw new Error(

@@ -1,6 +1,10 @@
-import { ComponentObject } from "../entities/component";
-import { PluncElement } from "../entities/element";
-import { PluncAppContext } from "../services/contextBinder";
+import { PluncAppContainer } from "../container";
+import {
+  PluncError,
+  UsingThisAPIOutsideAppReadyError,
+} from "../errors/pluncError";
+import { PluncElement } from "../services/pluncElement";
+import { ComponentInternalRepresentation } from "../types";
 
 /**
  * Component API reflects the current component context.
@@ -9,8 +13,8 @@ import { PluncAppContext } from "../services/contextBinder";
  * @returns
  */
 export function composeComponentAPI(
-  appCtx: PluncAppContext,
-  componentObject: ComponentObject,
+  appCtx: PluncAppContainer,
+  componentObject: ComponentInternalRepresentation,
 ) {
   return function $this() {
     return {
@@ -18,10 +22,8 @@ export function composeComponentAPI(
       name: componentObject.name,
       alias: componentObject.alias,
       element: (): PluncElement | null => {
-        if (!appCtx.__getInstance().isReady()) {
-          throw new Error(
-            `Cannot invoke component.get().element() outside $app.ready`,
-          );
+        if (!appCtx.__getAppRepresentationInstance().isReady()) {
+          throw new PluncError<UsingThisAPIOutsideAppReadyError>("ERR12");
         }
         const elementNode = appCtx.__querySelectComponentById(
           // Components are id'd uniquely accross different app instances,

@@ -1,5 +1,5 @@
 import { expect } from "chai";
-import { resolveExpression } from "./expResolver";
+import { resolvePluncExpression as resolveExpression } from "./expressionResolver";
 
 describe("resolveExpression", () => {
   it("should resolve basic field", () => {

@@ -20,54 +20,11 @@ export type PluncAppConfiguration = {
   endFn?: () => Promise<void>;
 };
 
+/**
+ * Requires all fields of a type to be non-optional.
+ */
 export type RequireAllFields<T> = {
   [K in keyof T]-?: T[K];
-};
-
-export type PluncAppInstance = {
-  /**
-   * Registers a component in your application. You can pass the type or interface of the
-   * component `<TComponent>`.
-   * @param name - The name of the component
-   * @param handler - The callback function that returns methods and properties implemented by `TComponent`
-   */
-  component: <TComponent>(
-    name: string,
-    handler: HandlerFunction<unknown[], TComponent>,
-  ) => void;
-
-  /**
-   * Registers a service in your application. You can pass the type or interface
-   * of the service `<TService>`
-   * @param name  - The name of the service
-   * @param handler - The callback function that returns methods and properties implemented by `TService`
-   */
-  service: <TService>(
-    name: string,
-    handler: HandlerFunction<unknown[], TService>,
-  ) => void;
-
-  /**
-   * Registers a factory in your application. You can pass the type or interface
-   * of the factory `<TFactory>`
-   * @param name - The name of the factory
-   * @param handler - The callback function that returns methods and properties implemented by `TFactory`
-   */
-  factory: <TFactory>(
-    name: string,
-    handler: FactoryHandlerFunction<any[]>,
-  ) => void;
-
-  /**
-   * Registers a helper in your application. You can pass the type or interface
-   * of the service `<THelper>`
-   * @param name  - The name of the service
-   * @param handler - The callback function that returns methods and properties implemented by `THelper`
-   */
-  helper: <THelper>(
-    name: string,
-    handler: HelperHandlerFunction<unknown[], THelper>,
-  ) => void;
 };
 
 /**
@@ -80,18 +37,18 @@ export type ResolvedHandlers =
   | void;
 
 /** Service and component handler functions */
-export type HandlerFunction<TDependecies extends unknown[], TObject> = (
+export type HandlerFunction<TDependecies extends any[], TObject> = (
   ...args: TDependecies
 ) => TObject;
 
 /** Factory handler function */
-export type FactoryHandlerFunction<TDependecies extends unknown[]> = (
+export type FactoryHandlerFunction<TDependecies extends any[]> = (
   ...args: TDependecies
 ) => new (...args: any[]) => any;
 
 /** Helper handler function */
 export type HelperHandlerFunction<
-  TDependecies extends unknown[],
+  TDependecies extends any[],
   TObject,
 > = HandlerFunction<TDependecies, TObject | void>;
 
@@ -104,30 +61,61 @@ export type PluncHandlers = {
     : never;
 }[keyof PluncAppInstance];
 
+export type PluncAppInstance = {
+  /**
+   * Registers a component in your application. You can pass the type or interface of the
+   * component `<TComponent>`.
+   * @param name - The name of the component
+   * @param handler - The callback function that returns methods and properties implemented by `TComponent`
+   */
+  component: <TComponent>(
+    name: string,
+    handler: HandlerFunction<any[], TComponent>,
+  ) => void;
+
+  /**
+   * Registers a service in your application. You can pass the type or interface
+   * of the service `<TService>`
+   * @param name  - The name of the service
+   * @param handler - The callback function that returns methods and properties implemented by `TService`
+   */
+  service: <TService>(
+    name: string,
+    handler: HandlerFunction<any[], TService>,
+  ) => void;
+};
+
+/**
+ * Component unique identifier
+ */
 export type ComponentId = string & { separator: "." };
 
-export type ComponentScope = Record<string, any>;
+/**
+ * Component scope type
+ */
+export type ComponentScope = Record<string, unknown>;
 
+/**
+ * Plunc attribute key type
+ */
 export type PluncAttributeKey = string & { plunc_prefix: true };
 
 /**
- * Holds a map of component's parents and keys, each represented
- * by its own component id
- **/
-export type ComponentFamilyTree = {
-  [key: ComponentId]: {
-    parent: ComponentId | null;
-    children: Array<ComponentId>;
-  };
-};
-
+ * HTML5 Date type in the format of "YYYY-MM-DD"
+ */
 export type HTML5Date = string & { format: "YYYY-MM-DD" };
 
+/**
+ * HTML5 Time type in the format of "HH:MM"
+ */
 export type HTML5Time = string & { format: "HH:MM" };
 
-export type SupportedEvents = "click" | "change" | "keyup";
+/**
+ * All supported DOM events by PluncJS as of now
+ */
+export type PluncSupportedEvents = "click" | "change" | "keyup";
 
-export interface PluncElementInterface<TElement extends Element> {
+export interface PluncElementInterface<TElement extends HTMLElement> {
   /**
    * A reference to the element itself.
    * (Shouldn't be minified, as publicly-accessible)
@@ -155,11 +143,11 @@ export interface PluncElementInterface<TElement extends Element> {
 }
 
 /** Block API requires call back function */
-export type BlockCallback<TElement extends Element> = (
+export type BlockCallback<TElement extends HTMLElement> = (
   element: PluncElementInterface<TElement> | null,
 ) => void;
 
-export type BlockAPI = <TElement extends Element>(
+export type BlockAPI = <TElement extends HTMLElement>(
   elementName: string,
   callback: BlockCallback<TElement>,
 ) => void;
@@ -168,9 +156,84 @@ export type BlockAPI = <TElement extends Element>(
  * Staging HTMLElements are used during rendering before they are
  * injected into the actual DOM.
  */
-export type StagingHTMLElement = Readonly<{
-  getInnerHtml: () => string;
-  setInnerHtml: (html: string) => void;
-  getElement: () => HTMLElement;
-  commitTo: (targetElement: HTMLElement) => void;
-}>;
+export type StagingHTMLElement = HTMLElement & {
+  /**
+   * Indicates whether the staging element has been committed to the DOM.
+   * plStgCS: Plunc Staging Committed Status
+   */
+  $plStgCS: boolean;
+};
+
+/**
+ * A library of handler functions for components, services, factories, and helpers.
+ * Implementation details are hidden to prevent external manipulation.
+ */
+export const LibraryBrand: unique symbol = Symbol("LibraryBrand");
+export type Library = {
+  readonly [LibraryBrand]: true;
+};
+
+/**
+ * Holds a map of component's parents and keys, each represented
+ * by its own component id. Implementation details are hidden to prevent
+ * external manipulation.
+ **/
+export const ComponentFamilyTreeBrand: unique symbol = Symbol(
+  "ComponentFamilyTreeBrand",
+);
+export type ComponentFamilyTree = {
+  readonly [ComponentFamilyTreeBrand]: true;
+};
+
+/**
+ * Holds a registry of ComponentInternalRepresentations and
+ * ServiceInternalRepresentations. Implementation details are hidden
+ * to prevent external manipulation.
+ */
+export const RegistryBrand: unique symbol = Symbol("RegistryBrand");
+export type Registry = {
+  readonly [RegistryBrand]: true;
+};
+
+/**
+ * Represents a proxy for accessing a component's exposed members.
+ */
+export type ComponentExposedAPIProxy = Record<string, unknown> & {
+  __brand__: Symbol;
+};
+
+export type ComponentInternalRepresentation = {
+  readonly id: ComponentId;
+  readonly name: string;
+  readonly alias: string | null;
+  scope: ComponentScope;
+  setProxy(proxy: ComponentExposedAPIProxy): void;
+  getProxy(): ComponentExposedAPIProxy | null;
+  setTemplate(template: string): void;
+  getTemplate(): string;
+};
+
+export type ServiceName = string & { __brand__: Symbol };
+
+/**
+ * The resulting object after invoking a service handler.
+ */
+export type ServiceExternalAPI = {
+  [key: string]: any;
+} & {
+  __brand__: Symbol;
+};
+
+export type PluncAppInternalRepresentation = {
+  config: Readonly<RequireAllFields<PluncAppConfiguration>>;
+  library: Library;
+  registry: Registry;
+  name: string;
+  id: number;
+  getReadyListeners: () => Array<() => Promise<void>>;
+  emitReady: () => void;
+  isReady: () => boolean;
+  onReady: (listener: () => Promise<void>) => void;
+};
+
+export type TemplatesMap = Map<string, string>;

@@ -1,32 +1,24 @@
-import { ComponentObject } from "../entities/component";
-import { PluncApp } from "../entities/plunc";
-import { BlockSelectorCreator } from "../services/blockService";
+import { PluncAppContainer } from "../container";
 import {
-  ComponentSelectorById,
-  composeComponentRenderer,
-} from "../services/componentService";
-import { PluncAppContext } from "../services/contextBinder";
+  MissingBlockElementInComponentError,
+  MissingLiveComponentElementError,
+  PluncError,
+  UsingPatchAPIOutsideAppReadyError,
+} from "../errors/pluncError";
 import { composeDirectivesProcessor } from "../services/directivesProcessor";
 import {
-  selectAllElements,
-  selectLiveAppRootElement,
-} from "../services/elementService";
-import { composeReferenceAttacher } from "../services/namedElements";
-import {
-  BLOCK_ELEMENT_ATTR,
-  COMPONENT_ID_ATTR,
-  ELEMENT_REFERENCE_ATTR,
-  STRAWBERRY_ID_ATTR,
+  BLOCK_ELEMENT_DIRECTIVE,
+  COMPONENT_REFERENCE_DIRECTIVE,
 } from "../services/pluncAttribute";
-import { collectTemplateElements } from "../services/templateService";
+import { ComponentInternalRepresentation } from "../types";
 
 export function composePatchAPI(
-  appCtx: PluncAppContext,
-  componentObject: ComponentObject,
+  appCtx: PluncAppContainer,
+  componentObject: ComponentInternalRepresentation,
 ) {
   return async function $patch(blockName: string | null = null) {
-    if (!appCtx.__getInstance().isReady()) {
-      throw new Error(`cannot use $patch outside $app.ready`);
+    if (!appCtx.__getAppRepresentationInstance().isReady()) {
+      throw new PluncError<UsingPatchAPIOutsideAppReadyError>("ERR10");
     }
     // At this point, the ComponentObject is guaranteed to be fully initialized,
     // and the elements are rendered in the live DOM.
@@ -38,9 +30,7 @@ export function composePatchAPI(
       componentObject.id,
     );
     if (!liveComponentElement) {
-      throw new Error(
-        `Cannot find the live component element for component id: ${componentObject.id}`,
-      );
+      throw new PluncError<MissingLiveComponentElementError>("ERR9");
     }
     const { targetType, patchTargetNodes } = getPatchTargetNodesAndType(
       blockName,
@@ -55,7 +45,10 @@ export function composePatchAPI(
       let elementBindFrom = appCtx.__createStagingElement();
 
       if (targetType === "COMPONENT") {
-        elementBindFrom.setInnerHtml(componentObject.template);
+        appCtx.__setStagingElementInnerHtml(
+          elementBindFrom,
+          componentObject.getTemplate(),
+        );
       } else {
         if (blockName === null) continue;
         const blockTemplate = getBlockTemplate(
@@ -63,19 +56,15 @@ export function composePatchAPI(
           componentObject,
           blockName,
         );
-        elementBindFrom.setInnerHtml(blockTemplate);
+        appCtx.__setStagingElementInnerHtml(elementBindFrom, blockTemplate);
       }
 
       const processDirectives = composeDirectivesProcessor(appCtx);
-      processDirectives(
-        elementBindFrom.getElement(),
-        componentObject.scope,
-        false,
-      );
+      processDirectives(elementBindFrom, componentObject.scope, false);
 
       // Now reconcile the changes from elementBindFrom to elementBindTo
       elementBindTo.innerHTML = "";
-      elementBindFrom.commitTo(elementBindTo);
+      appCtx.__commitStagingElementTo(elementBindFrom, elementBindTo);
     }
   };
 }
@@ -83,8 +72,8 @@ export function composePatchAPI(
 function getPatchTargetNodesAndType(
   blockName: string | null,
   liveComponentElement: HTMLElement,
-  componentObject: ComponentObject,
-  appCtx: PluncAppContext,
+  componentObject: ComponentInternalRepresentation,
+  appCtx: PluncAppContainer,
 ): {
   targetType: "BLOCK" | "COMPONENT";
   patchTargetNodes: Array<HTMLElement>;
@@ -107,27 +96,26 @@ function getPatchTargetNodesAndType(
 }
 
 export function getBlockTemplate(
-  appCtx: PluncAppContext,
-  componentObject: ComponentObject,
+  appCtx: PluncAppContainer,
+  componentObject: ComponentInternalRepresentation,
   blockName: string,
 ) {
   const stagingElement = appCtx.__createStagingElement(
-    componentObject.template,
+    componentObject.getTemplate(),
   );
-  const blockDirective =
-    appCtx.__pluncAttributeKeyFormatter(BLOCK_ELEMENT_ATTR);
+  const blockDirective = appCtx.__pluncAttributeKeyFormatter(
+    BLOCK_ELEMENT_DIRECTIVE,
+  );
   const referenceDirective = appCtx.__pluncAttributeKeyFormatter(
-    ELEMENT_REFERENCE_ATTR,
+    COMPONENT_REFERENCE_DIRECTIVE,
   );
   const specificBlockSelector = `[${blockDirective}="${blockName}"][${referenceDirective}="${componentObject.id}"]`;
   const blockElement = appCtx.__querySelectAllElements(
-    stagingElement.getElement(),
+    stagingElement,
     specificBlockSelector,
   );
   if (blockElement.length === 0) {
-    throw new Error(
-      `Cannot find block element with name "${blockName}" in component "${componentObject.name}".`,
-    );
+    throw new PluncError<MissingBlockElementInComponentError>("ERR11");
   }
   return blockElement[0].innerHTML;
 }

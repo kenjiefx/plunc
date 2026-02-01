@@ -1,41 +1,38 @@
-import { ComponentObject } from "../entities/component";
-import { ElementsSelector } from "./elementService";
+import { PluncAttributeKeyFormatter } from "../contracts/attributes";
+import { ElementsSelector } from "../contracts/elements";
+import { ComponentInternalRepresentation } from "../types";
 import {
-  BLOCK_ELEMENT_ATTR,
-  ELEMENT_REFERENCE_ATTR,
-  PluncAttributeKeyFormatter,
+  BLOCK_ELEMENT_DIRECTIVE,
+  COMPONENT_REFERENCE_DIRECTIVE,
 } from "./pluncAttribute";
 
+/**
+ * Creates selector string for block element using attributes.
+ * The selector targets elements with specific block name and component reference.
+ */
 function createSelectorUsingAttributes(
   name: string,
-  componentObject: ComponentObject,
+  componentInternalRepresentation: ComponentInternalRepresentation,
   pluncAttributeKeyFormatter: PluncAttributeKeyFormatter,
 ) {
-  const blockAttributeKey = pluncAttributeKeyFormatter(BLOCK_ELEMENT_ATTR);
+  const blockAttributeKey = pluncAttributeKeyFormatter(BLOCK_ELEMENT_DIRECTIVE);
   const referenceAttributeKey = pluncAttributeKeyFormatter(
-    ELEMENT_REFERENCE_ATTR,
+    COMPONENT_REFERENCE_DIRECTIVE,
   );
-  return `[${blockAttributeKey}="${name}"][${referenceAttributeKey}="${componentObject.id}"]`;
+  return `[${blockAttributeKey}="${name}"][${referenceAttributeKey}="${componentInternalRepresentation.id}"]`;
 }
-
-export type BlockSelector = (context: HTMLElement) => HTMLElement[];
-
-export type BlockSelectorCreator = (
-  name: string,
-  componentObject: ComponentObject,
-) => BlockSelector;
 
 export function composeBlockElementSelector(
   pluncAttributeKeyFormatter: PluncAttributeKeyFormatter,
   querySelectAllElements: ElementsSelector,
 ) {
   return function composeSelector(
-    name: string,
-    componentObject: ComponentObject,
+    blockName: string,
+    componentInternalRepresentation: ComponentInternalRepresentation,
   ) {
     const blockSelector = createSelectorUsingAttributes(
-      name,
-      componentObject,
+      blockName,
+      componentInternalRepresentation,
       pluncAttributeKeyFormatter,
     );
     return function selectElements(context: HTMLElement): HTMLElement[] {

@@ -1,11 +1,11 @@
 import { assert } from "chai";
-import { PluncAppContext } from "../services/contextBinder";
 import {
   getChildObjectExp,
   getParentObjAsObject,
-} from "../services/expResolver";
-import { MODEL_ELEMENT_ATTR } from "../services/pluncAttribute";
+} from "../services/expressionResolver";
+import { MODEL_ELEMENT_DIRECTIVE } from "../services/pluncAttribute";
 import { HTML5Date, HTML5Time } from "../types";
+import { PluncAppContainer } from "../container";
 
 /**
  * The HTML5 <input type="date"> element typically returns
@@ -238,21 +238,24 @@ export function handleTimeInputModel(
   }
 }
 
-export function composeModelDirectiveProcessor(appCtx: PluncAppContext) {
+export function composeModelDirectiveProcessor(appCtx: PluncAppContainer) {
   return function processModelDirective(
     elementCtx: HTMLElement,
     dataCtx: { [key: string]: unknown },
   ) {
     const elementsToProcess = appCtx.__querySelectAllByPluncAttribute(
       elementCtx,
-      MODEL_ELEMENT_ATTR,
+      MODEL_ELEMENT_DIRECTIVE,
     );
     elementsToProcess.forEach((element) => {
       const modelExpression = appCtx.__pluncAttributeValueGetter(
         element,
-        MODEL_ELEMENT_ATTR,
+        MODEL_ELEMENT_DIRECTIVE,
       );
       if (modelExpression === null || modelExpression.trim() === "") {
+        return;
+      }
+      if (appCtx.__isElementLocked(element)) {
         return;
       }
       let evaluationResult: unknown = appCtx.__resolveExpression(
@@ -316,6 +319,8 @@ export function composeModelDirectiveProcessor(appCtx: PluncAppContext) {
           assignModelValue(dataCtx, modelExpression, value);
         });
       }
+
+      appCtx.__lockElement(element);
     });
   };
 }

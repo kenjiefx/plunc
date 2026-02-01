@@ -1882,6 +1882,7 @@ Special Credits to the amazing authors of DomReady libarary!
     return new Promise(async (resolve, reject) => {
       try {
         await e59(element, component, instance);
+        // repeat here
         await x28(element, component, instance);
         await e30(element, component, instance);
         await a64(element, component, instance);
@@ -1994,6 +1995,8 @@ Special Credits to the amazing authors of DomReady libarary!
               const type = node.type;
               /** Radio buttons and checkboxes */
               if (type === "radio" || type === "checkbox") {
+                console.log({ scope, argument, evaluated });
+                debugger;
                 IsValueTypeOfString = false;
                 evaluated === undefined
                   ? a40(scope, argument, false)
@@ -2181,6 +2184,7 @@ Special Credits to the amazing authors of DomReady libarary!
                 [aliasObjName]: repeatableObj[key],
               });
               const child = x44();
+              console.log({ template });
               child.innerHTML = template;
               await x62(child, dummy, instance, true);
               a46(child, repeatable);

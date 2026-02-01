@@ -1,14 +1,14 @@
-import { PluncAppContext } from "../services/contextBinder";
-import { DISABLE_ELEMENT_ATTR } from "../services/pluncAttribute";
+import { PluncAppContainer } from "../container";
+import { DISABLE_ELEMENT_DIRECTIVE } from "../services/pluncAttribute";
 
-export function composeDisableDirectiveProcessor(appCtx: PluncAppContext) {
+export function composeDisableDirectiveProcessor(appCtx: PluncAppContainer) {
   return function processDisableDirective(
     elementCtx: HTMLElement,
     dataCtx: Readonly<{ [key: string]: unknown }>,
   ) {
     const elementsToProcess = appCtx.__querySelectAllByPluncAttribute(
       elementCtx,
-      DISABLE_ELEMENT_ATTR,
+      DISABLE_ELEMENT_DIRECTIVE,
     );
     elementsToProcess.forEach((element) => {
       if (appCtx.__isElementLocked(element)) {
@@ -16,7 +16,7 @@ export function composeDisableDirectiveProcessor(appCtx: PluncAppContext) {
       }
       const disableExpression = appCtx.__pluncAttributeValueGetter(
         element,
-        DISABLE_ELEMENT_ATTR,
+        DISABLE_ELEMENT_DIRECTIVE,
       );
       if (disableExpression === null || disableExpression.trim() === "") {
         return;

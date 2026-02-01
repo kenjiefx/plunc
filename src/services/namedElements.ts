@@ -1,21 +1,19 @@
-import { PluncAppContext } from "./contextBinder";
-import { ElementsSelector } from "./elementService";
-import { BLOCK_ELEMENT_ATTR, ELEMENT_REFERENCE_ATTR } from "./pluncAttribute";
-
-export type ReferenceAttacher = (
-  referenceId: string,
-  component: HTMLElement,
-) => void;
+import { PluncAppContainer } from "../container";
+import { ElementsSelector } from "../contracts/elements";
+import {
+  BLOCK_ELEMENT_DIRECTIVE,
+  COMPONENT_REFERENCE_DIRECTIVE,
+} from "./pluncAttribute";
 
 export function composeReferenceAttacher(
-  appCtx: PluncAppContext,
+  appCtx: PluncAppContainer,
   elementsSelector: ElementsSelector,
 ) {
   return function attachReferenceToNamedElements(
     referenceId: string,
     component: HTMLElement,
   ) {
-    [BLOCK_ELEMENT_ATTR].forEach((attribute) => {
+    [BLOCK_ELEMENT_DIRECTIVE].forEach((attribute) => {
       const namedElementAttribute =
         appCtx.__pluncAttributeKeyFormatter(attribute);
       const attributableElements = elementsSelector(
@@ -25,7 +23,7 @@ export function composeReferenceAttacher(
       attributableElements.forEach((element) => {
         appCtx.__pluncAttributeValueSetter(
           element,
-          ELEMENT_REFERENCE_ATTR,
+          COMPONENT_REFERENCE_DIRECTIVE,
           referenceId,
         );
       });
