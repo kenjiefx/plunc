@@ -7,13 +7,32 @@ import {
   getFactoryHandlerFromLibrary,
   getHelperHandlerFromLibrary,
 } from "./library";
+import {
+  AddToLibraryFunction,
+  CreateLibraryFunction,
+  GetComponentHandlerFromLibraryFunction,
+  GetFactoryHandlerFromLibraryFunction,
+  GetHelperHandlerFromLibraryFunction,
+  GetServiceHandlerFromLibraryFunction,
+} from "../core/library.interface";
 
 describe("Library Module Tests", () => {
   // Since the library functions are straightforward wrappers around
   // internal data structures, we will test the add and get functions
   // together to ensure they work as expected.
   it("should add and retrieve handlers correctly", () => {
-    const library = createNewHandlerLibrary();
+    const newHandlerLibrary: CreateLibraryFunction = createNewHandlerLibrary;
+    const library = newHandlerLibrary();
+
+    const addHandler: AddToLibraryFunction = addHandlerToLibrary;
+    const getServiceHandler: GetServiceHandlerFromLibraryFunction =
+      getServiceHandlerFromLibrary;
+    const getComponentHandler: GetComponentHandlerFromLibraryFunction =
+      getComponentHandlerFromLibrary;
+    const getFactoryHandler: GetFactoryHandlerFromLibraryFunction =
+      getFactoryHandlerFromLibrary;
+    const getHelperHandler: GetHelperHandlerFromLibraryFunction =
+      getHelperHandlerFromLibrary;
 
     // Define some mock handlers
     const componentHandler = (props: any) => `<div>${props.content}</div>`;
@@ -21,22 +40,19 @@ describe("Library Module Tests", () => {
     const factoryHandler = () => (config: any) => ({ config });
     const helperHandler = (input: any, options: any) => input.toUpperCase();
     // Add handlers to the library
-    addHandlerToLibrary(library, "MyComponent", "component", componentHandler);
-    addHandlerToLibrary(library, "MyService", "service", serviceHandler);
-    addHandlerToLibrary(library, "MyFactory", "factory", factoryHandler);
-    addHandlerToLibrary(library, "MyHelper", "helper", helperHandler);
+    addHandler(library, "MyComponent", "component", componentHandler);
+    addHandler(library, "MyService", "service", serviceHandler);
+    addHandler(library, "MyFactory", "factory", factoryHandler);
+    addHandler(library, "MyHelper", "helper", helperHandler);
 
     // Retrieve and verify the handlers
-    const retrievedComponent = getComponentHandlerFromLibrary(
-      library,
-      "MyComponent",
-    );
+    const retrievedComponent = getComponentHandler(library, "MyComponent");
     expect(retrievedComponent).to.equal(componentHandler);
-    const retrievedService = getServiceHandlerFromLibrary(library, "MyService");
+    const retrievedService = getServiceHandler(library, "MyService");
     expect(retrievedService).to.equal(serviceHandler);
-    const retrievedFactory = getFactoryHandlerFromLibrary(library, "MyFactory");
+    const retrievedFactory = getFactoryHandler(library, "MyFactory");
     expect(retrievedFactory).to.equal(factoryHandler);
-    const retrievedHelper = getHelperHandlerFromLibrary(library, "MyHelper");
+    const retrievedHelper = getHelperHandler(library, "MyHelper");
     expect(retrievedHelper).to.equal(helperHandler);
   });
 

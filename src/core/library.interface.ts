@@ -10,7 +10,10 @@ export type AddToLibraryFunction = (
   library: Library,
   name: string,
   type: "component" | "service" | "factory" | "helper",
-  handler: Function,
+  handler:
+    | HandlerFunction<any, any>
+    | FactoryHandlerFunction<any>
+    | HelperHandlerFunction<any, any>,
 ) => void;
 
 export type GetComponentHandlerFromLibraryFunction = (
