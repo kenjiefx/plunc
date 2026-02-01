@@ -14,7 +14,7 @@ import {
   GetFactoryHandlerFromLibraryFunction,
   GetHelperHandlerFromLibraryFunction,
   GetServiceHandlerFromLibraryFunction,
-} from "../core/library.interface";
+} from "../contracts/library.interface";
 
 describe("Library Module Tests", () => {
   // Since the library functions are straightforward wrappers around
