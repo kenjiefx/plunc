@@ -101,17 +101,6 @@ export type ComponentScope = Record<string, unknown>;
 export type PluncAttributeKey = string & { plunc_prefix: true };
 
 /**
- * Holds a map of component's parents and keys, each represented
- * by its own component id
- **/
-export type ComponentFamilyTree = {
-  [key: ComponentId]: {
-    parent: ComponentId | null;
-    children: Array<ComponentId>;
-  };
-};
-
-/**
  * HTML5 Date type in the format of "YYYY-MM-DD"
  */
 export type HTML5Date = string & { format: "YYYY-MM-DD" };
@@ -178,9 +167,18 @@ export type StagingHTMLElement = HTMLElement & {
 /**
  * A library of handler functions for components, services, factories, and helpers.
  * Implementation details are hidden to prevent external manipulation.
- * Branded with a unique symbol to avoid structural typing issues.
  */
 export declare const LibraryBrand: unique symbol;
 export type Library = {
   readonly [LibraryBrand]: true;
+};
+
+/**
+ * Holds a map of component's parents and keys, each represented
+ * by its own component id. Implementation details are hidden to prevent
+ * external manipulation.
+ **/
+export declare const ComponentFamilyTreeBrand: unique symbol;
+export type ComponentFamilyTree = {
+  readonly [ComponentFamilyTreeBrand]: true;
 };
