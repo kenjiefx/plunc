@@ -216,3 +216,14 @@ export type ServiceId = string & { separator: ":" };
 export type ServiceInternalRepresentation = {
   readonly title: string;
 };
+
+export type PluncAppInternalRepresentation = {
+  config: Readonly<RequireAllFields<PluncAppConfiguration>>;
+  library: Library;
+  registry: Registry;
+  name: string;
+  id: number;
+  emitReady: () => void;
+  isReady: () => boolean;
+  onReady: (listener: () => Promise<void>) => void;
+};
