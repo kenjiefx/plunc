@@ -174,3 +174,13 @@ export type StagingHTMLElement = HTMLElement & {
    */
   $plStgCS: boolean;
 };
+
+/**
+ * A library of handler functions for components, services, factories, and helpers.
+ * Implementation details are hidden to prevent external manipulation.
+ * Branded with a unique symbol to avoid structural typing issues.
+ */
+export declare const LibraryBrand: unique symbol;
+export type Library = {
+  readonly [LibraryBrand]: true;
+};
