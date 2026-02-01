@@ -1,2638 +1,1661 @@
 "use strict";
 (() => {
-  var __async = (__this, __arguments, generator) => {
-    return new Promise((resolve, reject) => {
-      var fulfilled = (value) => {
-        try {
-          step(generator.next(value));
-        } catch (e) {
-          reject(e);
-        }
-      };
-      var rejected = (value) => {
-        try {
-          step(generator.throw(value));
-        } catch (e) {
-          reject(e);
-        }
-      };
-      var step = (x) =>
-        x.done
-          ? resolve(x.value)
-          : Promise.resolve(x.value).then(fulfilled, rejected);
-      step((generator = generator.apply(__this, __arguments)).next());
-    });
-  };
-
-  // out/services/configuration.js
-  function resolveConfiguration(config) {
-    var _a, _b, _c;
-    const startFn = () => new Promise((resolve) => resolve(true));
-    const endFn = () => new Promise((resolve) => resolve());
-    return {
-      prefix:
-        (_a = config === null || config === void 0 ? void 0 : config.prefix) !==
-          null && _a !== void 0
-          ? _a
-          : "plunc-",
-      startFn:
-        (_b =
-          config === null || config === void 0 ? void 0 : config.startFn) !==
-          null && _b !== void 0
-          ? _b
-          : startFn,
-      endFn:
-        (_c = config === null || config === void 0 ? void 0 : config.endFn) !==
-          null && _c !== void 0
-          ? _c
-          : endFn,
-    };
-  }
-
-  // out/container.js
-  function composePluncAppContainerFactory(
-    createAppRepresentationInstance,
-    createRegistryFn,
-    addComponentToRegistryFn,
-    getComponentByIdFromRegistryFn,
-    getComponentsByIdFromRegistryFn,
-    getAllComponentsFromRegistryFn,
-    addServiceToRegistryFn,
-    getServiceByIdFromRegistryFn,
-    getServicesByIdFromRegistryFn,
-    createLibraryFn,
-    addToLibraryFn,
-    getServiceHandlerFn,
-    getComponentHandlerFn,
-    getFactoryHandlerFn,
-    getHelperHandlerFn,
-    createLineageFn,
-    addParentChildRecordFn,
-    getComponentAncestorsFn,
-    getComponentChildrenFn,
-    getComponentParentFn,
-    getComponentSiblingsFn,
-    composePluncAttributeKeyFormatterFn,
-    composePluncAttributeKeyGetterFn,
-    composePluncAttributeKeySetterFn,
-    aliasNotationParserFn,
-    composeComponentIdGeneratorFn,
-    selectElementFn,
-    selectAllElementsFn,
-    composeComponentSelectorByIdFn,
-    composeElementSelectorsWithPluncAttributeFn,
-    composeElementLockerFn,
-    composeIsElementLockedCheckerFn,
-    composeIsEventLockCheckerFn,
-    composeEventLockerFn,
-    disposeElementFn,
-    composeChildComponentCleanerFn,
-    composeBlockElementSelectorFn,
-    createComponentInternalRepresentationFactoryFn,
-    composeComponentProxyFactoryFn,
-    pluncExpressionResolverFn,
-    createStagingElementFn,
-    setStagingElementInnerHtmlFn,
-    getStagingElementInnerHtmlFn,
-    commitStagingElementToFn,
-  ) {
-    return function createPluncAppContainer(
-      instanceId,
-      applicationName,
-      configuration = null,
-    ) {
-      const requiredConfiguration = resolveConfiguration(configuration);
-      const registry = createRegistryFn();
-      const library = createLibraryFn();
-      const lineage = createLineageFn();
-      const appRepresentation = createAppRepresentationInstance(
-        instanceId,
-        applicationName,
-        requiredConfiguration,
-        library,
-        registry,
-      );
-      const pluncAttributeKeyFormatter = composePluncAttributeKeyFormatterFn(
-        requiredConfiguration,
-      );
-      const pluncAttributeValueGetter = composePluncAttributeKeyGetterFn(
-        pluncAttributeKeyFormatter,
-      );
-      const pluncAttributeValueSetter = composePluncAttributeKeySetterFn(
-        pluncAttributeKeyFormatter,
-      );
-      const blockSelectorFactory = composeBlockElementSelectorFn(
-        pluncAttributeKeyFormatter,
-        selectAllElementsFn,
-      );
-      const componentFactory = createComponentInternalRepresentationFactoryFn(
-        aliasNotationParserFn,
-      );
-      const selectComponentById = composeComponentSelectorByIdFn(
-        pluncAttributeKeyFormatter,
-        selectElementFn,
-      );
-      const componentProxyFactory = composeComponentProxyFactoryFn();
-      return {
-        __getAppRepresentationInstance: () => appRepresentation,
-        __addToLibrary: function (name, type, handler) {
-          addToLibraryFn(library, name, type, handler);
-        },
-        __getServiceHandler: function (name) {
-          return getServiceHandlerFn(library, name);
-        },
-        __getComponentHandler: function (name) {
-          return getComponentHandlerFn(library, name);
-        },
-        __getFactoryHandler: function (name) {
-          return getFactoryHandlerFn(library, name);
-        },
-        __getHelperHandler: function (name) {
-          return getHelperHandlerFn(library, name);
-        },
-        __addComponentToRegistry: function (id, component) {
-          addComponentToRegistryFn(registry, id, component);
-        },
-        __getComponentFromRegistryById: function (id) {
-          return getComponentByIdFromRegistryFn(registry, id);
-        },
-        __getComponentsFromRegistryByIds: function (ids) {
-          return getComponentsByIdFromRegistryFn(registry, ids);
-        },
-        __getAllComponentsFromRegistry: function () {
-          return getAllComponentsFromRegistryFn(registry);
-        },
-        __addServiceToRegistry: function (name, service) {
-          addServiceToRegistryFn(registry, name, service);
-        },
-        __getServiceFromRegistryById: function (name) {
-          return getServiceByIdFromRegistryFn(registry, name);
-        },
-        __getServicesFromRegistryByIds: function (ids) {
-          return getServicesByIdFromRegistryFn(registry, ids);
-        },
-        __addRecordToLineage: function (parent, child) {
-          addParentChildRecordFn(lineage, parent, child);
-        },
-        __lookupLineage: function (child) {
-          return getComponentAncestorsFn(lineage, child);
-        },
-        __whoAreTheChildren: function (parent) {
-          return getComponentChildrenFn(lineage, parent);
-        },
-        __whoIsTheParent: function (child) {
-          return getComponentParentFn(lineage, child);
-        },
-        __whoAreTheSiblings: function (child) {
-          return getComponentSiblingsFn(lineage, child);
-        },
-        __pluncAttributeKeyFormatter: pluncAttributeKeyFormatter,
-        __pluncAttributeValueGetter: pluncAttributeValueGetter,
-        __pluncAttributeValueSetter: pluncAttributeValueSetter,
-        __aliasNotationParser: aliasNotationParserFn,
-        __generateComponentId: composeComponentIdGeneratorFn(appRepresentation),
-        __querySelectElement: selectElementFn,
-        __querySelectAllElements: selectAllElementsFn,
-        __querySelectComponentById: selectComponentById,
-        __querySelectAllByPluncAttribute:
-          composeElementSelectorsWithPluncAttributeFn(
-            selectAllElementsFn,
-            pluncAttributeKeyFormatter,
-          ),
-        __lockElement: composeElementLockerFn(pluncAttributeKeyFormatter),
-        __isElementLocked: composeIsElementLockedCheckerFn(
-          pluncAttributeKeyFormatter,
-        ),
-        __lockElementToEvent: composeEventLockerFn(pluncAttributeKeyFormatter),
-        __isElementLockedToEvent: composeIsEventLockCheckerFn(
-          pluncAttributeKeyFormatter,
-        ),
-        __trashElement: disposeElementFn,
-        __clearChildComponents:
-          composeChildComponentCleanerFn(selectComponentById),
-        __createBlockSelector: blockSelectorFactory,
-        __createComponentInternalRepresentation: componentFactory,
-        __createComponentProxy: componentProxyFactory,
-        __resolveExpression: pluncExpressionResolverFn,
-        __createStagingElement: createStagingElementFn,
-        __setStagingElementInnerHtml: setStagingElementInnerHtmlFn,
-        __getStagingElementInnerHtml: getStagingElementInnerHtmlFn,
-        __commitStagingElementTo: commitStagingElementToFn,
-      };
-    };
-  }
-
-  // out/services/aliasNotation.js
-  function parseAliasNotation(name) {
-    var _a;
-    return {
-      name: name.split(" as ")[0],
-      alias: (_a = name.split(" as ")[1]) !== null && _a !== void 0 ? _a : null,
-    };
-  }
-
-  // out/services/pluncAttribute.js
-  var GLOBAL_DIRECTIVE_FOR_APP_NAME = "plunc-app";
-  var GLOBAL_DIRECTIVE_FOR_TEMPLATE_NAME = "plunc-name";
-  var GLOBAL_LOCK_ID_DIRECTIVE = "plunc-set";
-  var GLOBAL_LOCK_ID_DIRECTIVE_VALUE = "true";
-  var GLOBAL_EVENT_LOCK_DIRECTIVE = "plunc-event";
-  var COMPONENT_ELEMENT_DIRECTIVE = "[PREFIX]component";
-  var COMPONENT_ID_DIRECTIVE = "[PREFIX]cid";
-  var REPEAT_ELEMENT_DIRECTIVE = "[PREFIX]repeat";
-  var IF_ELEMENT_DIRECTIVE = "[PREFIX]if";
-  var CHECK_ELEMENT_DIRECTIVE = "[PREFIX]check";
-  var STYLE_ELEMENT_DIRECTIVE = "[PREFIX]style";
-  var MODEL_ELEMENT_DIRECTIVE = "[PREFIX]model";
-  var DISABLE_ELEMENT_DIRECTIVE = "[PREFIX]disable";
-  var CLICK_EVENT_DIRECTIVE = "[PREFIX]click";
-  var CHANGE_EVENT_DIRECTIVE = "[PREFIX]change";
-  var TOUCH_EVENT_DIRECTIVE = "[PREFIX]touch";
-  var BLOCK_ELEMENT_DIRECTIVE = "[PREFIX]block";
-  var COMPONENT_REFERENCE_DIRECTIVE = "[PREFIX]rid";
-  var SCOPE_ARGUMENT_KEY = "$scope";
-  var BLOCK_ARGUMENT_KEY = "$block";
-  var PARENT_ARGUMENT_KEY = "$parent";
-  var PATCH_ARGUMENT_KEY = "$patch";
-  var APP_ARGUMENT_KEY = "$app";
-  var COMPONENT_ARGUMENT_KEY = "$this";
-  var REPEAT_REFERENCE_TOKEN = "$$index";
-  function composePluncAttributeKeyFormatter(config) {
-    const prefix = config.prefix;
-    return function pluncAttributeFormatter(key) {
-      return key.replace("[PREFIX]", prefix);
-    };
-  }
-
-  // out/services/blockService.js
-  function createSelectorUsingAttributes(
-    name,
-    componentInternalRepresentation,
-    pluncAttributeKeyFormatter,
-  ) {
-    const blockAttributeKey = pluncAttributeKeyFormatter(
-      BLOCK_ELEMENT_DIRECTIVE,
-    );
-    const referenceAttributeKey = pluncAttributeKeyFormatter(
-      COMPONENT_REFERENCE_DIRECTIVE,
-    );
-    return `[${blockAttributeKey}="${name}"][${referenceAttributeKey}="${componentInternalRepresentation.id}"]`;
-  }
-  function composeBlockElementSelector(
-    pluncAttributeKeyFormatter,
-    querySelectAllElements,
-  ) {
-    return function composeSelector(
-      blockName,
-      componentInternalRepresentation,
-    ) {
-      const blockSelector = createSelectorUsingAttributes(
-        blockName,
-        componentInternalRepresentation,
-        pluncAttributeKeyFormatter,
-      );
-      return function selectElements(context) {
-        return querySelectAllElements(context, blockSelector);
-      };
-    };
-  }
-
-  // out/services/componentProxy.js
-  function composeComponentProxyFactory() {
-    return function newComponentProxy(wrapper) {
-      const handler = {
-        get: function get(target, name) {
-          for (const id in target) {
-            const component = target[id];
-            const exposed = component.getProxy();
-            if (exposed === null) {
-              const name2 = component.name;
-              throw new Error(
-                `Cannot invoke component "${name2}}" before $app is ready`,
-              );
-            }
-            if (!(name in exposed)) {
-              throw new Error(
-                `Calling undefined member "${name}" in component "${component.name}"`,
-              );
-            }
-            return exposed[name];
+  var __async = (n, e, t) =>
+    new Promise((r, o) => {
+      var c = (n) => {
+          try {
+            u(t.next(n));
+          } catch (n) {
+            o(n);
           }
         },
-      };
-      return new Proxy(wrapper, handler);
+        i = (n) => {
+          try {
+            u(t.throw(n));
+          } catch (n) {
+            o(n);
+          }
+        },
+        u = (n) => (n.done ? r(n.value) : Promise.resolve(n.value).then(c, i));
+      u((t = t.apply(n, e)).next());
+    });
+  function be4(n) {
+    var e, t, r;
+    return {
+      prefix:
+        null !== (e = null == n ? void 0 : n.prefix) && void 0 !== e
+          ? e
+          : "plunc-",
+      startFn:
+        null !== (t = null == n ? void 0 : n.startFn) && void 0 !== t
+          ? t
+          : () => new Promise((n) => n(!0)),
+      endFn:
+        null !== (r = null == n ? void 0 : n.endFn) && void 0 !== r
+          ? r
+          : () => new Promise((n) => n()),
     };
   }
-
-  // out/services/componentService.js
-  function createComponentInternalRepresentationFactory(aliasParser) {
-    return function createComponentInternalRepresentation(
-      id,
-      nameThatMayHaveAlias,
-    ) {
-      const { name, alias } = aliasParser(nameThatMayHaveAlias);
-      let proxy = null;
-      let template = `<!-- Component ${id} Template -->`;
-      const scope = {};
-      function setProxy(p) {
-        proxy = p;
-      }
-      function getProxy() {
-        return proxy;
-      }
-      function setTemplate(t) {
-        template = t;
-      }
-      function getTemplate() {
-        return template;
-      }
-      return {
-        id,
-        name,
-        alias,
-        scope,
-        setProxy,
-        getProxy,
-        setTemplate,
-        getTemplate,
-      };
-    };
-  }
-  function composeComponentIdGenerator(pluncApp) {
-    return function generateComponentId(childIteration, parentComponentId) {
-      if (parentComponentId !== "") {
-        return `${parentComponentId}.${childIteration.toString()}`;
-      }
-      return `${pluncApp.id.toString()}.${childIteration.toString()}`;
-    };
-  }
-  function composeComponentRenderer(
-    appCtx,
-    templatesMap,
-    elementsSelector,
-    generateComponentId,
-    attachReferenceToNamedElementsFn,
+  function ad1(
+    n,
+    e,
+    t,
+    r,
+    o,
+    c,
+    i,
+    u,
+    a,
+    s,
+    l,
+    f,
+    d,
+    E,
+    p,
+    g,
+    b,
+    m,
+    h,
+    T,
+    y,
+    C,
+    R,
+    _,
+    v,
+    I,
+    w,
+    L,
+    M,
+    N,
+    A,
+    O,
+    P,
+    $,
+    D,
+    V,
+    x,
+    H,
+    S,
+    F,
+    B,
+    K,
+    G,
+    k,
   ) {
-    function renderComponent(
-      componentWrapperElement,
-      componentId,
-      parentComponentId,
-    ) {
-      const componentName = getComponentName(appCtx, componentWrapperElement);
-      appCtx.__pluncAttributeValueSetter(
-        componentWrapperElement,
-        COMPONENT_ID_DIRECTIVE,
-        componentId,
-      );
-      appCtx.__addRecordToLineage(parentComponentId, componentId);
-      const componentAlias = getComponentAlias(appCtx, componentWrapperElement);
-      const componentInternalRepresentation =
-        createOrGetComponentInternalRepresentation(
-          componentId,
-          componentName,
-          componentAlias,
-          appCtx,
-        );
-      assertNoCircularDependency(appCtx, componentInternalRepresentation);
-      appCtx.__addComponentToRegistry(
-        componentId,
-        componentInternalRepresentation,
-      );
-      const componentTemplate = templatesMap.get(componentName);
-      if (componentTemplate === void 0) {
-        throw new Error(`Template not found for component: ${componentName}`);
-      }
-      componentWrapperElement.innerHTML = componentTemplate;
-      attachReferenceToNamedElementsFn(componentId, componentWrapperElement);
-      renderComponentsOfParent(componentWrapperElement, componentId);
-      componentInternalRepresentation.setTemplate(
-        componentWrapperElement.innerHTML,
-      );
-    }
-    function renderComponentsOfParent(parentElement, parentComponentId) {
-      const componentWrapperElements = selectAllComponentElementsInTarget(
-        parentElement,
-        appCtx,
-        elementsSelector,
-      );
-      let componentIterator = 0;
-      componentWrapperElements.forEach((componentWrapperElement) => {
-        const componentId = generateComponentId(
-          componentIterator,
-          parentComponentId,
-        );
-        componentIterator++;
-        renderComponent(
-          componentWrapperElement,
-          componentId,
-          parentComponentId,
-        );
+    return function (j, U, Y = null) {
+      const X = be4(Y),
+        q = e(),
+        z = s(),
+        J = g(),
+        W = n(j, U, X, z, q),
+        Q = C(X),
+        Z = R(Q),
+        nn = _(Q),
+        en = x(Q, L),
+        tn = H(v),
+        rn = M(Q, w),
+        on = S();
+      return {
+        dc0: () => W,
+        ac0: function (n, e, t) {
+          l(z, n, e, t);
+        },
+        dg0: function (n) {
+          return f(z, n);
+        },
+        ag0: function (n) {
+          return d(z, n);
+        },
+        ac1: function (n) {
+          return E(z, n);
+        },
+        af1: function (n) {
+          return p(z, n);
+        },
+        gd0: function (n, e) {
+          t(q, n, e);
+        },
+        be0: function (n) {
+          return r(q, n);
+        },
+        cd0: function (n) {
+          return o(q, n);
+        },
+        cg0: function () {
+          return c(q);
+        },
+        ac2: function (n, e) {
+          i(q, n, e);
+        },
+        be2: function (n) {
+          return u(q, n);
+        },
+        cd1: function (n) {
+          return a(q, n);
+        },
+        cb0: function (n, e) {
+          b(J, n, e);
+        },
+        gg0: function (n) {
+          return m(J, n);
+        },
+        ea0: function (n) {
+          return h(J, n);
+        },
+        ce0: function (n) {
+          return T(J, n);
+        },
+        ge0: function (n) {
+          return y(J, n);
+        },
+        gf0: Q,
+        ba0: Z,
+        ca1: nn,
+        bg1: v,
+        ag1: I(W),
+        dg1: w,
+        af0: L,
+        bd0: rn,
+        ee0: N(L, Q),
+        df1: A(Q),
+        de0: O(Q),
+        gc1: $(Q),
+        ag2: P(Q),
+        fc1: D,
+        ec0: V(rn),
+        da0: en,
+        ga0: tn,
+        gc0: on,
+        fe0: F,
+        fc0: B,
+        ae0: K,
+        bc0: G,
+        bf1: k,
+      };
+    };
+  }
+  function de3(n) {
+    var e;
+    return {
+      name: n.split(" as ")[0],
+      alias: null !== (e = n.split(" as ")[1]) && void 0 !== e ? e : null,
+    };
+  }
+  var GLOBAL_DIRECTIVE_FOR_APP_NAME = "plunc-app",
+    GLOBAL_DIRECTIVE_FOR_TEMPLATE_NAME = "plunc-name",
+    GLOBAL_LOCK_ID_DIRECTIVE = "plunc-set",
+    GLOBAL_LOCK_ID_DIRECTIVE_VALUE = "true",
+    GLOBAL_EVENT_LOCK_DIRECTIVE = "plunc-event",
+    COMPONENT_ELEMENT_DIRECTIVE = "[PREFIX]component",
+    COMPONENT_ID_DIRECTIVE = "[PREFIX]cid",
+    REPEAT_ELEMENT_DIRECTIVE = "[PREFIX]repeat",
+    IF_ELEMENT_DIRECTIVE = "[PREFIX]if",
+    CHECK_ELEMENT_DIRECTIVE = "[PREFIX]check",
+    STYLE_ELEMENT_DIRECTIVE = "[PREFIX]style",
+    MODEL_ELEMENT_DIRECTIVE = "[PREFIX]model",
+    DISABLE_ELEMENT_DIRECTIVE = "[PREFIX]disable",
+    CLICK_EVENT_DIRECTIVE = "[PREFIX]click",
+    CHANGE_EVENT_DIRECTIVE = "[PREFIX]change",
+    TOUCH_EVENT_DIRECTIVE = "[PREFIX]touch",
+    BLOCK_ELEMENT_DIRECTIVE = "[PREFIX]block",
+    COMPONENT_REFERENCE_DIRECTIVE = "[PREFIX]rid",
+    SCOPE_ARGUMENT_KEY = "$scope",
+    BLOCK_ARGUMENT_KEY = "$block",
+    PARENT_ARGUMENT_KEY = "$parent",
+    PATCH_ARGUMENT_KEY = "$patch",
+    APP_ARGUMENT_KEY = "$app",
+    COMPONENT_ARGUMENT_KEY = "$this",
+    REPEAT_REFERENCE_TOKEN = "$$index";
+  function fd1(n) {
+    const e = n.prefix;
+    return function (n) {
+      return n.replace("[PREFIX]", e);
+    };
+  }
+  function ga1(n, e, t) {
+    return `[${t(BLOCK_ELEMENT_DIRECTIVE)}="${n}"][${t(COMPONENT_REFERENCE_DIRECTIVE)}="${e.id}"]`;
+  }
+  function be3(n, e) {
+    return function (t, r) {
+      const o = ga1(t, r, n);
+      return function (n) {
+        return e(n, o);
+      };
+    };
+  }
+  function gf1() {
+    return function (n) {
+      return new Proxy(n, {
+        get: function (n, e) {
+          for (const t in n) {
+            const r = n[t],
+              o = r.getProxy();
+            if (null === o) {
+              const n = r.name;
+              throw new Error(
+                `Cannot invoke component "${n}}" before $app is ready`,
+              );
+            }
+            if (!(e in o))
+              throw new Error(
+                `Calling undefined member "${e}" in component "${r.name}"`,
+              );
+            return o[e];
+          }
+        },
+      });
+    };
+  }
+  function ae1(n) {
+    return function (e, t) {
+      const { name: r, alias: o } = n(t);
+      let c = null,
+        i = `\x3c!-- Component ${e} Template --\x3e`;
+      return {
+        id: e,
+        name: r,
+        alias: o,
+        scope: {},
+        setProxy: function (n) {
+          c = n;
+        },
+        getProxy: function () {
+          return c;
+        },
+        setTemplate: function (n) {
+          i = n;
+        },
+        getTemplate: function () {
+          return i;
+        },
+      };
+    };
+  }
+  function fe2(n) {
+    return function (e, t) {
+      return "" !== t
+        ? `${t}.${e.toString()}`
+        : `${n.id.toString()}.${e.toString()}`;
+    };
+  }
+  function bd2(n, e, t, r, o) {
+    function c(i, u) {
+      const a = bb1(i, n, t);
+      let s = 0;
+      a.forEach((t) => {
+        const i = r(s, u);
+        (s++,
+          (function (t, r, i) {
+            const u = cg2(n, t);
+            (n.ca1(t, COMPONENT_ID_DIRECTIVE, r), n.cb0(i, r));
+            const a = db1(r, u, ee2(n, t), n);
+            (cb2(n, a), n.gd0(r, a));
+            const s = e.get(u);
+            if (void 0 === s)
+              throw new Error(`Template not found for component: ${u}`);
+            ((t.innerHTML = s), o(r, t), c(t, r), a.setTemplate(t.innerHTML));
+          })(t, i, u));
       });
     }
-    return renderComponentsOfParent;
+    return c;
   }
-  function selectAllComponentElementsInTarget(
-    target,
-    appCtx,
-    elementsSelector,
-  ) {
-    const componentAttributeKey = appCtx.__pluncAttributeKeyFormatter(
-      COMPONENT_ELEMENT_DIRECTIVE,
-    );
-    return elementsSelector(target, `[${componentAttributeKey}]`);
+  function bb1(n, e, t) {
+    return t(n, `[${e.gf0(COMPONENT_ELEMENT_DIRECTIVE)}]`);
   }
-  function composeComponentSelectorById(
-    pluncAttributeKeyFormatter,
-    elementSelector,
-  ) {
-    return function selectComponentById(selectContext, componentId) {
-      const attributeKey = pluncAttributeKeyFormatter(COMPONENT_ID_DIRECTIVE);
-      const selector = `[${attributeKey}="${componentId}"]`;
-      return elementSelector(selectContext, selector);
+  function bd3(n, e) {
+    return function (t, r) {
+      const o = n(COMPONENT_ID_DIRECTIVE);
+      return e(t, `[${o}="${r}"]`);
     };
   }
-  function getComponentName(appCtx, componentElement) {
-    const componentNameThatMayHaveAlias = getComponentNameThatMayHaveAlias(
-      appCtx,
-      componentElement,
-    );
-    return appCtx.__aliasNotationParser(componentNameThatMayHaveAlias).name;
+  function cg2(n, e) {
+    const t = fb2(n, e);
+    return n.bg1(t).name;
   }
-  function getComponentAlias(appCtx, componentElement) {
-    const componentNameThatMayHaveAlias = getComponentNameThatMayHaveAlias(
-      appCtx,
-      componentElement,
-    );
-    return appCtx.__aliasNotationParser(componentNameThatMayHaveAlias).alias;
+  function ee2(n, e) {
+    const t = fb2(n, e);
+    return n.bg1(t).alias;
   }
-  function getComponentNameThatMayHaveAlias(appCtx, componentElement) {
-    const componentNameThatMayHaveAlias = appCtx.__pluncAttributeValueGetter(
-      componentElement,
-      COMPONENT_ELEMENT_DIRECTIVE,
-    );
-    if (!componentNameThatMayHaveAlias) {
+  function fb2(n, e) {
+    const t = n.ba0(e, COMPONENT_ELEMENT_DIRECTIVE);
+    if (!t)
       throw new Error(
         `Component element is missing the ${COMPONENT_ELEMENT_DIRECTIVE} attribute.`,
       );
-    }
-    return componentNameThatMayHaveAlias;
+    return t;
   }
-  function assertNoCircularDependency(appCtx, componentInternalRepresentation) {
-    const name = componentInternalRepresentation.name;
-    const idsOfParents = appCtx.__lookupLineage(
-      componentInternalRepresentation.id,
-    );
-    const parentNames = appCtx.__getComponentsFromRegistryByIds(idsOfParents);
-    parentNames.forEach((parent) => {
-      if (parent && "name" in parent && parent.name === name) {
-        throw new Error(`Circular dependency detected for component: ${name}`);
-      }
+  function cb2(n, e) {
+    const t = e.name,
+      r = n.gg0(e.id);
+    n.cd0(r).forEach((n) => {
+      if (n && "name" in n && n.name === t)
+        throw new Error(`Circular dependency detected for component: ${t}`);
     });
   }
-  function createOrGetComponentInternalRepresentation(
-    componentId,
-    name,
-    alias,
-    appCtx,
-  ) {
-    const existingComponent =
-      appCtx.__getComponentFromRegistryById(componentId);
-    if (existingComponent !== null) {
-      return existingComponent;
-    }
-    return appCtx.__createComponentInternalRepresentation(
-      componentId,
-      alias ? `${name}:${alias}` : name,
-    );
+  function db1(n, e, t, r) {
+    const o = r.be0(n);
+    return null !== o ? o : r.ga0(n, t ? `${e}:${t}` : e);
   }
-
-  // out/directives/check.js
-  function composeCheckDirectiveProcessor(appCtx) {
-    return function processCheckDirective(elementCtx, dataCtx2) {
-      const elementsToProcess = appCtx.__querySelectAllByPluncAttribute(
-        elementCtx,
-        CHECK_ELEMENT_DIRECTIVE,
-      );
-      elementsToProcess.forEach((element2) => {
-        if (appCtx.__isElementLocked(element2)) {
-          return;
-        }
-        const checkExpression = appCtx.__pluncAttributeValueGetter(
-          element2,
-          CHECK_ELEMENT_DIRECTIVE,
-        );
-        if (checkExpression === null || checkExpression.trim() === "") {
-          return;
-        }
-        const evaluatedResult = appCtx.__resolveExpression(
-          dataCtx2,
-          checkExpression,
-        );
-        if (typeof evaluatedResult === "boolean") {
-          evaluatedResult
-            ? element2.setAttribute("checked", "true")
-            : element2.removeAttribute("checked");
-        }
-        appCtx.__lockElement(element2);
+  function gg1(n) {
+    return function (e, t) {
+      n.ee0(e, CHECK_ELEMENT_DIRECTIVE).forEach((e) => {
+        if (n.de0(e)) return;
+        const r = n.ba0(e, CHECK_ELEMENT_DIRECTIVE);
+        if (null === r || "" === r.trim()) return;
+        const o = n.fe0(t, r);
+        ("boolean" == typeof o &&
+          (o
+            ? e.setAttribute("checked", "true")
+            : e.removeAttribute("checked")),
+          n.df1(e));
       });
     };
   }
-
-  // out/directives/conditionals.js
-  function composeConditionalDirectivesProcessor(appCtx) {
-    return function processConditionalDirectives(elementCtx, dataCtx2) {
-      const elementsToProcess = appCtx.__querySelectAllByPluncAttribute(
-        elementCtx,
-        IF_ELEMENT_DIRECTIVE,
-      );
-      elementsToProcess.forEach((element2) => {
-        if (appCtx.__isElementLocked(element2)) {
-          return;
-        }
-        const conditionExpression = appCtx.__pluncAttributeValueGetter(
-          element2,
-          IF_ELEMENT_DIRECTIVE,
-        );
-        if (conditionExpression === null || conditionExpression.trim() === "") {
-          return;
-        }
-        const evaluationResult = appCtx.__resolveExpression(
-          dataCtx2,
-          conditionExpression,
-        );
-        if (
-          typeof evaluationResult === "boolean" &&
-          evaluationResult === false
-        ) {
-          appCtx.__trashElement(element2, `condition evaluated to false`);
-        }
-        appCtx.__lockElement(element2);
+  function fe1(n) {
+    return function (e, t) {
+      n.ee0(e, IF_ELEMENT_DIRECTIVE).forEach((e) => {
+        if (n.de0(e)) return;
+        const r = n.ba0(e, IF_ELEMENT_DIRECTIVE);
+        if (null === r || "" === r.trim()) return;
+        const o = n.fe0(t, r);
+        ("boolean" == typeof o &&
+          !1 === o &&
+          n.fc1(e, "condition evaluated to false"),
+          n.df1(e));
       });
     };
   }
-
-  // out/directives/disable.js
-  function composeDisableDirectiveProcessor(appCtx) {
-    return function processDisableDirective(elementCtx, dataCtx2) {
-      const elementsToProcess = appCtx.__querySelectAllByPluncAttribute(
-        elementCtx,
-        DISABLE_ELEMENT_DIRECTIVE,
-      );
-      elementsToProcess.forEach((element2) => {
-        if (appCtx.__isElementLocked(element2)) {
-          return;
-        }
-        const disableExpression = appCtx.__pluncAttributeValueGetter(
-          element2,
-          DISABLE_ELEMENT_DIRECTIVE,
-        );
-        if (disableExpression === null || disableExpression.trim() === "") {
-          return;
-        }
-        const evaluatedResult = appCtx.__resolveExpression(
-          dataCtx2,
-          disableExpression,
-        );
-        if (typeof evaluatedResult === "boolean") {
-          evaluatedResult
-            ? element2.setAttribute("disabled", "true")
-            : element2.removeAttribute("disabled");
-        }
-        appCtx.__lockElement(element2);
+  function gb0(n) {
+    return function (e, t) {
+      n.ee0(e, DISABLE_ELEMENT_DIRECTIVE).forEach((e) => {
+        if (n.de0(e)) return;
+        const r = n.ba0(e, DISABLE_ELEMENT_DIRECTIVE);
+        if (null === r || "" === r.trim()) return;
+        const o = n.fe0(t, r);
+        ("boolean" == typeof o &&
+          (o
+            ? e.setAttribute("disabled", "true")
+            : e.removeAttribute("disabled")),
+          n.df1(e));
       });
     };
   }
-
-  // out/services/expressionResolver.js
-  function resolvePluncExpression(dataCtx2, expression2, element2 = null) {
-    const resolveType2 = getExpressionResolveType(expression2);
-    return initExpressionResolver(
-      dataCtx2,
-      expression2,
-      resolveType2,
-      element2,
-    );
+  function cd3(n, e, t = null) {
+    return gf2(n, e, ac6(e), t);
   }
-  function getExpressionResolveType(expression2) {
-    if (/^'.*'$/.test(expression2)) return "string";
-    if (!isNaN(expression2)) return "number";
-    if (expression2.includes("(") && expression2.includes("=="))
-      return "conditional";
-    if (expression2.includes("(") && expression2.includes("is "))
-      return "conditional";
-    if (expression2.includes("(") && expression2.includes(">"))
-      return "conditional";
-    if (expression2.includes("(") && expression2.includes("<"))
-      return "conditional";
-    if (expression2.includes("(")) return "function";
-    if (expression2.includes("==")) return "conditional";
-    if (expression2.includes("is ")) return "conditional";
-    if (expression2.includes(">")) return "conditional";
-    if (expression2.includes("<")) return "conditional";
-    if (
-      expression2.includes("+") ||
-      expression2.includes("-") ||
-      expression2.includes("/") ||
-      expression2.includes("*") ||
-      expression2.includes("%")
-    ) {
-      return "operation";
-    }
-    if (
-      expression2 == "false" ||
-      expression2 == "true" ||
-      expression2 == "null"
-    ) {
-      return "boolean";
-    }
-    return "object";
+  function ac6(n) {
+    return /^'.*'$/.test(n)
+      ? "string"
+      : isNaN(n)
+        ? (n.includes("(") && n.includes("==")) ||
+          (n.includes("(") && n.includes("is ")) ||
+          (n.includes("(") && n.includes(">")) ||
+          (n.includes("(") && n.includes("<"))
+          ? "conditional"
+          : n.includes("(")
+            ? "function"
+            : n.includes("==") ||
+                n.includes("is ") ||
+                n.includes(">") ||
+                n.includes("<")
+              ? "conditional"
+              : n.includes("+") ||
+                  n.includes("-") ||
+                  n.includes("/") ||
+                  n.includes("*") ||
+                  n.includes("%")
+                ? "operation"
+                : "false" == n || "true" == n || "null" == n
+                  ? "boolean"
+                  : "object"
+        : "number";
   }
-  function initExpressionResolver(
-    dataCtx,
-    expression,
-    resolveType,
-    element = null,
-  ) {
+  function gf2(dataCtx, expression, resolveType, element = null) {
     switch (resolveType) {
       case "string":
         return expression.slice(1, -1);
-        break;
       case "boolean":
-        if (expression == "true") return true;
-        if (expression == "false") return false;
-        if (expression == "null") return null;
+        if ("true" == expression) return !0;
+        if ("false" == expression) return !1;
+        if ("null" == expression) return null;
         break;
       case "object":
-        return evaluateObject(dataCtx, expression);
-        break;
+        return ca2(dataCtx, expression);
       case "function":
-        let structure = expression.split("(");
-        let expressionTest = structure[0].split(".");
+        let structure = expression.split("("),
+          expressionTest = structure[0].split(".");
         if (expressionTest.length > 1) {
-          let refObject = resolvePluncExpression(
-            dataCtx,
-            getParentObjectExp(structure[0]),
-          );
-          let funcExpression = expression
-            .split(".")
-            .slice(expressionTest.length - 1)
-            .join(".");
-          return invokeFunction(refObject, dataCtx, funcExpression, element);
+          let n = cd3(dataCtx, bb2(structure[0])),
+            e = expression
+              .split(".")
+              .slice(expressionTest.length - 1)
+              .join(".");
+          return ae2(n, dataCtx, e, element);
         }
-        if (!Object.prototype.hasOwnProperty.call(dataCtx, structure[0])) {
-          return "";
-        }
-        return invokeFunction(dataCtx, dataCtx, expression, element);
-        break;
+        return Object.prototype.hasOwnProperty.call(dataCtx, structure[0])
+          ? ae2(dataCtx, dataCtx, expression, element)
+          : "";
       case "conditional":
         const evaluatorMap = {
-          "!==": areTwoExpressionsNotTheSame,
-          "==": areTwoExpressionsTheSame,
-          "is not ": areTwoExpressionsNotTheSame,
-          "is ": areTwoExpressionsTheSame,
-          ">=": isGreaterThanOrEqualToTheOther,
-          ">": isGreaterThanTheOther,
-          "<=": isLessThanOrEqualToTheOther,
-          "<": isLessThanTheOther,
+          "!==": be5,
+          "==": ad2,
+          "is not ": be5,
+          "is ": ad2,
+          ">=": ad3,
+          ">": fc3,
+          "<=": ce4,
+          "<": fc4,
         };
-        for (const comparator in evaluatorMap) {
-          if (expression.includes(comparator)) {
-            return evaluatorMap[comparator](dataCtx, expression, comparator);
-          }
-        }
-        return false;
-        break;
+        for (const n in evaluatorMap)
+          if (expression.includes(n))
+            return evaluatorMap[n](dataCtx, expression, n);
+        return !1;
       case "number":
         return Number(expression);
-        break;
       case "operation":
-        let finalExpression = expression;
-        let operations = ["+", "-", "*", "/", "%"];
-        for (var i = 0; i < operations.length; i++) {
+        let finalExpression = expression,
+          operations = ["+", "-", "*", "/", "%"];
+        for (var i = 0; i < operations.length; i++)
           if (expression.includes(operations[i])) {
-            let exp = expression.split(operations[i]);
-            let left = resolvePluncExpression(dataCtx, exp[0].trim());
-            var right = resolvePluncExpression(dataCtx, exp[1].trim());
-            finalExpression = left + operations[i] + right;
+            let n = expression.split(operations[i]),
+              e = cd3(dataCtx, n[0].trim());
+            var right = cd3(dataCtx, n[1].trim());
+            finalExpression = e + operations[i] + right;
           }
-        }
         return eval(finalExpression);
-        break;
-      default:
-        break;
     }
   }
-  function evaluateObject(dataCtx2, expression2) {
-    if (expression2 === "$dataCtx") {
-      return dataCtx2;
+  function ca2(n, e) {
+    return "$dataCtx" === e
+      ? n
+      : e.split(".").reduce(function (n, e) {
+          if (null != n && void 0 !== n[e]) return n[e];
+        }, n);
+  }
+  function ae2(n, e, t, r) {
+    if (void 0 === n) return "";
+    const o = t.match(/\(([^)]+)\)/);
+    let c = t.split("(")[0];
+    if (null !== o) {
+      const t = new Array(),
+        i = o[1].split(",");
+      for (let n = 0; n < i.length; n++) t.push(cd3(e, i[n].trim()));
+      return (
+        null !== r && t.push(r),
+        n[c] instanceof Function ? n[c](...t) : ""
+      );
     }
-    return expression2.split(".").reduce(function (o, x) {
-      if (o === void 0) return;
-      if (o === null) return;
-      if (o[x] === void 0) return;
-      return o[x];
-    }, dataCtx2);
-  }
-  function invokeFunction(dataCtx2, object, expression2, element2) {
-    if (dataCtx2 === void 0) return "";
-    const splitExpression = expression2.match(/\(([^)]+)\)/);
-    let struct = expression2.split("(");
-    let name = struct[0];
-    if (splitExpression !== null) {
-      const argsVault = new Array();
-      const splitArguments = splitExpression[1].split(",");
-      for (let i2 = 0; i2 < splitArguments.length; i2++) {
-        argsVault.push(
-          resolvePluncExpression(object, splitArguments[i2].trim()),
-        );
-      }
-      if (element2 !== null) {
-        argsVault.push(element2);
-      }
-      if (!(dataCtx2[name] instanceof Function)) {
-        return "";
-      }
-      return dataCtx2[name](...argsVault);
+    if (null !== r) {
+      const e = new Array();
+      return (e.push(r), n[c](...e));
     }
-    if (element2 !== null) {
-      const argsVault = new Array();
-      argsVault.push(element2);
-      return dataCtx2[name](...argsVault);
-    }
-    if (!(dataCtx2[name] instanceof Function)) {
-      return "";
-    }
-    return dataCtx2[name]();
+    return n[c] instanceof Function ? n[c]() : "";
   }
-  function getParentObjectExp(expression2) {
-    let pieces = expression2.split(".");
-    if (pieces.length < 2) return "$dataCtx";
-    pieces.pop();
-    return pieces.join(".");
+  function bb2(n) {
+    let e = n.split(".");
+    return e.length < 2 ? "$dataCtx" : (e.pop(), e.join("."));
   }
-  function getParentObjAsObject(base, expression2) {
-    const parentObjExp = getParentObjectExp(expression2);
-    return resolvePluncExpression(base, parentObjExp);
+  function gf3(n, e) {
+    return cd3(n, bb2(e));
   }
-  function getChildObjectExp(expression2) {
-    let pieces = expression2.split(".");
-    return pieces[pieces.length - 1];
+  function ga2(n) {
+    let e = n.split(".");
+    return e[e.length - 1];
   }
-  function areTwoExpressionsTheSame(dataCtx2, expression2, comparator) {
-    const [left, right2] = expression2.split(comparator).map((arm) => {
-      return resolvePluncExpression(dataCtx2, arm.trim());
-    });
-    return left === right2;
+  function ad2(n, e, t) {
+    const [r, o] = e.split(t).map((e) => cd3(n, e.trim()));
+    return r === o;
   }
-  function areTwoExpressionsNotTheSame(dataCtx2, expression2, comparator) {
-    const [left, right2] = expression2.split(comparator).map((arm) => {
-      return resolvePluncExpression(dataCtx2, arm.trim());
-    });
-    return left !== right2;
+  function be5(n, e, t) {
+    const [r, o] = e.split(t).map((e) => cd3(n, e.trim()));
+    return r !== o;
   }
-  function isGreaterThanTheOther(dataCtx2, expression2, comparator) {
-    const [left, right2] = expression2.split(comparator).map((arm) => {
-      return resolvePluncExpression(dataCtx2, arm.trim());
-    });
-    return left > right2;
+  function fc3(n, e, t) {
+    const [r, o] = e.split(t).map((e) => cd3(n, e.trim()));
+    return r > o;
   }
-  function isGreaterThanOrEqualToTheOther(dataCtx2, expression2, comparator) {
-    const [left, right2] = expression2.split(comparator).map((arm) => {
-      return resolvePluncExpression(dataCtx2, arm.trim());
-    });
-    return left >= right2;
+  function ad3(n, e, t) {
+    const [r, o] = e.split(t).map((e) => cd3(n, e.trim()));
+    return r >= o;
   }
-  function isLessThanTheOther(dataCtx2, expression2, comparator) {
-    const [left, right2] = expression2.split(comparator).map((arm) => {
-      return resolvePluncExpression(dataCtx2, arm.trim());
-    });
-    return left < right2;
+  function fc4(n, e, t) {
+    const [r, o] = e.split(t).map((e) => cd3(n, e.trim()));
+    return r < o;
   }
-  function isLessThanOrEqualToTheOther(dataCtx2, expression2, comparator) {
-    const [left, right2] = expression2.split(comparator).map((arm) => {
-      return resolvePluncExpression(dataCtx2, arm.trim());
-    });
-    return left <= right2;
+  function ce4(n, e, t) {
+    const [r, o] = e.split(t).map((e) => cd3(n, e.trim()));
+    return r <= o;
   }
-
-  // out/services/pluncElement.js
-  var PluncElement = class _PluncElement {
-    /**
-     * @param element - The Element
-     * @param pcount - The number of iteration of parent created
-     */
-    constructor(element2, pcount = null) {
-      Object.defineProperty(this, "$element", {
-        enumerable: true,
-        configurable: true,
-        writable: true,
+  var PluncElement = class n {
+    constructor(n, e = null) {
+      (Object.defineProperty(this, "$element", {
+        enumerable: !0,
+        configurable: !0,
+        writable: !0,
         value: void 0,
-      });
-      Object.defineProperty(this, "$parent", {
-        enumerable: true,
-        configurable: true,
-        writable: true,
-        value: void 0,
-      });
-      Object.defineProperty(this, "state", {
-        enumerable: true,
-        configurable: true,
-        writable: true,
-        value: void 0,
-      });
-      Object.defineProperty(this, "scope", {
-        enumerable: true,
-        configurable: true,
-        writable: true,
-        value: void 0,
-      });
-      this.$element = element2;
-      this.state = null;
-      this.__wrapParent(pcount !== null && pcount !== void 0 ? pcount : 1);
+      }),
+        Object.defineProperty(this, "$parent", {
+          enumerable: !0,
+          configurable: !0,
+          writable: !0,
+          value: void 0,
+        }),
+        Object.defineProperty(this, "state", {
+          enumerable: !0,
+          configurable: !0,
+          writable: !0,
+          value: void 0,
+        }),
+        Object.defineProperty(this, "scope", {
+          enumerable: !0,
+          configurable: !0,
+          writable: !0,
+          value: void 0,
+        }),
+        (this.$element = n),
+        (this.state = null),
+        this.ed3(null != e ? e : 1));
     }
-    /** Wraps the parent element within `PluncElement` object */
-    __wrapParent(count) {
-      const parentElement = this.$element.parentElement;
-      if (count > 3 || parentElement === null) return;
-      this.$parent = new _PluncElement(parentElement, count++);
+    ed3(e) {
+      const t = this.$element.parentElement;
+      e > 3 || null === t || (this.$parent = new n(t, e++));
     }
-    /** Retrieves the $element */
     get() {
       return this.$element;
     }
-    /** Retrieves the state */
     getState() {
       return this.state;
     }
-    setState(state) {
-      if (state === null) return;
-      this.state = state;
+    setState(n) {
+      null !== n && (this.state = n);
     }
-    setScope(scope) {
-      this.scope = scope;
+    setScope(n) {
+      this.scope = n;
     }
     getScope() {
       return this.scope;
     }
-    addClass(className) {
-      this.$element.classList.add(className);
+    addClass(n) {
+      this.$element.classList.add(n);
     }
     listClass() {
       return this.$element.className.split(" ");
     }
-    removeClass(className) {
-      this.$element.classList.remove(className);
+    removeClass(n) {
+      this.$element.classList.remove(n);
     }
-    toggleClass(className) {
-      const classes = this.listClass();
-      for (var i2 = 0; i2 < classes.length; i2++) {
-        let aclass = classes[i2];
-        aclass === className
-          ? this.removeClass(className)
-          : this.addClass(className);
+    toggleClass(n) {
+      const e = this.listClass();
+      for (var t = 0; t < e.length; t++) {
+        e[t] === n ? this.removeClass(n) : this.addClass(n);
       }
     }
   };
-
-  // out/directives/events.js
-  function bindEventListenerToElement(
-    dataCtx2,
-    bindToElement,
-    fnExpression,
-    eventType,
-  ) {
-    if (getExpressionResolveType(fnExpression) !== "function") return;
-    bindToElement.addEventListener(eventType, () => {
-      const pluncElement = new PluncElement(bindToElement);
-      resolvePluncExpression(dataCtx2, fnExpression, pluncElement);
-    });
+  function fg0(n, e, t, r) {
+    "function" === ac6(t) &&
+      e.addEventListener(r, () => {
+        const r = new PluncElement(e);
+        cd3(n, t, r);
+      });
   }
-  function composeEventDirectiveProcessor(appCtx) {
-    return function processEventDirectives(elementCtx, dataCtx2) {
-      const events = [
+  function dd0(n) {
+    return function (e, t) {
+      [
         { type: "click", attr: CLICK_EVENT_DIRECTIVE },
         { type: "change", attr: CHANGE_EVENT_DIRECTIVE },
         { type: "keyup", attr: TOUCH_EVENT_DIRECTIVE },
-      ];
-      events.forEach((event) => {
-        const elementsToProcess = appCtx.__querySelectAllByPluncAttribute(
-          elementCtx,
-          event.attr,
-        );
-        elementsToProcess.forEach((element2) => {
-          if (appCtx.__isElementLockedToEvent(element2, event.type)) {
-            return;
-          }
-          const fnExpression = appCtx.__pluncAttributeValueGetter(
-            element2,
-            event.attr,
-          );
-          if (fnExpression === null || fnExpression.trim() === "") {
-            return;
-          }
-          bindEventListenerToElement(
-            dataCtx2,
-            element2,
-            fnExpression,
-            event.type,
-          );
-          appCtx.__lockElementToEvent(element2, event.type);
+      ].forEach((r) => {
+        n.ee0(e, r.attr).forEach((e) => {
+          if (n.ag2(e, r.type)) return;
+          const o = n.ba0(e, r.attr);
+          null !== o &&
+            "" !== o.trim() &&
+            (fg0(t, e, o, r.type), n.gc1(e, r.type));
         });
       });
     };
   }
-
-  // out/directives/model.js
-  function assertDateFormat(date) {
-    var _a, _b, _c;
-    const message = `models assigned to Date input elements must follow standard HTML5 format YYYY-MM-DD`;
-    const structure2 = date.split("-");
-    const year = (_a = structure2[0]) !== null && _a !== void 0 ? _a : null;
-    if (year === null || year.length < 4) {
-      throw new Error(message);
-    }
-    const month = (_b = structure2[1]) !== null && _b !== void 0 ? _b : null;
-    if (month === null || parseInt(month) > 12) {
-      throw new Error(month);
-    }
-    const day = (_c = structure2[2]) !== null && _c !== void 0 ? _c : null;
-    if (day === null || parseInt(day) > 31) {
-      throw new Error(day);
-    }
-  }
-  function assertTimeFormat(time) {
-    var _a, _b;
-    const message = `models assigned to Time input elements must follow standard HTML5 format HH:MM`;
-    const structure2 = time.split(":");
-    const hours = (_a = structure2[0]) !== null && _a !== void 0 ? _a : null;
-    if (hours === null || hours.length < 2 || parseInt(hours) > 23) {
-      throw new Error(message);
-    }
-    const minutes = (_b = structure2[1]) !== null && _b !== void 0 ? _b : null;
-    if (minutes === null || minutes.length < 2 || parseInt(minutes) > 59) {
-      throw new Error(message);
-    }
-  }
-  var assignModelValue = (dataCtx2, expression2, value) => {
-    const parentObj = getParentObjAsObject(dataCtx2, expression2);
-    const childObjExpression = getChildObjectExp(expression2);
-    if (void 0 !== parentObj) parentObj[childObjExpression] = value;
-  };
-  function setModelState(element2, state) {
-    typeof state == "boolean" && state
-      ? element2.setAttribute("checked", "")
-      : element2.removeAttribute("checked");
-  }
-  function getCurrentDate() {
-    const date = new Date(Date.now());
-    const nmonth = date.getMonth() + 1;
-    const month = nmonth < 10 ? `0${nmonth}` : nmonth;
-    const result = `${date.getFullYear()}-${month}-${date.getDate()}`;
-    assertDateFormat(result);
-    return result;
-  }
-  function getCurrentTime() {
-    const input = new Date(Date.now());
-    const hours =
-      input.getHours() < 10 ? `0${input.getHours()}` : input.getHours();
-    const minutes =
-      input.getMinutes() < 10 ? `0${input.getMinutes()}` : input.getMinutes();
-    const result = hours + ":" + minutes;
-    assertTimeFormat(result);
-    return result;
-  }
-  function castAnyValueToString(value) {
-    if (value === null || value === void 0) {
-      return "";
-    }
-    if (typeof value === "object") {
-      return JSON.stringify(value);
-    }
-    return String(value);
-  }
-  function handleRadioAndCheckboxModel(
-    maybeRadioOrCheckboxElement,
-    dataCtx2,
-    expression2,
-    expressionValue,
-  ) {
-    const elementType = maybeRadioOrCheckboxElement.type.toLowerCase();
-    if (elementType !== "radio" && elementType !== "checkbox") {
-      return;
-    }
-    console.log({ dataCtx2, expression2, expressionValue });
-    const radioOrCheckboxElement = maybeRadioOrCheckboxElement;
-    if (expressionValue === void 0) {
-      assignModelValue(dataCtx2, expression2, false);
-      setModelState(radioOrCheckboxElement, false);
-    } else if (typeof expressionValue === "boolean") {
-      setModelState(radioOrCheckboxElement, expressionValue);
-    } else {
-      console.warn(
-        `Model directive assigned to checkbox/radio input elements must be of boolean type.`,
+  function ef0(n) {
+    var e, t, r;
+    const o = n.split("-"),
+      c = null !== (e = o[0]) && void 0 !== e ? e : null;
+    if (null === c || c.length < 4)
+      throw new Error(
+        "models assigned to Date input elements must follow standard HTML5 format YYYY-MM-DD",
       );
-    }
+    const i = null !== (t = o[1]) && void 0 !== t ? t : null;
+    if (null === i || parseInt(i) > 12) throw new Error(i);
+    const u = null !== (r = o[2]) && void 0 !== r ? r : null;
+    if (null === u || parseInt(u) > 31) throw new Error(u);
   }
-  function handleTextInputButNotTextareaModel(
-    maybeInputElement,
-    dataCtx2,
-    expression2,
-    expressionValue,
-  ) {
-    const elementType = maybeInputElement.type.toLowerCase();
+  function ce1(n) {
+    var e, t;
+    const r =
+        "models assigned to Time input elements must follow standard HTML5 format HH:MM",
+      o = n.split(":"),
+      c = null !== (e = o[0]) && void 0 !== e ? e : null;
+    if (null === c || c.length < 2 || parseInt(c) > 23) throw new Error(r);
+    const i = null !== (t = o[1]) && void 0 !== t ? t : null;
+    if (null === i || i.length < 2 || parseInt(i) > 59) throw new Error(r);
+  }
+  var assignModelValue = (n, e, t) => {
+    const r = gf3(n, e),
+      o = ga2(e);
+    void 0 !== r && (r[o] = t);
+  };
+  function fa0(n, e) {
+    "boolean" == typeof e && e
+      ? n.setAttribute("checked", "")
+      : n.removeAttribute("checked");
+  }
+  function de1() {
+    const n = new Date(Date.now()),
+      e = n.getMonth() + 1,
+      t = e < 10 ? `0${e}` : e,
+      r = `${n.getFullYear()}-${t}-${n.getDate()}`;
+    return (ef0(r), r);
+  }
+  function da1() {
+    const n = new Date(Date.now()),
+      e =
+        (n.getHours() < 10 ? `0${n.getHours()}` : n.getHours()) +
+        ":" +
+        (n.getMinutes() < 10 ? `0${n.getMinutes()}` : n.getMinutes());
+    return (ce1(e), e);
+  }
+  function fc2(n) {
+    return null == n
+      ? ""
+      : "object" == typeof n
+        ? JSON.stringify(n)
+        : String(n);
+  }
+  function cg1(n, e, t, r) {
+    const o = n.type.toLowerCase();
+    if ("radio" !== o && "checkbox" !== o) return;
+    const c = n;
+    void 0 === r
+      ? (assignModelValue(e, t, !1), fa0(c, !1))
+      : "boolean" == typeof r
+        ? fa0(c, r)
+        : console.warn(
+            "Model directive assigned to checkbox/radio input elements must be of boolean type.",
+          );
+  }
+  function ac3(n, e, t, r) {
+    const o = n.type.toLowerCase();
     if (
-      elementType === "text" ||
-      elementType === "email" ||
-      elementType === "password" ||
-      elementType === "search" ||
-      elementType === "url" ||
-      elementType === "tel"
+      "text" === o ||
+      "email" === o ||
+      "password" === o ||
+      "search" === o ||
+      "url" === o ||
+      "tel" === o
     ) {
-      const inputElement = maybeInputElement;
-      if (expressionValue === void 0) {
-        assignModelValue(dataCtx2, expression2, inputElement.value);
-      } else {
-        inputElement.value = castAnyValueToString(expressionValue);
-      }
+      const o = n;
+      void 0 === r ? assignModelValue(e, t, o.value) : (o.value = fc2(r));
     }
   }
-  function handleNumberInputModel(
-    maybeInputNumberElement,
-    dataCtx2,
-    expression2,
-    expressionValue,
-  ) {
-    const elementType = maybeInputNumberElement.type.toLowerCase();
-    if (elementType === "number") {
-      const inputElement = maybeInputNumberElement;
-      if (expressionValue === void 0) {
-        assignModelValue(dataCtx2, expression2, 0);
-        inputElement.value = "0";
-      } else {
-        inputElement.value = castAnyValueToString(expressionValue);
-      }
+  function bb0(n, e, t, r) {
+    if ("number" === n.type.toLowerCase()) {
+      const o = n;
+      void 0 === r
+        ? (assignModelValue(e, t, 0), (o.value = "0"))
+        : (o.value = fc2(r));
     }
   }
-  function composeModelHandlerExecutor(
-    targetELement,
-    dataCtx2,
-    expression2,
-    expressionValue,
-  ) {
-    return function executeHandler(handler) {
-      handler(targetELement, dataCtx2, expression2, expressionValue);
+  function bf2(n, e, t, r) {
+    return function (o) {
+      o(n, e, t, r);
     };
   }
-  function handleDateInputModel(
-    maybeDateInputElement,
-    dataCtx2,
-    expression2,
-    expressionValue,
-  ) {
-    const elementType = maybeDateInputElement.type.toLowerCase();
-    if (elementType === "date") {
-      const dateInputElement = maybeDateInputElement;
-      if (expressionValue === void 0) {
-        const currentDate = getCurrentDate();
-        assignModelValue(dataCtx2, expression2, currentDate);
-        dateInputElement.value = currentDate;
+  function fd0(n, e, t, r) {
+    if ("date" === n.type.toLowerCase()) {
+      const o = n;
+      if (void 0 === r) {
+        const n = de1();
+        (assignModelValue(e, t, n), (o.value = n));
       } else {
-        const stringifiedValue = castAnyValueToString(expressionValue);
-        assertDateFormat(stringifiedValue);
-        dateInputElement.value = stringifiedValue;
+        const n = fc2(r);
+        (ef0(n), (o.value = n));
       }
     }
   }
-  function handleTimeInputModel(
-    maybeTimeInputElement,
-    dataCtx2,
-    expression2,
-    expressionValue,
-  ) {
-    const elementType = maybeTimeInputElement.type.toLowerCase();
-    if (elementType === "time") {
-      const timeInputElement = maybeTimeInputElement;
-      if (expressionValue === void 0) {
-        const currentTime = getCurrentTime();
-        assignModelValue(dataCtx2, expression2, currentTime);
-        timeInputElement.value = currentTime;
+  function bd1(n, e, t, r) {
+    if ("time" === n.type.toLowerCase()) {
+      const o = n;
+      if (void 0 === r) {
+        const n = da1();
+        (assignModelValue(e, t, n), (o.value = n));
       } else {
-        const stringifiedValue = castAnyValueToString(expressionValue);
-        assertTimeFormat(stringifiedValue);
-        timeInputElement.value = stringifiedValue;
+        const n = fc2(r);
+        (ce1(n), (o.value = n));
       }
     }
   }
-  function composeModelDirectiveProcessor(appCtx) {
-    return function processModelDirective(elementCtx, dataCtx2) {
-      const elementsToProcess = appCtx.__querySelectAllByPluncAttribute(
-        elementCtx,
-        MODEL_ELEMENT_DIRECTIVE,
-      );
-      elementsToProcess.forEach((element2) => {
-        const modelExpression = appCtx.__pluncAttributeValueGetter(
-          element2,
-          MODEL_ELEMENT_DIRECTIVE,
-        );
-        if (modelExpression === null || modelExpression.trim() === "") {
-          return;
-        }
-        if (appCtx.__isElementLocked(element2)) {
-          return;
-        }
-        let evaluationResult = appCtx.__resolveExpression(
-          dataCtx2,
-          modelExpression,
-        );
-        if (element2.tagName === "INPUT" || element2.tagName === "SELECT") {
-          if (element2 instanceof HTMLInputElement) {
-            const execute = composeModelHandlerExecutor(
-              element2,
-              dataCtx2,
-              modelExpression,
-              evaluationResult,
-            );
-            execute(handleRadioAndCheckboxModel);
-            execute(handleTextInputButNotTextareaModel);
-            execute(handleNumberInputModel);
-            execute(handleDateInputModel);
-            execute(handleTimeInputModel);
+  function gb1(n) {
+    return function (e, t) {
+      n.ee0(e, MODEL_ELEMENT_DIRECTIVE).forEach((e) => {
+        const r = n.ba0(e, MODEL_ELEMENT_DIRECTIVE);
+        if (null === r || "" === r.trim()) return;
+        if (n.de0(e)) return;
+        let o = n.fe0(t, r);
+        if ("INPUT" === e.tagName || "SELECT" === e.tagName) {
+          if (e instanceof HTMLInputElement) {
+            const n = bf2(e, t, r, o);
+            (n(cg1), n(ac3), n(bb0), n(fd0), n(bd1));
           }
-          if (element2 instanceof HTMLSelectElement) {
-            evaluationResult === void 0
-              ? assignModelValue(dataCtx2, modelExpression, element2.value)
-              : (element2.value = castAnyValueToString(evaluationResult));
-          }
-          element2.addEventListener("change", (event) => {
-            const target = event.target;
-            if (target instanceof HTMLInputElement) {
-              const targetType = target.type.toLowerCase();
-              if (targetType === "radio" || targetType === "checkbox") {
-                const isChecked = target.checked;
-                assignModelValue(dataCtx2, modelExpression, isChecked);
-                return;
+          (e instanceof HTMLSelectElement &&
+            (void 0 === o
+              ? assignModelValue(t, r, e.value)
+              : (e.value = fc2(o))),
+            e.addEventListener("change", (n) => {
+              const e = n.target;
+              if (e instanceof HTMLInputElement) {
+                const n = e.type.toLowerCase();
+                if ("radio" === n || "checkbox" === n) {
+                  const n = e.checked;
+                  return void assignModelValue(t, r, n);
+                }
+                assignModelValue(t, r, e.value);
               }
-              assignModelValue(dataCtx2, modelExpression, target.value);
-            }
-            if (target instanceof HTMLSelectElement) {
-              assignModelValue(dataCtx2, modelExpression, target.value);
-            }
-          });
-        } else if (
-          element2.tagName === "TEXTAREA" &&
-          element2 instanceof HTMLTextAreaElement
-        ) {
-          evaluationResult === void 0
-            ? assignModelValue(dataCtx2, modelExpression, element2.value)
-            : (element2.value = castAnyValueToString(evaluationResult));
-          element2.addEventListener("change", (event) => {
-            const target = event.target;
-            if (!(target instanceof HTMLTextAreaElement)) return;
-            const value = target.value;
-            assignModelValue(dataCtx2, modelExpression, value);
-          });
-        }
-        appCtx.__lockElement(element2);
+              e instanceof HTMLSelectElement && assignModelValue(t, r, e.value);
+            }));
+        } else
+          "TEXTAREA" === e.tagName &&
+            e instanceof HTMLTextAreaElement &&
+            (void 0 === o
+              ? assignModelValue(t, r, e.value)
+              : (e.value = fc2(o)),
+            e.addEventListener("change", (n) => {
+              const e = n.target;
+              if (!(e instanceof HTMLTextAreaElement)) return;
+              const o = e.value;
+              assignModelValue(t, r, o);
+            }));
+        n.df1(e);
       });
     };
   }
-
-  // out/directives/placeholders.js
-  function composePlaceholderResolver(appCtx) {
-    return function resolvePlaceholders(elementCtx, dataCtx2) {
-      const regEx = new RegExp("(?<=\\{{).+?(?=\\}})", "g");
-      const htmlContent = elementCtx.innerHTML;
-      const matchedPlaceholders = htmlContent.match(regEx);
-      if (matchedPlaceholders === null) {
-        return;
+  function de2(n) {
+    return function (e, t) {
+      const r = new RegExp("(?<=\\{{).+?(?=\\}})", "g"),
+        o = e.innerHTML.match(r);
+      null !== o &&
+        o.forEach((r) => {
+          const o = r.trim();
+          let c = n.fe0(t, o);
+          null == c && (c = "");
+          const i = `{{${r}}}`;
+          e.innerHTML = e.innerHTML.replace(i, String(c));
+        });
+    };
+  }
+  function eg0(n) {
+    return n.includes("until ")
+      ? [REPEAT_REFERENCE_TOKEN, n.split("until")[1].trim()]
+      : [n.split(" as ")[0].trim(), n.split(" as ")[1].trim()];
+  }
+  function ce2(n) {
+    if (n instanceof Array) return n.length;
+    if ("number" == typeof n && Number.isInteger(n)) return n;
+    throw new Error("Repeatable elements must have repeatable values");
+  }
+  function bc1(n) {
+    return null !== n && ("object" == typeof n || Array.isArray(n));
+  }
+  function ea1(n) {
+    let e = () => {};
+    function t(t, r) {
+      const o = Object.assign({}, r),
+        c = t.innerHTML;
+      t.replaceChildren();
+      let i = n.ba0(t, REPEAT_ELEMENT_DIRECTIVE);
+      if (null === i || "" === i.trim()) return;
+      let [u, a] = eg0(i);
+      if (u === REPEAT_REFERENCE_TOKEN) {
+        let e = ce2(n.fe0(o, a));
+        o.$$index = {};
+        let t = 0;
+        for (; t < e; ) o.$$index["props" + t++] = new Object();
       }
-      matchedPlaceholders.forEach((placeholder) => {
-        const expression2 = placeholder.trim();
-        let evaluationResult = appCtx.__resolveExpression(
-          dataCtx2,
-          expression2,
-        );
-        if (evaluationResult === null || evaluationResult === void 0) {
-          evaluationResult = "";
+      const s = n.fe0(o, u);
+      if (!bc1(s)) return;
+      let l = 0;
+      for (const [o, i] of Object.entries(s)) {
+        const o = { $parent: r, $index: l, [a]: i },
+          u = n.fc0(c);
+        (e(u, o), n.bf1(u, t), l++);
+      }
+    }
+    return function (r, o, c) {
+      const i = n.ee0(r, REPEAT_ELEMENT_DIRECTIVE);
+      e = c;
+      for (const n of i) t(n, o);
+    };
+  }
+  function ba2(n) {
+    return function (e, t) {
+      n.ee0(e, STYLE_ELEMENT_DIRECTIVE).forEach((e) => {
+        if (n.de0(e)) return;
+        const r = n.ba0(e, STYLE_ELEMENT_DIRECTIVE);
+        if (null === r || "" === r.trim()) return;
+        const o = n.fe0(t, r);
+        if ("string" == typeof o && "" !== o.trim()) {
+          o.split(" ")
+            .map((n) => n.trim())
+            .forEach((n) => {
+              "" !== n && e.classList.add(n);
+            });
         }
-        const placeholderTag = `{{${placeholder}}}`;
-        elementCtx.innerHTML = elementCtx.innerHTML.replace(
-          placeholderTag,
-          String(evaluationResult),
-        );
+        n.df1(e);
       });
     };
   }
-
-  // out/directives/repeat.js
-  function dissectRepeatExpression(expression2) {
-    if (expression2.includes("until ")) {
-      return [REPEAT_REFERENCE_TOKEN, expression2.split("until")[1].trim()];
-    }
-    return [
-      expression2.split(" as ")[0].trim(),
-      expression2.split(" as ")[1].trim(),
-    ];
-  }
-  function countRepeatable(repetitions) {
-    if (repetitions instanceof Array) return repetitions.length;
-    if (typeof repetitions === "number" && Number.isInteger(repetitions))
-      return repetitions;
-    throw new Error(`Repeatable elements must have repeatable values`);
-  }
-  function isIterableWithEntries(value) {
-    return (
-      value !== null && (typeof value === "object" || Array.isArray(value))
-    );
-  }
-  function composeRepeatDirectiveProcessor(appCtx) {
-    let processDirectivesOnRepeatedElementFn = () => {};
-    function processRepeatDirective(repeatableElementCtx, dataCtx2) {
-      const scope = Object.assign({}, dataCtx2);
-      const template = repeatableElementCtx.innerHTML;
-      repeatableElementCtx.replaceChildren();
-      let repeatExpression = appCtx.__pluncAttributeValueGetter(
-        repeatableElementCtx,
-        REPEAT_ELEMENT_DIRECTIVE,
-      );
-      if (repeatExpression === null || repeatExpression.trim() === "") {
-        return;
-      }
-      let [dataSourceExpr, itemAlias] =
-        dissectRepeatExpression(repeatExpression);
-      if (dataSourceExpr === REPEAT_REFERENCE_TOKEN) {
-        const repetitions = appCtx.__resolveExpression(scope, itemAlias);
-        let times = countRepeatable(repetitions);
-        scope["$$index"] = {};
-        let k = 0;
-        while (k < times) scope["$$index"]["props" + k++] = new Object();
-      }
-      const repeatableObject = appCtx.__resolveExpression(
-        scope,
-        dataSourceExpr,
-      );
-      if (!isIterableWithEntries(repeatableObject)) {
-        return;
-      }
-      let indexNumber = 0;
-      for (const [key, value] of Object.entries(repeatableObject)) {
-        const repeatDataCtx = {
-          $parent: dataCtx2,
-          $index: indexNumber,
-          [itemAlias]: value,
-        };
-        const repeatedElementCtx = appCtx.__createStagingElement(template);
-        processDirectivesOnRepeatedElementFn(repeatedElementCtx, repeatDataCtx);
-        appCtx.__commitStagingElementTo(
-          repeatedElementCtx,
-          repeatableElementCtx,
-        );
-        indexNumber++;
-      }
-    }
-    return function processRepeatDirectives(
-      elementCtx,
-      dataCtx2,
-      processDirectivesOnRepeatedElement,
-    ) {
-      const repeatElements = appCtx.__querySelectAllByPluncAttribute(
-        elementCtx,
-        REPEAT_ELEMENT_DIRECTIVE,
-      );
-      processDirectivesOnRepeatedElementFn = processDirectivesOnRepeatedElement;
-      for (const repeatElement of repeatElements) {
-        processRepeatDirective(repeatElement, dataCtx2);
-      }
+  function ac4(n) {
+    const e = ea1(n),
+      t = gg1(n),
+      r = fe1(n),
+      o = gb0(n),
+      c = dd0(n),
+      i = gb1(n),
+      u = de2(n),
+      a = ba2(n);
+    return function n(s, l, f = !0) {
+      (e(s, l, n),
+        r(s, l),
+        u(s, l),
+        t(s, l),
+        a(s, l),
+        i(s, l),
+        o(s, l),
+        !1 === f && c(s, l));
     };
   }
-
-  // out/directives/style.js
-  function composeStyleDirectiveProcessor(appCtx) {
-    return function processStyleDirective(elementCtx, dataCtx2) {
-      const elementsToProcess = appCtx.__querySelectAllByPluncAttribute(
-        elementCtx,
-        STYLE_ELEMENT_DIRECTIVE,
-      );
-      elementsToProcess.forEach((element2) => {
-        if (appCtx.__isElementLocked(element2)) {
-          return;
-        }
-        const styleExpression = appCtx.__pluncAttributeValueGetter(
-          element2,
-          STYLE_ELEMENT_DIRECTIVE,
-        );
-        if (styleExpression === null || styleExpression.trim() === "") {
-          return;
-        }
-        const evaluatedResult = appCtx.__resolveExpression(
-          dataCtx2,
-          styleExpression,
-        );
-        if (
-          typeof evaluatedResult === "string" &&
-          evaluatedResult.trim() !== ""
-        ) {
-          const classNames = evaluatedResult.split(" ").map((cn) => cn.trim());
-          classNames.forEach((cn) => {
-            if (cn !== "") {
-              element2.classList.add(cn);
-            }
-          });
-        }
-        appCtx.__lockElement(element2);
-      });
-    };
+  function eg1(n, e) {
+    null !== n &&
+      ((n.innerHTML = ""),
+      null !== n.parentNode &&
+        (n.outerHTML =
+          "\x3c!-- plunc.js: " + n.outerHTML + " | " + e + " --\x3e"));
   }
-
-  // out/services/directivesProcessor.js
-  function composeDirectivesProcessor(appCtx) {
-    const processRepeat = composeRepeatDirectiveProcessor(appCtx);
-    const processCheck = composeCheckDirectiveProcessor(appCtx);
-    const processConditionals = composeConditionalDirectivesProcessor(appCtx);
-    const processDisable = composeDisableDirectiveProcessor(appCtx);
-    const processEvents = composeEventDirectiveProcessor(appCtx);
-    const processModels = composeModelDirectiveProcessor(appCtx);
-    const resolvePlaceholders = composePlaceholderResolver(appCtx);
-    const processStyles = composeStyleDirectiveProcessor(appCtx);
-    function processDirectives(
-      targetElement,
-      dataCtx2,
-      skipEventProcessing = true,
-    ) {
-      processRepeat(targetElement, dataCtx2, processDirectives);
-      processConditionals(targetElement, dataCtx2);
-      resolvePlaceholders(targetElement, dataCtx2);
-      processCheck(targetElement, dataCtx2);
-      processStyles(targetElement, dataCtx2);
-      processModels(targetElement, dataCtx2);
-      processDisable(targetElement, dataCtx2);
-      if (skipEventProcessing === false) {
-        processEvents(targetElement, dataCtx2);
-      }
-    }
-    return processDirectives;
-  }
-
-  // out/services/disposeService.js
-  function disposeElement(element2, comment) {
-    if (null !== element2) {
-      element2.innerHTML = "";
-      if (element2.parentNode !== null) {
-        element2.outerHTML =
-          "<!-- plunc.js: " + element2.outerHTML + " | " + comment + " -->";
-      }
-    }
-  }
-
-  // out/services/domReady.js
-  var userAgent = navigator.userAgent.toLowerCase();
-  var browser = {
-    version: (userAgent.match(/.+(?:rv|it|ra|ie)[\/: ]([\d.]+)/) || [])[1],
-    safari: /webkit/.test(userAgent),
-    opera: /opera/.test(userAgent),
-    msie: /msie/.test(userAgent) && !/opera/.test(userAgent),
-    mozilla:
-      /mozilla/.test(userAgent) && !/(compatible|webkit)/.test(userAgent),
-  };
-  var readyBound = false;
-  var isReady = false;
-  var readyList = [];
+  var userAgent = navigator.userAgent.toLowerCase(),
+    browser = {
+      version: (userAgent.match(/.+(?:rv|it|ra|ie)[\/: ]([\d.]+)/) || [])[1],
+      safari: /webkit/.test(userAgent),
+      opera: /opera/.test(userAgent),
+      msie: /msie/.test(userAgent) && !/opera/.test(userAgent),
+      mozilla:
+        /mozilla/.test(userAgent) && !/(compatible|webkit)/.test(userAgent),
+    },
+    readyBound = !1,
+    isReady = !1,
+    readyList = [];
   function domReady() {
-    if (!isReady) {
-      isReady = true;
-      if (readyList) {
-        for (var fn = 0; fn < readyList.length; fn++) {
-          readyList[fn].call(window, []);
-        }
-        readyList = [];
-      }
+    if (!isReady && ((isReady = !0), readyList)) {
+      for (var n = 0; n < readyList.length; n++) readyList[n].call(window, []);
+      readyList = [];
     }
   }
-  function addLoadEvent(func) {
-    var oldonload = window.onload;
-    if (typeof window.onload != "function") {
-      window.onload = func;
-    } else {
-      window.onload = function () {
-        if (oldonload) oldonload();
-        func();
-      };
-    }
+  function addLoadEvent(n) {
+    var e = window.onload;
+    "function" != typeof window.onload
+      ? (window.onload = n)
+      : (window.onload = function () {
+          (e && e(), n());
+        });
   }
   function bindReady() {
-    if (readyBound) {
-      return;
-    }
-    readyBound = true;
-    if (document.addEventListener && !browser.opera) {
-      document.addEventListener("DOMContentLoaded", domReady, false);
-    }
-    if (browser.msie && window == top)
-      (function checkReady() {
-        if (isReady) return;
-        try {
-          document.documentElement.doScroll("left");
-        } catch (error) {
-          setTimeout(checkReady, 0);
-          return;
-        }
-        domReady();
-      })();
-    if (browser.opera) {
-      document.addEventListener(
-        "DOMContentLoaded",
-        function checkReady() {
-          if (isReady) return;
-          for (var i2 = 0; i2 < document.styleSheets.length; i2++)
-            if (document.styleSheets[i2].disabled) {
-              setTimeout(checkReady, 0);
-              return;
+    if (!readyBound) {
+      var n;
+      if (
+        ((readyBound = !0),
+        document.addEventListener &&
+          !browser.opera &&
+          document.addEventListener("DOMContentLoaded", domReady, !1),
+        browser.msie &&
+          window == top &&
+          (function n() {
+            if (!isReady) {
+              try {
+                document.documentElement.doScroll("left");
+              } catch (e) {
+                return void setTimeout(n, 0);
+              }
+              domReady();
             }
-          domReady();
-        },
-        false,
-      );
+          })(),
+        browser.opera &&
+          document.addEventListener(
+            "DOMContentLoaded",
+            function n() {
+              if (!isReady) {
+                for (var e = 0; e < document.styleSheets.length; e++)
+                  if (document.styleSheets[e].disabled)
+                    return void setTimeout(n, 0);
+                domReady();
+              }
+            },
+            !1,
+          ),
+        browser.safari)
+      )
+        !(function e() {
+          if (!isReady)
+            if (
+              "loaded" == document.readyState ||
+              "complete" == document.readyState
+            ) {
+              if (void 0 === n) {
+                for (
+                  var t = document.getElementsByTagName("link"), r = 0;
+                  r < t.length;
+                  r++
+                )
+                  "stylesheet" == t[r].getAttribute("rel") && n++;
+                var o = document.getElementsByTagName("style");
+                n += o.length;
+              }
+              document.styleSheets.length == n ? domReady() : setTimeout(e, 0);
+            } else setTimeout(e, 0);
+        })();
+      addLoadEvent(domReady);
     }
-    if (browser.safari) {
-      var numStyles;
-      (function checkReady() {
-        if (isReady) return;
-        if (
-          // @ts-ignore
-          document.readyState != "loaded" &&
-          document.readyState != "complete"
-        ) {
-          setTimeout(checkReady, 0);
-          return;
-        }
-        if (numStyles === void 0) {
-          var links = document.getElementsByTagName("link");
-          for (var i2 = 0; i2 < links.length; i2++) {
-            if (links[i2].getAttribute("rel") == "stylesheet") {
-              numStyles++;
-            }
-          }
-          var styles = document.getElementsByTagName("style");
-          numStyles += styles.length;
-        }
-        if (document.styleSheets.length != numStyles) {
-          setTimeout(checkReady, 0);
-          return;
-        }
-        domReady();
-      })();
-    }
-    addLoadEvent(domReady);
   }
   var DOMHelper = {
-    ready: function (callback) {
-      bindReady();
-      if (isReady) return callback.call(window, []);
+    ready: function (n) {
+      if ((bindReady(), isReady)) return n.call(window, []);
       readyList.push(function () {
-        return callback.call(window, []);
+        return n.call(window, []);
       });
     },
   };
-  bindReady();
-
-  // out/services/elementService.js
-  function selectElement(context, selector) {
-    return context.querySelector(selector);
+  function bc2(n, e) {
+    return n.querySelector(e);
   }
-  function selectAllElements(context, selector) {
-    return Array.from(context.querySelectorAll(selector));
+  function db2(n, e) {
+    return Array.from(n.querySelectorAll(e));
   }
-  function composeElementSelectorsWithPluncAttribute(
-    selectAllElementFn,
-    formatPluncAttributeFn,
-  ) {
-    return function selectAllElementsWithPluncAttribute(
-      context,
-      pluncAttributeKey,
-      pluncAttributeValue,
-    ) {
-      const attributeKey = formatPluncAttributeFn(pluncAttributeKey);
-      const valuePart = pluncAttributeValue ? `="${pluncAttributeValue}"` : "";
-      const selector = `[${attributeKey}${valuePart}]`;
-      return selectAllElementFn(context, selector);
+  function ef1(n, e) {
+    return function (t, r, o) {
+      const c = e(r);
+      return n(t, `[${c}${o ? `="${o}"` : ""}]`);
     };
   }
-  function composePluncAttributeValueGetter(formatPluncAttributeFn) {
-    return function getPluncAttributeValue(element2, key) {
-      const attributeKey = formatPluncAttributeFn(key);
-      return element2.getAttribute(attributeKey);
+  function bf3(n) {
+    return function (e, t) {
+      const r = n(t);
+      return e.getAttribute(r);
     };
   }
-  function composePluncAttributeValueSetter(formatPluncAttributeFn) {
-    return function setPluncAttributeValue(element2, key, value) {
-      const attributeKey = formatPluncAttributeFn(key);
-      element2.setAttribute(attributeKey, value);
+  function gg2(n) {
+    return function (e, t, r) {
+      const o = n(t);
+      e.setAttribute(o, r);
     };
   }
-  function composeChildComponentCleaner(selectElementByComponentId) {
-    return function cleanChildComponent(component, childIds) {
-      for (let i2 = 0; i2 < childIds.length; i2++) {
-        const childId = childIds[i2];
-        const child = selectElementByComponentId(component, childId);
-        if (child !== null) child.innerHTML = "";
+  function ee3(n) {
+    return function (e, t) {
+      for (let r = 0; r < t.length; r++) {
+        const o = t[r],
+          c = n(e, o);
+        null !== c && (c.innerHTML = "");
       }
     };
   }
-  function selectLiveAppRootElement(appName) {
-    const appRootAttributeKey = `${GLOBAL_DIRECTIVE_FOR_APP_NAME}`;
-    const selector = `[${appRootAttributeKey}="${appName}"]`;
-    const element2 = document.querySelector(selector);
-    if (!element2) {
-      throw new Error(`Cannot find the app root element for app: ${appName}`);
-    }
-    return element2;
+  function gb2(n) {
+    const e = `[${`${GLOBAL_DIRECTIVE_FOR_APP_NAME}`}="${n}"]`,
+      t = document.querySelector(e);
+    if (!t) throw new Error(`Cannot find the app root element for app: ${n}`);
+    return t;
   }
-
-  // out/services/handlerBinder.js
-  function composeComponentBinder(appContext) {
-    return function bindComponentToHandler(name, handler) {
-      appContext.__addToLibrary(name, "component", handler);
+  function ac7(n) {
+    return function (e, t) {
+      n.ac0(e, "component", t);
     };
   }
-  function composeServiceBinder(appContext) {
-    return function bindServiceToHandler(name, handler) {
-      appContext.__addToLibrary(name, "service", handler);
+  function bc3(n) {
+    return function (e, t) {
+      n.ac0(e, "service", t);
     };
   }
-  function composeFactoryBinder(appContext) {
-    return function bindFactoryToHandler(name, handler) {
-      appContext.__addToLibrary(name, "factory", handler);
+  function de4(n) {
+    return function (e, t) {
+      n.ac0(e, "factory", t);
     };
   }
-  function composeHelperBinder(appContext) {
-    return function bindHelperToHandler(name, handler) {
-      appContext.__addToLibrary(name, "helper", handler);
+  function ca3(n) {
+    return function (e, t) {
+      n.ac0(e, "helper", t);
     };
   }
-
-  // out/apis/$app.js
-  function composeAppAPI(appCtx) {
+  function bf0(n) {
     return {
-      ready: (listener) => {
-        appCtx.__getAppRepresentationInstance().onReady(listener);
+      ready: (e) => {
+        n.dc0().onReady(e);
       },
     };
   }
-
-  // out/apis/$block.js
-  function composeBlockAPI(appCtx, componentObject) {
-    return function $block(name, callback) {
-      if (!appCtx.__getAppRepresentationInstance().isReady()) {
-        throw new Error(`cannot use $block outside $app.ready`);
-      }
-      const liveComponentElement = appCtx.__querySelectComponentById(
-        // Components are id'd uniquely accross different app instances,
-        // so it's safe to query the document body directly.
-        document.body,
-        componentObject.id,
-      );
-      if (!liveComponentElement) {
-        throw new Error(
-          `Cannot find the live component element for component id: ${componentObject.id}`,
-        );
-      }
-      const selectAllBlockElements = appCtx.__createBlockSelector(
-        name,
-        componentObject,
-      );
-      const blockElements = selectAllBlockElements(liveComponentElement);
-      if (blockElements.length === 0) {
-        callback(null);
-        return;
-      }
-      blockElements.forEach((blockElement) => {
-        callback(new PluncElement(blockElement));
-      });
+  bindReady();
+  var PluncError = class extends Error {
+    constructor(n) {
+      (super(
+        `Plunc: An error has occured! Please see https://kenjiefx.github.io/plunc/errors/${n}.html for more details.`,
+      ),
+        Object.setPrototypeOf(this, Error.prototype));
+    }
+  };
+  function ca0(n, e) {
+    return function (t, r) {
+      if (!n.dc0().isReady()) throw new PluncError("ERR8");
+      const o = n.bd0(document.body, e.id);
+      if (!o) throw new PluncError("ERR9");
+      const c = n.da0(t, e)(o);
+      0 !== c.length
+        ? c.forEach((n) => {
+            r(new PluncElement(n));
+          })
+        : r(null);
     };
   }
-
-  // out/apis/$parent.js
-  function composeParentAPI(appCtx, componentObject) {
-    return function $parent() {
-      const parentId = appCtx.__whoIsTheParent(componentObject.id);
-      if (parentId === null) return null;
-      const parentComponentObject =
-        appCtx.__getComponentFromRegistryById(parentId);
-      if (!parentComponentObject) return null;
-      const wrapper = {};
-      wrapper[parentId] = parentComponentObject;
-      return appCtx.__createComponentProxy(wrapper);
+  function ad0(n, e) {
+    return function () {
+      const t = n.ce0(e.id);
+      if (null === t) return null;
+      const r = n.be0(t);
+      if (!r) return null;
+      const o = {};
+      return ((o[t] = r), n.gc0(o));
     };
   }
-
-  // out/apis/$patch.js
-  function composePatchAPI(appCtx, componentObject) {
-    return function $patch(blockName = null) {
+  function df0(n, e) {
+    return function (t = null) {
       return __async(this, null, function* () {
-        if (!appCtx.__getAppRepresentationInstance().isReady()) {
-          throw new Error(`cannot use $patch outside $app.ready`);
-        }
-        const liveComponentElement = appCtx.__querySelectComponentById(
-          // Components are id'd uniquely accross different app instances,
-          // so it's safe to query the document body directly.
-          document.body,
-          componentObject.id,
-        );
-        if (!liveComponentElement) {
-          throw new Error(
-            `Cannot find the live component element for component id: ${componentObject.id}`,
-          );
-        }
-        const { targetType, patchTargetNodes } = getPatchTargetNodesAndType(
-          blockName,
-          liveComponentElement,
-          componentObject,
-          appCtx,
-        );
-        for (const patchTargetNode of patchTargetNodes) {
-          const elementBindTo = patchTargetNode;
-          if (elementBindTo === null) continue;
-          let elementBindFrom = appCtx.__createStagingElement();
-          if (targetType === "COMPONENT") {
-            appCtx.__setStagingElementInnerHtml(
-              elementBindFrom,
-              componentObject.getTemplate(),
-            );
-          } else {
-            if (blockName === null) continue;
-            const blockTemplate = getBlockTemplate(
-              appCtx,
-              componentObject,
-              blockName,
-            );
-            appCtx.__setStagingElementInnerHtml(elementBindFrom, blockTemplate);
+        if (!n.dc0().isReady()) throw new PluncError("ERR10");
+        const r = n.bd0(document.body, e.id);
+        if (!r) throw new PluncError("ERR9");
+        const { targetType: o, patchTargetNodes: c } = dc1(t, r, e, n);
+        for (const r of c) {
+          const c = r;
+          if (null === c) continue;
+          let i = n.fc0();
+          if ("COMPONENT" === o) n.ae0(i, e.getTemplate());
+          else {
+            if (null === t) continue;
+            const r = be1(n, e, t);
+            n.ae0(i, r);
           }
-          const processDirectives = composeDirectivesProcessor(appCtx);
-          processDirectives(elementBindFrom, componentObject.scope, false);
-          elementBindTo.innerHTML = "";
-          appCtx.__commitStagingElementTo(elementBindFrom, elementBindTo);
+          (ac4(n)(i, e.scope, !1), (c.innerHTML = ""), n.bf1(i, c));
         }
       });
     };
   }
-  function getPatchTargetNodesAndType(
-    blockName,
-    liveComponentElement,
-    componentObject,
-    appCtx,
-  ) {
-    if (blockName !== null) {
-      const selectAllBlockElements = appCtx.__createBlockSelector(
-        blockName,
-        componentObject,
-      );
-      const patchTargetNodes = selectAllBlockElements(liveComponentElement);
-      return {
-        targetType: "BLOCK",
-        patchTargetNodes,
-      };
+  function dc1(n, e, t, r) {
+    if (null !== n) {
+      return { targetType: "BLOCK", patchTargetNodes: r.da0(n, t)(e) };
     }
-    return {
-      targetType: "COMPONENT",
-      patchTargetNodes: [liveComponentElement],
-    };
+    return { targetType: "COMPONENT", patchTargetNodes: [e] };
   }
-  function getBlockTemplate(appCtx, componentObject, blockName) {
-    const stagingElement = appCtx.__createStagingElement(
-      componentObject.getTemplate(),
-    );
-    const blockDirective = appCtx.__pluncAttributeKeyFormatter(
-      BLOCK_ELEMENT_DIRECTIVE,
-    );
-    const referenceDirective = appCtx.__pluncAttributeKeyFormatter(
-      COMPONENT_REFERENCE_DIRECTIVE,
-    );
-    const specificBlockSelector = `[${blockDirective}="${blockName}"][${referenceDirective}="${componentObject.id}"]`;
-    const blockElement = appCtx.__querySelectAllElements(
-      stagingElement,
-      specificBlockSelector,
-    );
-    if (blockElement.length === 0) {
-      throw new Error(
-        `Cannot find block element with name "${blockName}" in component "${componentObject.name}".`,
-      );
-    }
-    return blockElement[0].innerHTML;
+  function be1(n, e, t) {
+    const r = n.fc0(e.getTemplate()),
+      o = `[${n.gf0(BLOCK_ELEMENT_DIRECTIVE)}="${t}"][${n.gf0(COMPONENT_REFERENCE_DIRECTIVE)}="${e.id}"]`,
+      c = n.af0(r, o);
+    if (0 === c.length) throw new PluncError("ERR11");
+    return c[0].innerHTML;
   }
-
-  // out/apis/$this.js
-  function composeComponentAPI(appCtx, componentObject) {
-    return function $this() {
+  function bg0(n, e) {
+    return function () {
       return {
-        id: componentObject.id,
-        name: componentObject.name,
-        alias: componentObject.alias,
+        id: e.id,
+        name: e.name,
+        alias: e.alias,
         element: () => {
-          if (!appCtx.__getAppRepresentationInstance().isReady()) {
-            throw new Error(
-              `Cannot invoke component.get().element() outside $app.ready`,
-            );
-          }
-          const elementNode = appCtx.__querySelectComponentById(
-            // Components are id'd uniquely accross different app instances,
-            // so it's safe to query the document body directly.
-            document.body,
-            componentObject.id,
-          );
-          if (elementNode === null) {
-            return null;
-          }
-          return new PluncElement(elementNode);
+          if (!n.dc0().isReady()) throw new PluncError("ERR12");
+          const t = n.bd0(document.body, e.id);
+          return null === t ? null : new PluncElement(t);
         },
       };
     };
   }
-
-  // out/services/handlerExecutor.js
-  function listDependencies(handler) {
-    const handlerStr = handler.toString().split("{")[0];
-    if (handlerStr.charAt(0) !== "(") {
-      const param = handlerStr.split("=>")[0];
-      if (param === handlerStr) {
-        return [];
-      }
-      return [param.trim()];
+  function fg1(n) {
+    const e = n.toString().split("{")[0];
+    if ("(" !== e.charAt(0)) {
+      const n = e.split("=>")[0];
+      return n === e ? [] : [n.trim()];
     }
-    const matchedFn = handlerStr.match(new RegExp("(?<=\\().+?(?=\\))", "g"));
-    if (matchedFn === null || /[(={})]/g.test(matchedFn[0])) {
-      return [];
-    }
-    return matchedFn[0].split(",").map((item) => {
-      return item.trim();
-    });
+    const t = e.match(new RegExp("(?<=\\().+?(?=\\))", "g"));
+    return null === t || /[(={})]/g.test(t[0])
+      ? []
+      : t[0].split(",").map((n) => n.trim());
   }
-  function composeDependencyResolver(appCtx, listDependenciesFn) {
-    return function resolveDependency(param) {
-      const injectables = [];
-      param.dependencies.forEach((dependencyKey) => {
-        if (isScopeArgumentKey(dependencyKey)) {
-          injectables.push(resolveScopeParam(param));
-          return;
-        }
-        if (isAPIDependency(dependencyKey)) {
-          injectables.push(resolveAPIDependency(dependencyKey, param, appCtx));
-          return;
-        }
-        if (isServiceDependency(appCtx, dependencyKey)) {
-          const serviceObject = invokeServiceHandler(
-            dependencyKey,
-            appCtx,
-            listDependenciesFn,
-            resolveDependency,
-          );
-          injectables.push(serviceObject);
-          return;
-        }
-        if (isFactoryDependency(appCtx, dependencyKey)) {
-          const factory = invokeFactoryHandler(
-            dependencyKey,
-            appCtx,
-            listDependenciesFn,
-            resolveDependency,
-          );
-          injectables.push(factory);
-          return;
-        }
-        if (isHelperDependency(appCtx, dependencyKey)) {
-          if (param.type === "component" || param.type === "helper") {
-            const helper = invokeHelperHandler(
-              dependencyKey,
-              appCtx,
-              listDependenciesFn,
-              resolveDependency,
-              param.component,
-            );
-            injectables.push(helper);
-            return;
+  function fb3(n, e) {
+    return function t(r) {
+      const o = [];
+      return (
+        r.dependencies.forEach((c) => {
+          if (ed1(c)) o.push(ag3(r));
+          else if (cf1(c)) o.push(gb3(c, r, n));
+          else if (ca4(n, c)) {
+            const r = bc4(c, n, e, t);
+            o.push(r);
+          } else if (dc2(n, c)) {
+            const r = gg3(c, n, e, t);
+            o.push(r);
           } else {
-            throw new Error(
-              `Helper dependency "${dependencyKey}" can only be injected into components or helpers`,
-            );
+            if (cf2(n, c)) {
+              if ("component" === r.type || "helper" === r.type) {
+                const i = ff2(c, n, e, t, r.component);
+                return void o.push(i);
+              }
+              throw new Error(
+                `Helper dependency "${c}" can only be injected into components or helpers`,
+              );
+            }
+            if ("component" !== r.type)
+              (console.warn(`Unresolved dependency: "${c}"`), o.push(null));
+            else {
+              const e = ab0(c, r.component, n);
+              o.push(e);
+            }
           }
-        }
-        if (param.type === "component") {
-          const componentProxy = resolveComponentDependencyWithNameOrAlias(
-            dependencyKey,
-            param.component,
-            appCtx,
-          );
-          injectables.push(componentProxy);
-          return;
-        }
-        console.warn(`Unresolved dependency: "${dependencyKey}"`);
-        injectables.push(null);
-      });
-      return injectables;
+        }),
+        o
+      );
     };
   }
-  function isScopeArgumentKey(value) {
-    return value === SCOPE_ARGUMENT_KEY;
+  function ed1(n) {
+    return n === SCOPE_ARGUMENT_KEY;
   }
-  function isAPIDependency(value) {
-    return value.startsWith("$");
+  function cf1(n) {
+    return n.startsWith("$");
   }
-  function isServiceDependency(appCtx, value) {
-    const service = appCtx.__getServiceHandler(value);
-    return service !== null;
+  function ca4(n, e) {
+    return null !== n.dg0(e);
   }
-  function isFactoryDependency(appCtx, value) {
-    const factory = appCtx.__getFactoryHandler(value);
-    return factory !== null;
+  function dc2(n, e) {
+    return null !== n.ac1(e);
   }
-  function isHelperDependency(appCtx, value) {
-    const helper = appCtx.__getHelperHandler(value);
-    return helper !== null;
+  function cf2(n, e) {
+    return null !== n.af1(e);
   }
-  function resolveScopeParam(param) {
-    if (param.type === "component" || param.type === "helper") {
-      return param.component.scope;
-    }
-    return null;
+  function ag3(n) {
+    return "component" === n.type || "helper" === n.type
+      ? n.component.scope
+      : null;
   }
-  function resolveAPIDependency(dependencyKey, param, appCtx) {
-    if (param.type === "service" || param.type === "factory") {
-      return {};
-    }
-    switch (dependencyKey) {
+  function gb3(n, e, t) {
+    if ("service" === e.type || "factory" === e.type) return {};
+    switch (n) {
       case BLOCK_ARGUMENT_KEY:
-        return composeBlockAPI(appCtx, param.component);
+        return ca0(t, e.component);
       case PATCH_ARGUMENT_KEY:
-        return composePatchAPI(appCtx, param.component);
+        return df0(t, e.component);
       case PARENT_ARGUMENT_KEY:
-        return composeParentAPI(appCtx, param.component);
+        return ad0(t, e.component);
       case APP_ARGUMENT_KEY:
-        return composeAppAPI(appCtx);
+        return bf0(t);
       case COMPONENT_ARGUMENT_KEY:
-        return composeComponentAPI(appCtx, param.component);
+        return bg0(t, e.component);
       default:
         return {};
     }
   }
-  function assertIsNotDependeningOnItsParents(
-    component,
-    dependencyKey,
-    appCtx,
-    options,
-  ) {
-    const parentNames = recursivelyGetParentNames(
-      appCtx,
-      component.id,
-      options,
-    );
-    if (parentNames.has(dependencyKey)) {
+  function fe3(n, e, t, r) {
+    if (ca5(t, n.id, r).has(e))
       throw new Error(
-        `Circular dependency detected: Component "${component.name}" cannot depend on its parent "${dependencyKey}".`,
+        `Circular dependency detected: Component "${n.name}" cannot depend on its parent "${e}".`,
       );
-    }
   }
-  function recursivelyGetParentNames(appCtx, componentId, options) {
-    const parentNames = /* @__PURE__ */ new Set();
-    const parentId = appCtx.__whoIsTheParent(componentId);
-    if (parentId !== null) {
-      const parent = appCtx.__getComponentFromRegistryById(parentId);
-      if (parent !== null) {
-        if (options.tryAlias) {
-          if (parent.alias !== null) {
-            parentNames.add(parent.alias);
-          }
-        } else {
-          parentNames.add(parent.name);
-        }
-        const grandparents = recursivelyGetParentNames(
-          appCtx,
-          parentId,
-          options,
-        );
-        grandparents.forEach((name) => parentNames.add(name));
+  function ca5(n, e, t) {
+    const r = new Set(),
+      o = n.ce0(e);
+    if (null !== o) {
+      const e = n.be0(o);
+      if (null !== e) {
+        t.tryAlias ? null !== e.alias && r.add(e.alias) : r.add(e.name);
+        ca5(n, o, t).forEach((n) => r.add(n));
       }
     }
-    return parentNames;
+    return r;
   }
-  function resolveComponentDependencyWithNameOrAlias(
-    dependencyKey,
-    component,
-    appCtx,
-  ) {
-    function execute({ withAlias }) {
-      assertIsNotDependeningOnItsParents(component, dependencyKey, appCtx, {
-        tryAlias: withAlias,
-      });
-      let componentProxy2 = resolveComponentDependency(
-        dependencyKey,
-        component,
-        appCtx,
-        { matchUsingAlias: withAlias },
+  function ab0(n, e, t) {
+    function r({ withAlias: r }) {
+      return (
+        fe3(e, n, t, { tryAlias: r }),
+        dg3(n, e, t, { matchUsingAlias: r })
       );
-      return componentProxy2;
     }
-    const componentProxy = execute({ withAlias: false });
-    if (componentProxy !== null) {
-      return componentProxy;
-    }
-    return execute({ withAlias: true });
+    const o = r({ withAlias: !1 });
+    return null !== o ? o : r({ withAlias: !0 });
   }
-  function resolveComponentDependency(
-    dependencyKey,
-    component,
-    appCtx,
-    options,
-  ) {
-    if (component.name === dependencyKey) {
+  function dg3(n, e, t, r) {
+    if (e.name === n)
       throw new Error(
-        `Circular dependency detected: Component "${component.name}" cannot depend on itself.`,
+        `Circular dependency detected: Component "${e.name}" cannot depend on itself.`,
       );
-    }
-    const matchedChildren = matchChildComponentsByName(
-      component,
-      dependencyKey,
-      appCtx,
-      options,
-    );
-    if (matchedChildren.length > 0) {
-      const wrapper = {};
-      for (let i2 = 0; i2 < matchedChildren.length; i2++) {
-        const child = matchedChildren[i2];
-        const proxy = invokeComponentHandler(
-          child.name,
-          child,
-          appCtx,
-          listDependencies,
-          composeDependencyResolver(appCtx, listDependencies),
-        );
-        wrapper[child.id] = child;
+    const o = ad4(e, n, t, r);
+    if (o.length > 0) {
+      const n = {};
+      for (let e = 0; e < o.length; e++) {
+        const r = o[e];
+        ac8(r.name, r, t, fg1, fb3(t, fg1));
+        n[r.id] = r;
       }
-      return appCtx.__createComponentProxy(wrapper);
+      return t.gc0(n);
     }
     return null;
   }
-  function matchChildComponentsByName(parent, name, appCtx, options) {
-    const childrenIds = appCtx.__whoAreTheChildren(parent.id);
-    const matchedChildren = [];
-    childrenIds.forEach((childId) => {
-      const child = appCtx.__getComponentFromRegistryById(childId);
-      if (child !== null) {
-        if (options.matchUsingAlias && child.alias === name) {
-          matchedChildren.push(child);
-          return;
+  function ad4(n, e, t, r) {
+    const o = t.ea0(n.id),
+      c = [];
+    return (
+      o.forEach((n) => {
+        const o = t.be0(n);
+        if (null !== o) {
+          if (r.matchUsingAlias && o.alias === e) return void c.push(o);
+          if (!r.matchUsingAlias && o.name === e) return void c.push(o);
         }
-        if (!options.matchUsingAlias && child.name === name) {
-          matchedChildren.push(child);
-          return;
-        }
-      }
-    });
-    return matchedChildren;
+      }),
+      c
+    );
   }
-  function invokeComponentHandler(
-    name,
-    ComponentInternalRepresentation,
-    appCtx,
-    listDependenciesFn,
-    resolveDependenciesFn,
-  ) {
-    const proxy = ComponentInternalRepresentation.getProxy();
-    if (proxy !== null) {
-      return proxy;
-    }
-    const handler = appCtx.__getComponentHandler(name);
-    if (handler === null) {
-      throw new Error(`Missing component handler ${name}`);
-    }
-    const dependencies = listDependenciesFn(handler);
-    const injectables = resolveDependenciesFn({
-      dependencies,
-      type: "component",
-      component: ComponentInternalRepresentation,
-    });
-    const exposedProxy = handler(...injectables);
-    ComponentInternalRepresentation.setProxy(exposedProxy);
-    return exposedProxy;
+  function ac8(n, e, t, r, o) {
+    const c = e.getProxy();
+    if (null !== c) return c;
+    const i = t.ag0(n);
+    if (null === i) throw new Error(`Missing component handler ${n}`);
+    const u = i(...o({ dependencies: r(i), type: "component", component: e }));
+    return (e.setProxy(u), u);
   }
-  function invokeFactoryHandler(
-    name,
-    appCtx,
-    listDependenciesFn,
-    resolveDependenciesFn,
-  ) {
-    let handler = appCtx.__getFactoryHandler(name);
-    if (handler === null) {
-      throw new Error(`Missing factory handler ${name}`);
-    }
-    const dependencies = listDependenciesFn(handler);
-    const injectables = resolveDependenciesFn({
-      dependencies,
-      type: "factory",
-    });
-    const factory = handler(...injectables);
-    if (typeof factory === "function") {
-      return factory;
-    }
-    throw new Error(`Factory ${name} handler must return class reference`);
+  function gg3(n, e, t, r) {
+    let o = e.ac1(n);
+    if (null === o) throw new Error(`Missing factory handler ${n}`);
+    const c = o(...r({ dependencies: t(o), type: "factory" }));
+    if ("function" == typeof c) return c;
+    throw new Error(`Factory ${n} handler must return class reference`);
   }
-  function invokeServiceHandler(
-    name,
-    appCtx,
-    listDependenciesFn,
-    resolveDependenciesFn,
-  ) {
-    const serviceInternalRepresentation =
-      appCtx.__getServiceFromRegistryById(name);
-    const handler = appCtx.__getServiceHandler(name);
-    if (handler === null) {
-      throw new Error(`Missing service handler ${name}`);
-    }
-    const dependencies = listDependenciesFn(handler);
-    const injectables = resolveDependenciesFn({
-      dependencies,
-      type: "service",
-    });
-    let serviceExternalApi = handler(...injectables);
-    if (serviceExternalApi === void 0 || serviceExternalApi === null) {
-      serviceExternalApi = {};
-    }
-    appCtx.__addServiceToRegistry(name, serviceExternalApi);
-    return serviceExternalApi;
+  function bc4(n, e, t, r) {
+    e.be2(n);
+    const o = e.dg0(n);
+    if (null === o) throw new Error(`Missing service handler ${n}`);
+    let c = o(...r({ dependencies: t(o), type: "service" }));
+    return (null == c && (c = {}), e.ac2(n, c), c);
   }
-  function invokeHelperHandler(
-    name,
-    appCtx,
-    listDependenciesFn,
-    resolveDependenciesFn,
-    component,
-  ) {
-    let handler = appCtx.__getHelperHandler(name);
-    if (handler === null) {
-      throw new Error(`Missing helper handler ${name}`);
-    }
-    const dependencies = listDependenciesFn(handler);
-    const injectables = resolveDependenciesFn({
-      component,
-      dependencies,
-      type: "helper",
-    });
-    const helper = handler(...injectables);
-    if (helper !== void 0 && helper !== null) {
-      if (typeof helper !== "object") {
-        throw new Error(`Helper ${name} must return an object`);
-      }
-    }
-    return helper;
+  function ff2(n, e, t, r, o) {
+    let c = e.af1(n);
+    if (null === c) throw new Error(`Missing helper handler ${n}`);
+    const i = c(...r({ component: o, dependencies: t(c), type: "helper" }));
+    if (null != i && "object" != typeof i)
+      throw new Error(`Helper ${n} must return an object`);
+    return i;
   }
-
-  // out/errors/pluncError.js
-  var PluncError = class extends Error {
-    constructor(message) {
-      const processedMessage = `Plunc: An error has occured! Please see https://kenjiefx.github.io/plunc/errors/${message}.html for more details.`;
-      super(processedMessage);
-      Object.setPrototypeOf(this, Error.prototype);
-    }
-  };
-
-  // out/types.js
-  var LibraryBrand = Symbol("LibraryBrand");
-  var ComponentFamilyTreeBrand = Symbol("ComponentFamilyTreeBrand");
-  var RegistryBrand = Symbol("RegistryBrand");
-
-  // out/services/libraryService.js
-  function createNewHandlerLibrary() {
-    const library = {
+  var LibraryBrand = Symbol("LibraryBrand"),
+    ComponentFamilyTreeBrand = Symbol("ComponentFamilyTreeBrand"),
+    RegistryBrand = Symbol("RegistryBrand");
+  function dg4() {
+    return {
       data: {
-        component: /* @__PURE__ */ new Map(),
-        service: /* @__PURE__ */ new Map(),
-        factory: /* @__PURE__ */ new Map(),
-        helper: /* @__PURE__ */ new Map(),
+        component: new Map(),
+        service: new Map(),
+        factory: new Map(),
+        helper: new Map(),
       },
-      [LibraryBrand]: true,
+      [LibraryBrand]: !0,
     };
-    return library;
   }
-  function getInternalDataFromLibrary(library) {
-    if ("data" in library) {
-      return library;
-    }
+  function eb0(n) {
+    if ("data" in n) return n;
     throw new PluncError("ERR4");
   }
-  function addHandlerToLibrary(library, name, type, handler) {
-    const internalData = getInternalDataFromLibrary(library);
-    switch (type) {
+  function gf6(n, e, t, r) {
+    const o = eb0(n);
+    switch (t) {
       case "component":
-        internalData.data.component.set(name, handler);
+        o.data.component.set(e, r);
         break;
       case "service":
-        internalData.data.service.set(name, handler);
+        o.data.service.set(e, r);
         break;
       case "factory":
-        internalData.data.factory.set(name, handler);
+        o.data.factory.set(e, r);
         break;
       case "helper":
-        internalData.data.helper.set(name, handler);
-        break;
+        o.data.helper.set(e, r);
     }
   }
-  function getComponentHandlerFromLibrary(library, name) {
-    var _a;
-    const internalData = getInternalDataFromLibrary(library);
-    return (_a = internalData.data.component.get(name)) !== null &&
-      _a !== void 0
-      ? _a
+  function dc3(n, e) {
+    var t;
+    return null !== (t = eb0(n).data.component.get(e)) && void 0 !== t
+      ? t
       : null;
   }
-  function getServiceHandlerFromLibrary(library, name) {
-    var _a;
-    const internalData = getInternalDataFromLibrary(library);
-    return (_a = internalData.data.service.get(name)) !== null && _a !== void 0
-      ? _a
-      : null;
+  function dg5(n, e) {
+    var t;
+    return null !== (t = eb0(n).data.service.get(e)) && void 0 !== t ? t : null;
   }
-  function getFactoryHandlerFromLibrary(library, name) {
-    var _a;
-    const internalData = getInternalDataFromLibrary(library);
-    return (_a = internalData.data.factory.get(name)) !== null && _a !== void 0
-      ? _a
-      : null;
+  function aa0(n, e) {
+    var t;
+    return null !== (t = eb0(n).data.factory.get(e)) && void 0 !== t ? t : null;
   }
-  function getHelperHandlerFromLibrary(library, name) {
-    var _a;
-    const internalData = getInternalDataFromLibrary(library);
-    return (_a = internalData.data.helper.get(name)) !== null && _a !== void 0
-      ? _a
-      : null;
+  function ba3(n, e) {
+    var t;
+    return null !== (t = eb0(n).data.helper.get(e)) && void 0 !== t ? t : null;
   }
-
-  // out/services/lineageService.js
-  function getInternalComponentFamilyTree(tree) {
-    if ("data" in tree) {
-      return tree;
-    }
+  function ec2(n) {
+    if ("data" in n) return n;
     throw new PluncError("ERR5");
   }
-  function createComponentLineage() {
-    const genealogy = {
-      data: {},
-      [ComponentFamilyTreeBrand]: true,
-    };
-    return genealogy;
+  function cc1() {
+    return { data: {}, [ComponentFamilyTreeBrand]: !0 };
   }
-  function addRecordToComponentLineage(tree, parentId, childId) {
-    const internalTree = getInternalComponentFamilyTree(tree);
-    if (internalTree.data[parentId] === void 0) {
-      internalTree.data[parentId] = {
-        parent: null,
-        children: [],
-      };
-    }
-    internalTree.data[parentId].children.push(childId);
-    if (internalTree.data[childId] === void 0) {
-      internalTree.data[childId] = {
-        parent: parentId,
-        children: [],
-      };
-    }
+  function be6(n, e, t) {
+    const r = ec2(n);
+    (void 0 === r.data[e] && (r.data[e] = { parent: null, children: [] }),
+      r.data[e].children.push(t),
+      void 0 === r.data[t] && (r.data[t] = { parent: e, children: [] }));
   }
-  function lookupComponentLineage(tree, childId) {
-    const internalTree = getInternalComponentFamilyTree(tree);
-    if (internalTree.data[childId] === void 0) return [];
-    const parents = [];
-    let parent = internalTree.data[childId].parent;
-    while (parent !== null) {
-      parents.push(parent);
-      parent = internalTree.data[parent].parent;
-    }
-    return parents;
+  function eb1(n, e) {
+    const t = ec2(n);
+    if (void 0 === t.data[e]) return [];
+    const r = [];
+    let o = t.data[e].parent;
+    for (; null !== o; ) (r.push(o), (o = t.data[o].parent));
+    return r;
   }
-  function whoAreTheChildrenOfComponent(tree, parentId) {
-    const internalTree = getInternalComponentFamilyTree(tree);
-    if (internalTree.data[parentId] === void 0) return [];
-    return internalTree.data[parentId].children;
+  function df2(n, e) {
+    const t = ec2(n);
+    return void 0 === t.data[e] ? [] : t.data[e].children;
   }
-  function whoIsTheParentOfComponent(tree, childId) {
-    const internalTree = getInternalComponentFamilyTree(tree);
-    if (internalTree.data[childId] === void 0) return null;
-    return internalTree.data[childId].parent;
+  function cb3(n, e) {
+    const t = ec2(n);
+    return void 0 === t.data[e] ? null : t.data[e].parent;
   }
-  function whoAreTheSiblingsOfComponent(tree, componentId) {
-    const internalTree = getInternalComponentFamilyTree(tree);
-    if (internalTree.data[componentId] === void 0) return [];
-    const parentId = internalTree.data[componentId].parent;
-    if (parentId === null) return [];
-    const siblings = internalTree.data[parentId].children.filter(
-      (childId) => childId !== componentId,
-    );
-    return siblings;
+  function ed2(n, e) {
+    const t = ec2(n);
+    if (void 0 === t.data[e]) return [];
+    const r = t.data[e].parent;
+    if (null === r) return [];
+    return t.data[r].children.filter((n) => n !== e);
   }
-
-  // out/services/lockService.js
-  function composeElementLocker(attributeKeyFormatter) {
-    return function lockElement(element2) {
-      const attributeKey = attributeKeyFormatter(GLOBAL_LOCK_ID_DIRECTIVE);
-      element2.setAttribute(attributeKey, GLOBAL_LOCK_ID_DIRECTIVE_VALUE);
+  function bd4(n) {
+    return function (e) {
+      const t = n(GLOBAL_LOCK_ID_DIRECTIVE);
+      e.setAttribute(t, GLOBAL_LOCK_ID_DIRECTIVE_VALUE);
     };
   }
-  function composeIsElementLockedChecker(attributeKeyFormatter) {
-    return function isElementLocked(element2) {
-      const attributeKey = attributeKeyFormatter(GLOBAL_LOCK_ID_DIRECTIVE);
-      return element2.getAttribute(attributeKey) !== null;
+  function ad5(n) {
+    return function (e) {
+      const t = n(GLOBAL_LOCK_ID_DIRECTIVE);
+      return null !== e.getAttribute(t);
     };
   }
-  function composeIsEventLockChecker(attributeKeyFormatter) {
-    return function isElementLockedToEvent(element2, eventName) {
-      const attribute = attributeKeyFormatter(GLOBAL_EVENT_LOCK_DIRECTIVE);
-      const existing = element2.getAttribute(attribute);
-      if (existing === null) return false;
-      const events = existing.split(",");
-      return events.includes(eventName);
+  function dc4(n) {
+    return function (e, t) {
+      const r = n(GLOBAL_EVENT_LOCK_DIRECTIVE),
+        o = e.getAttribute(r);
+      if (null === o) return !1;
+      return o.split(",").includes(t);
     };
   }
-  function composeEventLocker(attributeKeyFormatter) {
-    return function lockElementToEvent(element2, eventName) {
-      const attributeKey = attributeKeyFormatter(GLOBAL_EVENT_LOCK_DIRECTIVE);
-      const existing = element2.getAttribute(attributeKey);
-      if (existing === null) {
-        element2.setAttribute(attributeKey, eventName);
-        return;
+  function dd3(n) {
+    return function (e, t) {
+      const r = n(GLOBAL_EVENT_LOCK_DIRECTIVE),
+        o = e.getAttribute(r);
+      if (null === o) return void e.setAttribute(r, t);
+      let c = o.split(",");
+      for (let n = 0; n < c.length; n++) {
+        c[n] !== t && c.push(t);
       }
-      let events = existing.split(",");
-      for (let i2 = 0; i2 < events.length; i2++) {
-        const event = events[i2];
-        if (event !== eventName) {
-          events.push(eventName);
-        }
-      }
-      element2.setAttribute(attributeKey, events.join(","));
+      e.setAttribute(r, c.join(","));
     };
   }
-
-  // out/services/namedElements.js
-  function composeReferenceAttacher(appCtx, elementsSelector) {
-    return function attachReferenceToNamedElements(referenceId, component) {
-      [BLOCK_ELEMENT_DIRECTIVE].forEach((attribute) => {
-        const namedElementAttribute =
-          appCtx.__pluncAttributeKeyFormatter(attribute);
-        const attributableElements = elementsSelector(
-          component,
-          `[${namedElementAttribute}]`,
-        );
-        attributableElements.forEach((element2) => {
-          appCtx.__pluncAttributeValueSetter(
-            element2,
-            COMPONENT_REFERENCE_DIRECTIVE,
-            referenceId,
-          );
+  function eb2(n, e) {
+    return function (t, r) {
+      [BLOCK_ELEMENT_DIRECTIVE].forEach((o) => {
+        const c = n.gf0(o);
+        e(r, `[${c}]`).forEach((e) => {
+          n.ca1(e, COMPONENT_REFERENCE_DIRECTIVE, t);
         });
       });
     };
   }
-
-  // out/services/pluncAppService.js
-  function createPluncAppInternalRepresentation(
-    id,
-    name,
-    config,
-    library,
-    registry,
-  ) {
-    const onReadyListeners = [];
-    let ready = false;
-    function emitReady() {
-      ready = true;
-      for (const listener of onReadyListeners) {
-        listener();
-      }
-    }
-    function isReady2() {
-      return ready;
-    }
-    function onReady(listener) {
-      onReadyListeners.push(listener);
-    }
-    function getReadyListeners() {
-      return onReadyListeners;
-    }
+  function fe4(n, e, t, r, o) {
+    const c = [];
+    let i = !1;
     return {
-      config,
-      library,
-      registry,
-      name,
-      id,
-      getReadyListeners,
-      emitReady,
-      isReady: isReady2,
-      onReady,
-    };
-  }
-
-  // out/services/registryService.js
-  function createNewComponentAndServiceRegistry() {
-    const registry = {
-      data: {
-        components: /* @__PURE__ */ new Map(),
-        services: /* @__PURE__ */ new Map(),
+      config: t,
+      library: r,
+      registry: o,
+      name: e,
+      id: n,
+      ad6: function () {
+        return c;
       },
-      [RegistryBrand]: true,
+      emitReady: function () {
+        i = !0;
+        for (const n of c) n();
+      },
+      isReady: function () {
+        return i;
+      },
+      onReady: function (n) {
+        c.push(n);
+      },
     };
-    return registry;
   }
-  function getInternalRegistryData(registry) {
-    if ("data" in registry) {
-      return registry;
-    }
+  function df3() {
+    return {
+      data: { components: new Map(), services: new Map() },
+      [RegistryBrand]: !0,
+    };
+  }
+  function gb4(n) {
+    if ("data" in n) return n;
     throw new PluncError("ERR6");
   }
-  function addComponentToRegistry(registry, id, component) {
-    const internalRegistry = getInternalRegistryData(registry);
-    internalRegistry.data.components.set(id, component);
+  function gd0(n, e, t) {
+    gb4(n).data.components.set(e, t);
   }
-  function getComponentFromRegistryById(registry, id) {
-    var _a;
-    const internalRegistry = getInternalRegistryData(registry);
-    return (_a = internalRegistry.data.components.get(id)) !== null &&
-      _a !== void 0
-      ? _a
+  function be0(n, e) {
+    var t;
+    return null !== (t = gb4(n).data.components.get(e)) && void 0 !== t
+      ? t
       : null;
   }
-  function getComponentsFromRegistryByIds(registry, ids) {
-    const internalRegistry = getInternalRegistryData(registry);
-    const components = [];
-    ids.forEach((id) => {
-      const component = internalRegistry.data.components.get(id);
-      if (component) {
-        components.push(component);
-      }
-    });
-    return components;
+  function cd0(n, e) {
+    const t = gb4(n),
+      r = [];
+    return (
+      e.forEach((n) => {
+        const e = t.data.components.get(n);
+        e && r.push(e);
+      }),
+      r
+    );
   }
-  function getAllComponentsFromRegistry(registry) {
-    const internalRegistry = getInternalRegistryData(registry);
-    return Array.from(internalRegistry.data.components.values());
+  function cg0(n) {
+    const e = gb4(n);
+    return Array.from(e.data.components.values());
   }
-  function addServiceToRegistry(registry, name, service) {
-    const internalRegistry = getInternalRegistryData(registry);
-    internalRegistry.data.services.set(name, service);
+  function ac2(n, e, t) {
+    gb4(n).data.services.set(e, t);
   }
-  function getServiceFromRegistryById(registry, name) {
-    var _a;
-    const internalRegistry = getInternalRegistryData(registry);
-    return (_a = internalRegistry.data.services.get(name)) !== null &&
-      _a !== void 0
-      ? _a
+  function be2(n, e) {
+    var t;
+    return null !== (t = gb4(n).data.services.get(e)) && void 0 !== t
+      ? t
       : null;
   }
-  function getServicesFromRegistryByIds(registry, ids) {
-    const internalRegistry = getInternalRegistryData(registry);
-    const services = [];
-    ids.forEach((id) => {
-      const service = internalRegistry.data.services.get(id);
-      if (service) {
-        services.push(service);
-      }
-    });
-    return services;
+  function cd1(n, e) {
+    const t = gb4(n),
+      r = [];
+    return (
+      e.forEach((n) => {
+        const e = t.data.services.get(n);
+        e && r.push(e);
+      }),
+      r
+    );
   }
-
-  // out/services/scopeReconciler.js
-  function reconcileChildren(source, target) {
-    if (source === null) return;
-    while (source.childNodes.length > 0) {
-      target.appendChild(source.childNodes[0]);
-    }
+  function gc2(n, e) {
+    if (null !== n)
+      for (; n.childNodes.length > 0; ) e.appendChild(n.childNodes[0]);
   }
-  function composeComponentReconciler(reconcileChildrenFn, findByComponentId) {
-    return function reconcileScope(
-      sourceScope,
-      targetScope,
-      childComponentIds,
-    ) {
-      const TChildRegistry = {};
-      for (let i2 = 0; i2 < childComponentIds.length; i2++) {
-        const childId = childComponentIds[i2];
-        const tempChildEl = document.implementation.createHTMLDocument().body;
-        const actualChildEl = findByComponentId(targetScope, childId);
-        if (actualChildEl !== null) {
-          reconcileChildrenFn(actualChildEl, tempChildEl);
-          TChildRegistry[childId] = tempChildEl;
-        }
+  function ed4(n, e) {
+    return function (t, r, o) {
+      const c = {};
+      for (let t = 0; t < o.length; t++) {
+        const i = o[t],
+          u = document.implementation.createHTMLDocument().body,
+          a = e(r, i);
+        null !== a && (n(a, u), (c[i] = u));
       }
-      targetScope.innerHTML = "";
-      reconcileChildrenFn(sourceScope, targetScope);
-      for (const childId in TChildRegistry) {
-        const actualChildEl = findByComponentId(targetScope, childId);
-        if (actualChildEl === null) continue;
-        const tempChildEl = TChildRegistry[childId];
-        reconcileChildrenFn(tempChildEl, actualChildEl);
+      ((r.innerHTML = ""), n(t, r));
+      for (const t in c) {
+        const o = e(r, t);
+        if (null === o) continue;
+        const i = c[t];
+        n(i, o);
       }
     };
   }
-
-  // out/services/stagingElement.js
-  function createStagingElement(innerHtml) {
-    const element2 = document.implementation.createHTMLDocument().body;
-    Object.defineProperty(element2, "$plStgCS", {
-      value: false,
-      writable: true,
-      enumerable: false,
-      configurable: false,
-    });
-    if (innerHtml) {
-      element2.innerHTML = innerHtml;
-    }
-    return element2;
-  }
-  function setStagingElementInnerHtml(stagingElement, html) {
-    if (stagingElement.$plStgCS) {
-      throw new PluncError("ERR1");
-    }
-    stagingElement.innerHTML = html;
-  }
-  function getStagingElementInnerHtml(stagingElement) {
-    if (stagingElement.$plStgCS) {
-      throw new PluncError("ERR2");
-    }
-    return stagingElement.innerHTML;
-  }
-  function commitStagingElementTo(stagingElement, targetElement) {
-    if (stagingElement.$plStgCS) {
-      throw new PluncError("ERR3");
-    }
-    while (stagingElement.firstChild) {
-      targetElement.appendChild(stagingElement.firstChild);
-    }
-    stagingElement.$plStgCS = true;
-  }
-
-  // out/services/templateService.js
-  function collectTemplateElementsInnerHtml(contextElement) {
-    const templatesMap = /* @__PURE__ */ new Map();
-    const templateElements = Array.from(
-      contextElement.querySelectorAll("template"),
+  function fc0(n) {
+    const e = document.implementation.createHTMLDocument().body;
+    return (
+      Object.defineProperty(e, "$plStgCS", {
+        value: !1,
+        writable: !0,
+        enumerable: !1,
+        configurable: !1,
+      }),
+      n && (e.innerHTML = n),
+      e
     );
-    const pluncAttr = `${GLOBAL_DIRECTIVE_FOR_TEMPLATE_NAME}`;
-    for (const templElement of templateElements) {
-      const name = templElement.getAttribute(pluncAttr);
-      if (name) {
-        templatesMap.set(name, templElement.innerHTML);
-      }
-    }
-    return templatesMap;
   }
-
-  // out/bootstrap.js
-  var contexts = [];
-  var createContainer = composePluncAppContainerFactory(
-    createPluncAppInternalRepresentation,
-    createNewComponentAndServiceRegistry,
-    addComponentToRegistry,
-    getComponentFromRegistryById,
-    getComponentsFromRegistryByIds,
-    getAllComponentsFromRegistry,
-    addServiceToRegistry,
-    getServiceFromRegistryById,
-    getServicesFromRegistryByIds,
-    createNewHandlerLibrary,
-    addHandlerToLibrary,
-    getServiceHandlerFromLibrary,
-    getComponentHandlerFromLibrary,
-    getFactoryHandlerFromLibrary,
-    getHelperHandlerFromLibrary,
-    createComponentLineage,
-    addRecordToComponentLineage,
-    lookupComponentLineage,
-    whoAreTheChildrenOfComponent,
-    whoIsTheParentOfComponent,
-    whoAreTheSiblingsOfComponent,
-    composePluncAttributeKeyFormatter,
-    composePluncAttributeValueGetter,
-    composePluncAttributeValueSetter,
-    parseAliasNotation,
-    composeComponentIdGenerator,
-    selectElement,
-    selectAllElements,
-    composeComponentSelectorById,
-    composeElementSelectorsWithPluncAttribute,
-    composeElementLocker,
-    composeIsElementLockedChecker,
-    composeIsEventLockChecker,
-    composeEventLocker,
-    disposeElement,
-    composeChildComponentCleaner,
-    composeBlockElementSelector,
-    createComponentInternalRepresentationFactory,
-    composeComponentProxyFactory,
-    resolvePluncExpression,
-    createStagingElement,
-    setStagingElementInnerHtml,
-    getStagingElementInnerHtml,
-    commitStagingElementTo,
-  );
-  var plunc = (window["plunc"] = {
-    create: (applicationName, configuration = null) => {
-      const instanceId = contexts.length + 1;
-      const appContainer = createContainer(
-        instanceId,
-        applicationName,
-        configuration,
-      );
-      contexts.push(appContainer);
-      return {
-        component: composeComponentBinder(appContainer),
-        service: composeServiceBinder(appContainer),
-        factory: composeFactoryBinder(appContainer),
-        helper: composeHelperBinder(appContainer),
-      };
-    },
-  });
-  function shouldInit(appContainer) {
+  function ae0(n, e) {
+    if (n.$plStgCS) throw new PluncError("ERR1");
+    n.innerHTML = e;
+  }
+  function bc0(n) {
+    if (n.$plStgCS) throw new PluncError("ERR2");
+    return n.innerHTML;
+  }
+  function bf1(n, e) {
+    if (n.$plStgCS) throw new PluncError("ERR3");
+    for (; n.firstChild; ) e.appendChild(n.firstChild);
+    n.$plStgCS = !0;
+  }
+  function dc5(n) {
+    const e = new Map(),
+      t = Array.from(n.querySelectorAll("template")),
+      r = `${GLOBAL_DIRECTIVE_FOR_TEMPLATE_NAME}`;
+    for (const n of t) {
+      const t = n.getAttribute(r);
+      t && e.set(t, n.innerHTML);
+    }
+    return e;
+  }
+  var contexts = [],
+    createContainer = ad1(
+      fe4,
+      df3,
+      gd0,
+      be0,
+      cd0,
+      cg0,
+      ac2,
+      be2,
+      cd1,
+      dg4,
+      gf6,
+      dg5,
+      dc3,
+      aa0,
+      ba3,
+      cc1,
+      be6,
+      eb1,
+      df2,
+      cb3,
+      ed2,
+      fd1,
+      bf3,
+      gg2,
+      de3,
+      fe2,
+      bc2,
+      db2,
+      bd3,
+      ef1,
+      bd4,
+      ad5,
+      dc4,
+      dd3,
+      eg1,
+      ee3,
+      be3,
+      ae1,
+      gf1,
+      cd3,
+      fc0,
+      ae0,
+      bc0,
+      bf1,
+    ),
+    plunc = (window.plunc = {
+      create: (n, e = null) => {
+        const t = contexts.length + 1,
+          r = createContainer(t, n, e);
+        return (
+          contexts.push(r),
+          {
+            component: ac7(r),
+            service: bc3(r),
+            factory: de4(r),
+            helper: ca3(r),
+          }
+        );
+      },
+    });
+  function shouldInit(n) {
     return __async(this, null, function* () {
-      return appContainer.__getAppRepresentationInstance().config.startFn();
+      return n.dc0().config.startFn();
     });
   }
-  function bootstrap(contexts2) {
+  function bootstrap(n) {
     return __async(this, null, function* () {
-      if (contexts2.length === 0) return;
-      const [appContainer, ...rest] = contexts2;
-      if (!(yield shouldInit(appContainer))) return;
-      const templatesMap = collectTemplateElementsInnerHtml(document.body);
-      const appStagingElement = createStagingElement(
-        templatesMap.get(appContainer.__getAppRepresentationInstance().name),
-      );
-      const componentIdGenerator = composeComponentIdGenerator(
-        appContainer.__getAppRepresentationInstance(),
-      );
-      const referenceAttacher = composeReferenceAttacher(
-        appContainer,
-        selectAllElements,
-      );
-      const renderComponents = composeComponentRenderer(
-        appContainer,
-        templatesMap,
-        selectAllElements,
-        componentIdGenerator,
-        referenceAttacher,
-      );
-      renderComponents(appStagingElement, "");
-      const allComponentInternalRepresentation =
-        appContainer.__getAllComponentsFromRegistry();
-      for (const componentId in allComponentInternalRepresentation) {
-        const componentInternalRepresentation =
-          allComponentInternalRepresentation[componentId];
-        const dependencyResolver = composeDependencyResolver(
-          appContainer,
-          listDependencies,
-        );
-        invokeComponentHandler(
-          componentInternalRepresentation.name,
-          componentInternalRepresentation,
-          appContainer,
-          listDependencies,
-          dependencyResolver,
-        );
+      if (0 === n.length) return;
+      const [e, ...t] = n;
+      if (!(yield shouldInit(e))) return;
+      const r = dc5(document.body),
+        o = fc0(r.get(e.dc0().name)),
+        c = fe2(e.dc0());
+      bd2(e, r, db2, c, eb2(e, db2))(o, "");
+      const i = e.cg0();
+      for (const n in i) {
+        const t = i[n],
+          r = fb3(e, fg1);
+        ac8(t.name, t, e, fg1, r);
       }
-      for (const componentId in allComponentInternalRepresentation) {
-        const componentInternalRepresentation =
-          allComponentInternalRepresentation[componentId];
-        const targetComponentElement = appContainer.__querySelectComponentById(
-          appStagingElement,
-          componentInternalRepresentation.id,
-        );
-        if (targetComponentElement === null) continue;
-        const tempElement = document.implementation.createHTMLDocument().body;
-        tempElement.innerHTML = targetComponentElement.innerHTML;
-        const idsOfChildren = appContainer.__whoAreTheChildren(
-          componentInternalRepresentation.id,
-        );
-        appContainer.__clearChildComponents(tempElement, idsOfChildren);
-        const processDirectives = composeDirectivesProcessor(appContainer);
-        processDirectives(
-          tempElement,
-          componentInternalRepresentation.scope,
-          false,
-        );
-        const reconcileComponent = composeComponentReconciler(
-          reconcileChildren,
-          appContainer.__querySelectComponentById,
-        );
-        reconcileComponent(tempElement, targetComponentElement, idsOfChildren);
+      for (const n in i) {
+        const t = i[n],
+          r = e.bd0(o, t.id);
+        if (null === r) continue;
+        const c = document.implementation.createHTMLDocument().body;
+        c.innerHTML = r.innerHTML;
+        const u = e.ea0(t.id);
+        e.ec0(c, u);
+        ac4(e)(c, t.scope, !1);
+        ed4(gc2, e.bd0)(c, r, u);
       }
-      const appElement = selectLiveAppRootElement(
-        appContainer.__getAppRepresentationInstance().name,
-      );
-      appElement.replaceChildren();
-      appContainer.__commitStagingElementTo(appStagingElement, appElement);
-      appContainer.__getAppRepresentationInstance().emitReady();
-      const readyListeners = appContainer
-        .__getAppRepresentationInstance()
-        .getReadyListeners();
-      for (let i2 = 0; i2 < readyListeners.length; i2++) {
-        const listener = readyListeners[i2];
-        listener();
+      const u = gb2(e.dc0().name);
+      (u.replaceChildren(), e.bf1(o, u), e.dc0().emitReady());
+      const a = e.dc0().ad6();
+      for (let n = 0; n < a.length; n++) {
+        (0, a[n])();
       }
-      bootstrap(rest);
+      bootstrap(t);
     });
   }
   DOMHelper.ready(bootstrap.bind(null, contexts));
 })();
-//# sourceMappingURL=plunc.js.map
