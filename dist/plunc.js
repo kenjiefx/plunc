@@ -21,7 +21,7 @@ var plunc = (() => {
   // out/bootstrap.js
   var bootstrap_exports = {};
   __export(bootstrap_exports, {
-    plunc: () => plunc
+    default: () => bootstrap_default
   });
 
   // out/services/configuration.js
@@ -2034,5 +2034,6 @@ var plunc = (() => {
     bootstrap(rest);
   }
   DOMHelper.ready(bootstrap.bind(null, contexts));
+  var bootstrap_default = plunc;
   return __toCommonJS(bootstrap_exports);
 })();

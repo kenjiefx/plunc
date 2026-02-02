@@ -139,7 +139,7 @@ const createContainer = composePluncAppContainerFactory(
 // the Plunc library code. It allows for creating instances of the app, managing
 // components, and more. This aims to simplify and provide a clean and intuitive
 // interface for working with the application.
-export const plunc = {
+const plunc = {
   create: (
     applicationName: string,
     configuration: PluncAppConfiguration | null = null,
@@ -264,3 +264,5 @@ async function bootstrap(contexts: Array<PluncAppContainer>): Promise<void> {
 }
 
 DOMHelper.ready(bootstrap.bind(null, contexts));
+
+export default plunc;
