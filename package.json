@@ -9,7 +9,8 @@
   "scripts": {
     "test": "tsc --module commonjs && mocha out/**/*.test.js",
     "build:browser:test": "npx esbuild out/test/compatability/browser/index.js --bundle --outfile=test/compatability/browser/index.js --platform=browser --target=es2015 --sourcemap",
-    "build:integration:test": "npx esbuild out/bootstrap.js --bundle --outfile=test/integration/plunc.js --platform=browser --target=es2015 --sourcemap"
+    "build:integration:test": "npx esbuild out/bootstrap.js --bundle --outfile=test/integration/plunc.js --platform=browser --target=es2015 --sourcemap",
+    "build": "tsc && node out/bin/mangle.js && npx esbuild out/bootstrap.js --bundle --outfile=dist/plunc.js --format=iife --global-name=plunc --platform=browser"
   },
   "repository": {
     "type": "git",
