@@ -139,8 +139,7 @@ const createContainer = composePluncAppContainerFactory(
 // the Plunc library code. It allows for creating instances of the app, managing
 // components, and more. This aims to simplify and provide a clean and intuitive
 // interface for working with the application.
-// @ts-ignore - window object extension
-const plunc = (window["plunc"] = {
+export const plunc = {
   create: (
     applicationName: string,
     configuration: PluncAppConfiguration | null = null,
@@ -159,7 +158,7 @@ const plunc = (window["plunc"] = {
       helper: composeHelperBinder(appContainer),
     };
   },
-});
+};
 
 async function shouldInit(appContainer: PluncAppContainer): Promise<boolean> {
   return appContainer.__getAppRepresentationInstance().config.startFn();
