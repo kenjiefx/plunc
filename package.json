@@ -2,15 +2,16 @@
   "name": "plunc",
   "version": "1.0.0",
   "description": "The 2,314th frontend Javascript out there",
-  "main": "index.js",
+  "main": "dist/plunc.js",
+  "module": "dist/plunc.esm.js",
+  "types": "dist/types.d.ts",
   "directories": {
     "test": "test"
   },
   "scripts": {
     "test": "tsc --module commonjs && mocha out/**/*.test.js",
-    "build:browser:test": "npx esbuild out/test/compatability/browser/index.js --bundle --outfile=test/compatability/browser/index.js --platform=browser --target=es2015 --sourcemap",
-    "build:integration:test": "npx esbuild out/bootstrap.js --bundle --outfile=test/integration/plunc.js --platform=browser --target=es2015 --sourcemap",
-    "build": "tsc && node out/bin/mangle.js && npx esbuild out/bootstrap.js --bundle --outfile=dist/plunc.js --format=iife --global-name=plunc --platform=browser"
+    "build:esm": "npx esbuild out/bootstrap.js --bundle --outfile=dist/plunc.esm.js --format=esm --platform=neutral",
+    "build": "tsc && node out/bin/mangle.js && npx esbuild out/bootstrap.js --bundle --outfile=dist/plunc.js --format=iife --platform=neutral && npm run build:esm"
   },
   "repository": {
     "type": "git",

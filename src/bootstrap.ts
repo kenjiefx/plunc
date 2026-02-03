@@ -135,8 +135,7 @@ const createContainer = composePluncAppContainerFactory(
   commitStagingElementTo,
 );
 
-// Attached to the window object to provide a simple interface to interact with
-// the Plunc library code. It allows for creating instances of the app, managing
+// Accessible globally, it allows for creating instances of the app, managing
 // components, and more. This aims to simplify and provide a clean and intuitive
 // interface for working with the application.
 const plunc = {
@@ -159,6 +158,14 @@ const plunc = {
     };
   },
 };
+
+if (typeof window !== "undefined") {
+  // @ts-ignore - allow attaching to window object
+  window.plunc = plunc;
+}
+
+// Export as default for module usage
+export default plunc;
 
 async function shouldInit(appContainer: PluncAppContainer): Promise<boolean> {
   return appContainer.__getAppRepresentationInstance().config.startFn();
@@ -264,5 +271,3 @@ async function bootstrap(contexts: Array<PluncAppContainer>): Promise<void> {
 }
 
 DOMHelper.ready(bootstrap.bind(null, contexts));
-
-export default plunc;
