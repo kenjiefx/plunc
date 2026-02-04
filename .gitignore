@@ -1,2 +1,2 @@
-/export/*
-!/export/README.md
+/out/*
+/node_modules/

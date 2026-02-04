@@ -1,0 +1,40 @@
+{
+  "name": "plunc",
+  "version": "1.0.0",
+  "description": "The 2,314th frontend Javascript out there",
+  "main": "dist/plunc.js",
+  "module": "dist/plunc.esm.js",
+  "types": "dist/types.d.ts",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "tsc --module commonjs && mocha --require out/jsdom.js out/**/*.test.js",
+    "build:esm": "npx esbuild out/bootstrap.js --bundle --outfile=dist/plunc.esm.js --format=esm --platform=neutral",
+    "build": "tsc && node out/bin/mangle.js && npx esbuild out/bootstrap.js --bundle --outfile=dist/plunc.js --format=iife --platform=neutral && npm run build:esm"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kenjiefx/plunc.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/kenjiefx/plunc/issues"
+  },
+  "homepage": "https://github.com/kenjiefx/plunc#readme",
+  "devDependencies": {
+    "@types/chai": "^5.2.3",
+    "@types/jsdom": "^27.0.0",
+    "@types/mocha": "^10.0.10",
+    "@types/node": "^25.1.0",
+    "chai": "^6.2.1",
+    "esbuild": "^0.27.0",
+    "jsdom": "^27.3.0",
+    "mocha": "^11.3.0"
+  },
+  "dependencies": {
+    "express": "^5.1.0"
+  }
+}
