@@ -9,7 +9,7 @@
     "test": "test"
   },
   "scripts": {
-    "test": "tsc --module commonjs && mocha out/**/*.test.js",
+    "test": "tsc --module commonjs && mocha --require out/jsdom.js out/**/*.test.js",
     "build:esm": "npx esbuild out/bootstrap.js --bundle --outfile=dist/plunc.esm.js --format=esm --platform=neutral",
     "build": "tsc && node out/bin/mangle.js && npx esbuild out/bootstrap.js --bundle --outfile=dist/plunc.js --format=iife --platform=neutral && npm run build:esm"
   },
